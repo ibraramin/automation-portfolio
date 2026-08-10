@@ -94,7 +94,7 @@
         "messageType": "interactive",
         "interactiveType": "button",
         "interactiveHeader": { "type": "text", "text": "Great choice! 🛍️" },
-        "interactiveBody": { "text": "{{ $('Remember: Product Choice').item.json.product }} — which size?" },
+        "interactiveBody": { "text": "{{ $('Remember: Product Choice').item.json.product }}, which size?" },
         "interactiveButtons": [
           { "type": "reply", "title": "S", "id": "s" },
           { "type": "reply", "title": "M", "id": "m" },
@@ -168,7 +168,7 @@
         "messagingProduct": "whatsapp",
         "from": "={{ $json.from }}",
         "messageType": "text",
-        "text": "Please Send Money to 01711-223344 (ShopNest) — amount ৳{{ $('Remember: Product Choice').item.json.productPrice }}.\n\nThen reply with your bKash Transaction ID (10-12 digits) to confirm. ✅"
+        "text": "Please Send Money to 01711-223344 (ShopNest) amount ৳{{ $('Remember: Product Choice').item.json.productPrice }}.\n\nThen reply with your bKash Transaction ID (10-12 digits) to confirm. ✅"
       },
       "id": "wf-wab-011",
       "name": "Send bKash Instructions",
@@ -279,7 +279,7 @@
         "messagingProduct": "whatsapp",
         "from": "={{ $json.from }}",
         "messageType": "text",
-        "text": "We couldn't confirm that payment yet. Please try again or contact us — we're here to help."
+        "text": "We couldn't confirm that payment yet. Please try again or contact us, we're here to help."
       },
       "id": "wf-wab-018",
       "name": "Reject Unconfirmed Payment",
@@ -319,7 +319,7 @@
         "messagingProduct": "whatsapp",
         "from": "={{ $json.from }}",
         "messageType": "text",
-        "text": "Payment confirmed ✓\nOrder {{ $json.order_id }} placed.\nDelivery via Pathao — expected today, 6–9 PM. 🛵"
+        "text": "Payment confirmed ✓\nOrder {{ $json.order_id }} placed.\nDelivery via Pathao, expected today, 6–9 PM. 🛵"
       },
       "id": "wf-wab-020",
       "name": "Order Confirmed + Number",
@@ -366,7 +366,7 @@
         "messagingProduct": "whatsapp",
         "from": "={{ $json.from }}",
         "messageType": "text",
-        "text": "📦 Order {{ $json.order_id }} shipped via Pathao — tracking: PATH-{{ $json.consignment_id }}."
+        "text": "📦 Order {{ $json.order_id }} shipped via Pathao, tracking: PATH-{{ $json.consignment_id }}."
       },
       "id": "wf-wab-023",
       "name": "Shipped Update",
@@ -392,7 +392,7 @@
         "messagingProduct": "whatsapp",
         "from": "={{ $json.from }}",
         "messageType": "text",
-        "text": "🛵 Your order is out for delivery — expected 6–9 PM. Thank you for shopping with ShopNest! 💚"
+        "text": "🛵 Your order is out for delivery, expected 6–9 PM. Thank you for shopping with ShopNest! 💚"
       },
       "id": "wf-wab-025",
       "name": "Out for Delivery",

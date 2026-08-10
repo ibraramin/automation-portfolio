@@ -66,7 +66,7 @@
     {
       "parameters": {
         "channel": "invoice-queue",
-        "text": "⚠️ Unsupported attachment type ({{ $json.attachments?.[0]?.fileName }}) — send a PDF or image.",
+        "text": "⚠️ Unsupported attachment type ({{ $json.attachments?.[0]?.fileName }}) send a PDF or image.",
         "username": "Invoice Bot"
       },
       "id": "wf-air-005",
@@ -254,7 +254,7 @@
     {
       "parameters": {
         "channel": "finance",
-        "text": "🧾 Invoice {{ $json.invoiceNumber }} from {{ $json.vendor }} — €{{ $json.total }} logged. Lines: {{ $json.lines.length }}.",
+        "text": "🧾 Invoice {{ $json.invoiceNumber }} from {{ $json.vendor }}, €{{ $json.total }} logged. Lines: {{ $json.lines.length }}.",
         "username": "Invoice Bot"
       },
       "id": "wf-air-018",
@@ -266,7 +266,7 @@
     {
       "parameters": {
         "channel": "finance",
-        "text": "⚠️ Invoice needs review — missing: {{ $json.missing.join(', ') }}. File: {{ $('Normalize OCR / PDF Text').item.json.attachmentName }}.",
+        "text": "⚠️ Invoice needs review, missing: {{ $json.missing.join(', ') }}. File: {{ $('Normalize OCR / PDF Text').item.json.attachmentName }}.",
         "username": "Invoice Bot"
       },
       "id": "wf-air-019",

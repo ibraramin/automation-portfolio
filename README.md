@@ -1,6 +1,6 @@
-# Nexus Automations — Showcase Site
+# Nexus Automations - Showcase Site
 
-Client-facing showcase for **Nexus Automations** — an automation services company selling **custom n8n + AI + WhatsApp automation** to small businesses. Goal: convert visitors into **free automation audit** bookings via live interactive demos + downloadable n8n workflow lead magnets.
+Client-facing showcase for **Nexus Automations** - an automation services company selling **custom n8n + AI automation across WhatsApp, web, email and phone** to small businesses. Goal: convert visitors into **free automation audit** bookings via live interactive demos + downloadable n8n workflow lead magnets.
 
 **Live repo:** [github.com/ibraramin/automation-portfolio](https://github.com/ibraramin/automation-portfolio)
 
@@ -33,7 +33,8 @@ app/
   contact/page.tsx      # Audit form (mailto)
 components/
   site/                 # Header, Footer, CTASection, DemosGrid, ServicesGrid, ...
-  demos/                # WhatsAppOrderBot, InvoiceReader, LeadResponse (interactive)
+  demos/                # WhatsAppOrderBot, InvoiceReader, LeadResponse, MeetingMinutesBot,
+                        # SpreadsheetRescue, EmailTriage (interactive)
 lib/demos.ts            # DemoMeta contract + DEMOS registry (drives /demos grid)
 public/downloads/       # n8n workflow JSONs (lead magnets)
 docs/plans + docs/specs # Plan + repo/feature specs
@@ -46,7 +47,7 @@ docs/plans + docs/specs # Plan + repo/feature specs
 3. Wire it in `app/demos/[slug]/page.tsx` (slug → component map).
 4. Drop the matching n8n workflow JSON in `public/downloads/`.
 
-## Brand + contact — one file
+## Brand + contact - one file
 
 Everything (brand name, WhatsApp, email, CTA) lives in `components/site/config.ts`. Contact currently: WhatsApp `wa.me/8801333095960`, email `ibrarshafin2002@gmail.com`.
 
@@ -56,7 +57,7 @@ Repo is pushed to GitHub. In Cloudflare dashboard: **Workers & Pages → Create 
 
 ## Quality gates
 
-`eslint` clean · `tsc --noEmit` clean · `npm run build` OK (10 routes, 3 SSG demos). Council-reviewed (2 models); all findings resolved.
+`eslint` clean · `tsc --noEmit` clean · `npm run build` OK (10 routes, 6 SSG demos). Council-reviewed (2 models); all findings resolved.
 
 ## Deferred (Phase 2)
 

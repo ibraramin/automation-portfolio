@@ -1,4 +1,6 @@
 import Button from "./Button";
+import Reveal from "./Reveal";
+import Icon from "./icons";
 import { SITE } from "./config";
 
 export default function CTASection() {
@@ -17,7 +19,7 @@ export default function CTASection() {
         aria-hidden="true"
       />
       <div className="relative container-site">
-        <div className="mx-auto max-w-4xl text-center">
+        <Reveal className="mx-auto max-w-4xl text-center">
           <p className="inline-flex items-center gap-2 rounded-full border border-wa/25 bg-wa/10 px-3.5 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-wa">
             <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-wa" aria-hidden="true" />
             No cost · No obligation
@@ -27,17 +29,25 @@ export default function CTASection() {
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
             Tell us your three most annoying manual tasks. We&apos;ll show you exactly how to automate
-            them — before you spend a dime on manual work.
+            them, before you spend a dime on manual work.
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button href="/contact" size="lg">
               {SITE.cta}
+              <Icon
+                name="arrow-right"
+                className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+              />
             </Button>
             <Button href="/services" size="lg" variant="secondary">
               See what we build
+              <Icon
+                name="arrow-right"
+                className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+              />
             </Button>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

@@ -1,0 +1,428 @@
+{
+  "name": "Meeting Minutes Bot (transcript → Notion + Slack)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "meeting-minutes-bot",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "wf-mmb-001",
+      "name": "Transcript Received (webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-760, 220]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Accept a raw transcript, a download URL or pre-transcribed text.\nconst input = $input.first().json;\nconst source = input.transcript || input.text || \"\";\nconst sourceUrl = input.audioUrl || input.fileUrl || \"\";\nconst raw = String(source).trim();\nreturn {\n  json: {\n    rawTranscript: raw,\n    sourceUrl: String(sourceUrl || \"\"),\n    needsTranscription: raw.length < 40 && sourceUrl.length > 0,\n    speakerCount: 0\n  }\n};"
+      },
+      "id": "wf-mmb-002",
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-560, 220]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "wf-mmb-cond-1",
+              "leftValue": "={{ $json.rawTranscript }}",
+              "rightValue": "40",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "wf-mmb-003",
+      "name": "Has Transcript?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-360, 220]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/audio/transcriptions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "whisper-1"
+            },
+            {
+              "name": "language",
+              "value": "en"
+            },
+            {
+              "name": "response_format",
+              "value": "text"
+            },
+            {
+              "name": "file",
+              "value": "={{ $('Normalize Input').item.json.sourceUrl }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wf-mmb-004",
+      "name": "Whisper Transcription (placeholder)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-160, 220]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "modelId": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You convert meeting transcripts into structured minutes. Return ONLY strict JSON matching this shape: { \"title\": string, \"date\": string, \"attendees\": string[], \"decisions\": string[], \"actionItems\": [{ \"owner\": string, \"task\": string, \"deadline\": string }], \"summary\": string }. Keep tasks short and specific. If no owner is named, leave owner as an empty string."
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.rawTranscript }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0
+        }
+      },
+      "id": "wf-mmb-005",
+      "name": "OpenAI: Extract Minutes",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.2,
+      "position": [40, 220]
+    },
+    {
+      "parameters": {
+        "jsCode": "// The model sometimes wraps JSON in prose. Slice between the first { and the last }.\nconst raw = $input.first().json.message?.content || $input.first().json.content || \"\";\nconst start = raw.indexOf(\"{\");\nconst end = raw.lastIndexOf(\"}\");\nlet parsed = null;\nif (start !== -1 && end > start) {\n  try {\n    parsed = JSON.parse(raw.slice(start, end + 1));\n  } catch (e) {\n    parsed = null;\n  }\n}\nif (!parsed) {\n  throw new Error(\"Could not parse minutes JSON from model output\");\n}\nreturn {\n  json: {\n    title: String(parsed.title || \"Untitled meeting\"),\n    date: String(parsed.date || \"\"),\n    attendees: Array.isArray(parsed.attendees) ? parsed.attendees : [],\n    decisions: Array.isArray(parsed.decisions) ? parsed.decisions : [],\n    actionItems: Array.isArray(parsed.actionItems) ? parsed.actionItems : [],\n    summary: String(parsed.summary || \"\")\n  }\n};"
+      },
+      "id": "wf-mmb-006",
+      "name": "Parse Minutes JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 220]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Flag any action item that has no owner or no task, they need a human.\nconst items = $json.actionItems || [];\nconst valid = items.filter((a) => a.owner && a.task);\nconst missing = items.filter((a) => !a.owner || !a.task);\nreturn {\n  json: {\n    ...$json,\n    completeItems: valid,\n    missingItems: missing,\n    allComplete: missing.length === 0\n  }\n};"
+      },
+      "id": "wf-mmb-007",
+      "name": "Check Action Items",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 220]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "wf-mmb-cond-2",
+              "leftValue": "={{ $json.allComplete }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "wf-mmb-008",
+      "name": "All Items Complete?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [640, 220]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": "={{ $env.NOTION_DATABASE_ID }}",
+        "title": "={{ $json.title }}",
+        "properties": {
+          "values": [
+            {
+              "name": "Date",
+              "value": "={{ $json.date }}"
+            }
+          ]
+        },
+        "content": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "wf-mmb-009",
+      "name": "Notion: Create Minutes Page",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 1.2,
+      "position": [840, 60]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": "={{ $env.GOOGLE_SHEET_ID }}",
+        "sheetName": "meeting_minutes_2026",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "title": "={{ $json.title }}",
+            "date": "={{ $json.date }}",
+            "attendees": "={{ $json.attendees.join(', ') }}",
+            "decisions": "={{ $json.decisions.join('; ') }}",
+            "actions": "={{ $json.completeItems.map(a => a.owner + ': ' + a.task + ' (' + a.deadline + ')').join('; ') }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "wf-mmb-010",
+      "name": "Sheets: Archive Minutes Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1.2,
+      "position": [1040, 220]
+    },
+    {
+      "parameters": {
+        "channel": "#minutes",
+        "text": "={{ 'Meeting minutes: ' + $json.title + '\\n\\n' + $json.summary + '\\n\\nActions:\\n' + $json.completeItems.map(a => '- ' + a.owner + ': ' + a.task + ' (due ' + a.deadline + ')').join('\\n') }}"
+      },
+      "id": "wf-mmb-011",
+      "name": "Slack: Post to #minutes",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1040, 400]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "messageType": "message",
+        "to": "={{ $json.attendees.join(',') }}",
+        "subject": "={{ 'Meeting minutes: ' + $json.title }}",
+        "emailType": "text",
+        "message": "={{ $json.summary + '\\n\\n' + $json.completeItems.map(a => '- ' + a.owner + ': ' + a.task + ' (due ' + a.deadline + ')').join('\\n') }}",
+        "options": {}
+      },
+      "id": "wf-mmb-012",
+      "name": "Gmail: Email Minutes to Attendees",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1240, 220]
+    },
+    {
+      "parameters": {},
+      "id": "wf-mmb-013",
+      "name": "Done",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1440, 220]
+    },
+    {
+      "parameters": {
+        "channel": "#ops",
+        "text": "={{ 'Minutes need review: some action items have no owner.\\n' + $json.missingItems.map(a => '- ' + (a.task || 'Unnamed task')).join('\\n') }}"
+      },
+      "id": "wf-mmb-014",
+      "name": "Slack: Review Needed",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [840, 460]
+    },
+    {
+      "parameters": {},
+      "id": "wf-mmb-015",
+      "name": "Hold for Review",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1040, 620]
+    },
+    {
+      "parameters": {},
+      "id": "wf-mmb-016",
+      "name": "Discard (no transcript)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [-160, 420]
+    }
+  ],
+  "connections": {
+    "Transcript Received (webhook)": {
+      "main": [
+        [
+          {
+            "node": "Normalize Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Input": {
+      "main": [
+        [
+          {
+            "node": "Has Transcript?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Transcript?": {
+      "main": [
+        [
+          {
+            "node": "Whisper Transcription (placeholder)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Discard (no transcript)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Whisper Transcription (placeholder)": {
+      "main": [
+        [
+          {
+            "node": "OpenAI: Extract Minutes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI: Extract Minutes": {
+      "main": [
+        [
+          {
+            "node": "Parse Minutes JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Minutes JSON": {
+      "main": [
+        [
+          {
+            "node": "Check Action Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Action Items": {
+      "main": [
+        [
+          {
+            "node": "All Items Complete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "All Items Complete?": {
+      "main": [
+        [
+          {
+            "node": "Notion: Create Minutes Page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack: Review Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion: Create Minutes Page": {
+      "main": [
+        [
+          {
+            "node": "Sheets: Archive Minutes Row",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Slack: Post to #minutes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets: Archive Minutes Row": {
+      "main": [
+        [
+          {
+            "node": "Gmail: Email Minutes to Attendees",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail: Email Minutes to Attendees": {
+      "main": [
+        [
+          {
+            "node": "Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Review Needed": {
+      "main": [
+        [
+          {
+            "node": "Hold for Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

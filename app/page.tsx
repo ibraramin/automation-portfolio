@@ -7,6 +7,7 @@ import ProcessSection from "@/components/site/ProcessSection";
 import CTASection from "@/components/site/CTASection";
 import HeroPipeline from "@/components/site/HeroPipeline";
 import Button from "@/components/site/Button";
+import Icon from "@/components/site/icons";
 
 const STATS = [
   { value: "10+", label: "hours saved every week" },
@@ -38,34 +39,42 @@ function Hero() {
           </p>
           <h1
             className="animate-fade-up mt-6 text-balance text-4xl font-semibold leading-[1.08] tracking-tight text-ink sm:text-5xl lg:text-[3.4rem] xl:text-[4rem]"
-            style={{ animationDelay: "80ms" }}
+            style={{ animationDelay: "120ms" }}
           >
-            Automation for small businesses — built around your workflow,{" "}
+            Automation for small businesses, built around your workflow,{" "}
             <span className="bg-linear-to-r from-wa to-sky bg-clip-text text-transparent">
               delivered in your timezone.
             </span>
           </h1>
           <p
             className="animate-fade-up mt-6 max-w-xl text-base leading-relaxed text-muted sm:text-lg"
-            style={{ animationDelay: "160ms" }}
+            style={{ animationDelay: "240ms" }}
           >
             Custom WhatsApp, AI and workflow automations that answer every customer, capture every
-            order, and save your team 10+ hours a week — without the agency overhead.
+            order, and save your team 10+ hours a week, without the agency overhead.
           </p>
           <div
             className="animate-fade-up mt-9 flex flex-col gap-3 sm:flex-row sm:items-center"
-            style={{ animationDelay: "240ms" }}
+            style={{ animationDelay: "360ms" }}
           >
             <Button href="/contact" size="lg">
               Free automation audit
+              <Icon
+                name="arrow-right"
+                className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+              />
             </Button>
             <Button href="/demos" size="lg" variant="secondary">
               Try a live demo
+              <Icon
+                name="arrow-right"
+                className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+              />
             </Button>
           </div>
           <dl
             className="animate-fade-up mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-edge pt-7"
-            style={{ animationDelay: "320ms" }}
+            style={{ animationDelay: "480ms" }}
           >
             {STATS.map((stat) => (
               <div key={stat.label}>

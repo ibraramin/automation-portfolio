@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Reveal from "./Reveal";
 
 type Props = {
   eyebrow: string;
@@ -17,7 +18,7 @@ export default function SectionHeading({
 }: Props) {
   const centered = align === "center";
   return (
-    <div
+    <Reveal
       className={`${centered ? "mx-auto max-w-3xl text-center" : "max-w-3xl"} ${className}`}
     >
       <p
@@ -34,6 +35,6 @@ export default function SectionHeading({
       {subtitle ? (
         <p className="mt-4 text-base leading-relaxed text-muted sm:text-lg">{subtitle}</p>
       ) : null}
-    </div>
+    </Reveal>
   );
 }

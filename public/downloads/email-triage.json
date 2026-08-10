@@ -1,0 +1,565 @@
+{
+  "name": "Email Triage (classify → approve → send)",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyDay",
+              "hour": 9,
+              "minute": 0
+            }
+          ]
+        },
+        "options": {
+          "unreadOnly": true,
+          "format": "simple",
+          "downloadAttachments": false
+        }
+      },
+      "id": "wf-emt-001",
+      "name": "Gmail Watch (new mail)",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [-780, 220]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "wf-emt-cond-1",
+              "leftValue": "={{ $json.length }}",
+              "rightValue": "0",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "wf-emt-002",
+      "name": "Has Unread Mail?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-580, 220]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Flatten the Gmail trigger payload into a single message record.\nconst mail = $input.first().json;\nreturn {\n  json: {\n    id: String(mail.id || \"\"),\n    from: String(mail.from || mail.sender || \"\"),\n    subject: String(mail.subject || \"(no subject)\"),\n    body: String(mail.text || mail.body || \"\").slice(0, 4000),\n    receivedAt: String(mail.date || new Date().toISOString())\n  }\n};"
+      },
+      "id": "wf-emt-003",
+      "name": "Normalize Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-380, 220]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "modelId": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You triage support inboxes. Return ONLY strict JSON: { \"category\": \"lead|support|invoice|spam\", \"priority\": 1, \"replyDraft\": string }. Priority 1 is urgent, 2 is normal, 3 is low. Write a short, friendly reply draft in the sender's language for real leads and support questions. For invoice emails set replyDraft to an empty string. For spam set replyDraft to an empty string."
+            },
+            {
+              "role": "user",
+              "content": "={{ JSON.stringify({ from: $json.from, subject: $json.subject, body: $json.body }) }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0
+        }
+      },
+      "id": "wf-emt-004",
+      "name": "OpenAI: Classify + Draft",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.2,
+      "position": [-180, 220]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract the classification JSON from the model output.\nconst raw = $input.first().json.message?.content || \"\";\nconst start = raw.indexOf(\"{\");\nconst end = raw.lastIndexOf(\"}\");\nlet parsed = null;\nif (start !== -1 && end > start) {\n  try {\n    parsed = JSON.parse(raw.slice(start, end + 1));\n  } catch (e) {\n    parsed = null;\n  }\n}\nconst category = parsed?.category || \"support\";\nreturn {\n  json: {\n    ...$json,\n    category: category,\n    priority: Number(parsed?.priority || 2),\n    replyDraft: String(parsed?.replyDraft || \"\")\n  }\n};"
+      },
+      "id": "wf-emt-005",
+      "name": "Parse Classification",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [20, 220]
+    },
+    {
+      "parameters": {
+        "dataPropertyName": "category",
+        "rules": {
+          "values": [
+            {
+              "value": "lead",
+              "type": "string",
+              "regex": ""
+            },
+            {
+              "value": "support",
+              "type": "string",
+              "regex": ""
+            },
+            {
+              "value": "invoice",
+              "type": "string",
+              "regex": ""
+            },
+            {
+              "value": "spam",
+              "type": "string",
+              "regex": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wf-emt-006",
+      "name": "Route by Category",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2.2,
+      "position": [220, 220]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Sign the draft and attach the original thread context.\nreturn {\n  json: {\n    ...$json,\n    replyDraft: ($json.replyDraft || \"\") + \"\\n\\nBest regards,\\nThe Nexus Automations team\"\n  }\n};"
+      },
+      "id": "wf-emt-007",
+      "name": "Refine Reply Draft",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [420, 60]
+    },
+    {
+      "parameters": {
+        "channel": "#triage",
+        "text": "={{ 'Approval needed: reply to ' + $json.from + '\\nSubject: ' + $json.subject + '\\nPriority: ' + $json.priority + '\\n\\nDraft:\\n' + $json.replyDraft }}"
+      },
+      "id": "wf-emt-008",
+      "name": "Slack: Approval Request",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [620, 60]
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "options": {}
+      },
+      "id": "wf-emt-009",
+      "name": "Wait for Human Approval",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.2,
+      "position": [820, 60]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "wf-emt-cond-2",
+              "leftValue": "={{ $('Approval Decision (webhook)').item.json.approved }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "wf-emt-010",
+      "name": "Approved?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1020, 60]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "messageType": "message",
+        "to": "={{ $json.from }}",
+        "subject": "={{ 'Re: ' + $json.subject }}",
+        "emailType": "text",
+        "message": "={{ $json.replyDraft }}",
+        "options": {}
+      },
+      "id": "wf-emt-011",
+      "name": "Gmail: Send Reply",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1220, 60]
+    },
+    {
+      "parameters": {
+        "resource": "engagement",
+        "operation": "create",
+        "engagement": {
+          "type": "EMAIL",
+          "subject": "={{ 'Re: ' + $json.subject }}",
+          "content": "={{ $json.replyDraft }}"
+        },
+        "options": {}
+      },
+      "id": "wf-emt-012",
+      "name": "HubSpot: Log to Timeline",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 1.2,
+      "position": [1420, 60]
+    },
+    {
+      "parameters": {},
+      "id": "wf-emt-013",
+      "name": "Lead Replied",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1620, 60]
+    },
+    {
+      "parameters": {
+        "channel": "#triage",
+        "text": "={{ 'Draft held, nothing sent. Reply to ' + $json.from + ' was left for a human.' }}"
+      },
+      "id": "wf-emt-014",
+      "name": "Slack: Draft Held",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1220, 280]
+    },
+    {
+      "parameters": {},
+      "id": "wf-emt-015",
+      "name": "Held",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1420, 280]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pull invoice facts out of the email for the ledger row.\nconst body = String($json.body || \"\");\nconst numberMatch = body.match(/INV[-\\s]?[A-Z0-9]+/i);\nconst amountMatch = body.match(/(?:total|amount)[^0-9]{0,10}([0-9.,]+)\\s*(?:EUR|€)?/i);\nreturn {\n  json: {\n    ...$json,\n    invoiceNumber: numberMatch ? numberMatch[0] : \"unknown\",\n    amountEur: amountMatch ? amountMatch[1] : \"unknown\"\n  }\n};"
+      },
+      "id": "wf-emt-016",
+      "name": "Format Ledger Line",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [420, 380]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": "={{ $env.GOOGLE_SHEET_ID }}",
+        "sheetName": "invoices_2026",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "received": "={{ $json.receivedAt }}",
+            "from": "={{ $json.from }}",
+            "invoiceNumber": "={{ $json.invoiceNumber }}",
+            "amountEur": "={{ $json.amountEur }}",
+            "subject": "={{ $json.subject }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "wf-emt-017",
+      "name": "Sheets: Append to invoices_2026",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1.2,
+      "position": [620, 380]
+    },
+    {
+      "parameters": {},
+      "id": "wf-emt-018",
+      "name": "Invoice Logged",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [820, 380]
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "messageId": "={{ $json.id }}",
+        "options": {}
+      },
+      "id": "wf-emt-019",
+      "name": "Gmail: Trash Spam",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [420, 520]
+    },
+    {
+      "parameters": {},
+      "id": "wf-emt-020",
+      "name": "Spam Removed",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [620, 520]
+    },
+    {
+      "parameters": {},
+      "id": "wf-emt-021",
+      "name": "Idle",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [-380, 440]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "email-triage-approval",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "wf-emt-022",
+      "name": "Approval Decision (webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [1020, 140]
+    }
+  ],
+  "connections": {
+    "Gmail Watch (new mail)": {
+      "main": [
+        [
+          {
+            "node": "Has Unread Mail?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Unread Mail?": {
+      "main": [
+        [
+          {
+            "node": "Normalize Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Idle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Message": {
+      "main": [
+        [
+          {
+            "node": "OpenAI: Classify + Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI: Classify + Draft": {
+      "main": [
+        [
+          {
+            "node": "Parse Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Classification": {
+      "main": [
+        [
+          {
+            "node": "Route by Category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Category": {
+      "main": [
+        [
+          {
+            "node": "Refine Reply Draft",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Refine Reply Draft",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Ledger Line",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gmail: Trash Spam",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Refine Reply Draft": {
+      "main": [
+        [
+          {
+            "node": "Slack: Approval Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Approval Request": {
+      "main": [
+        [
+          {
+            "node": "Wait for Human Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Human Approval": {
+      "main": [
+        [
+          {
+            "node": "Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approval Decision (webhook)": {
+      "main": [
+        [
+          {
+            "node": "Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approved?": {
+      "main": [
+        [
+          {
+            "node": "Gmail: Send Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack: Draft Held",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail: Send Reply": {
+      "main": [
+        [
+          {
+            "node": "HubSpot: Log to Timeline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HubSpot: Log to Timeline": {
+      "main": [
+        [
+          {
+            "node": "Lead Replied",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Draft Held": {
+      "main": [
+        [
+          {
+            "node": "Held",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Ledger Line": {
+      "main": [
+        [
+          {
+            "node": "Sheets: Append to invoices_2026",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets: Append to invoices_2026": {
+      "main": [
+        [
+          {
+            "node": "Invoice Logged",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail: Trash Spam": {
+      "main": [
+        [
+          {
+            "node": "Spam Removed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

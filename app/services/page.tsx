@@ -3,11 +3,12 @@ import Header from "@/components/site/Header";
 import Footer from "@/components/site/Footer";
 import CTASection from "@/components/site/CTASection";
 import Button from "@/components/site/Button";
+import Reveal from "@/components/site/Reveal";
 import Icon from "@/components/site/icons";
 import { SERVICES, type Service } from "@/components/site/services-data";
 
 export const metadata: Metadata = {
-  title: "Services — Nexus Automations",
+  title: "Services: Nexus Automations",
   description:
     "Six outcome-driven automations for small businesses: WhatsApp bots, invoice extraction, lightning lead response, booking, CRM sync and voice AI. Free audit.",
 };
@@ -95,12 +96,22 @@ export default function ServicesPage() {
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
               Six workflows cover most of the repetitive work in a small business. Every build
-              starts with a free audit — so you only pay for what moves the needle.
+              starts with a free audit, so you only pay for what moves the needle.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button href="/contact">Free automation audit</Button>
+              <Button href="/contact">
+                Free automation audit
+                <Icon
+                  name="arrow-right"
+                  className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+                />
+              </Button>
               <Button href="/demos" variant="secondary">
                 Try a live demo
+                <Icon
+                  name="arrow-right"
+                  className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+                />
               </Button>
             </div>
           </div>
@@ -108,7 +119,9 @@ export default function ServicesPage() {
 
         <section className="container-site pb-20 sm:pb-28">
           {SERVICES.map((service, index) => (
-            <ServiceBlock key={service.id} service={service} index={index} />
+            <Reveal key={service.id} delay={(index % 2) * 90}>
+              <ServiceBlock service={service} index={index} />
+            </Reveal>
           ))}
         </section>
 

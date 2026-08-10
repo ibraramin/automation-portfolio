@@ -92,7 +92,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const lead = $input.first().json;\nconst name = lead.name?.split(' ')[0] || 'there';\nreturn [{ json: {\n  ...lead,\n  draftReply: `Hi ${name}, thanks for reaching out!\\n\\n${lead.quantity !== 'unknown' ? lead.quantity + ' by ' + (lead.urgency !== 'none' ? lead.urgency : 'end of month') + ' is very doable — we have capacity this month.' : 'Happy to help with that.'} I'll send a tailored breakdown today. What's the best email for it?\\n\\n— Nexus Automations`\n}}];"
+        "jsCode": "const lead = $input.first().json;\nconst name = lead.name?.split(' ')[0] || 'there';\nreturn [{ json: {\n  ...lead,\n  draftReply: `Hi ${name}, thanks for reaching out!\\n\\n${lead.quantity !== 'unknown' ? lead.quantity + ' by ' + (lead.urgency !== 'none' ? lead.urgency : 'end of month') + ' is very doable, we have capacity this month.' : 'Happy to help with that.'} I'll send a tailored breakdown today. What's the best email for it?\\n\\nNexus Automations`\n}}];"
       },
       "id": "wf-llr-007",
       "name": "Draft Personalized Reply",
@@ -147,7 +147,7 @@
     {
       "parameters": {
         "channel": "leads-hot",
-        "text": "🔥 HOT LEAD ({{ $json.score }}/10) — {{ $json.name }}\\nIntent: {{ $json.intent }} | Budget: {{ $json.budget }} | Urgency: {{ $json.urgency }}\\n\"{{ $json.message }}\"\\nDraft reply ready — reply within 5 minutes!",
+        "text": "🔥 HOT LEAD ({{ $json.score }}/10) {{ $json.name }}\\nIntent: {{ $json.intent }} | Budget: {{ $json.budget }} | Urgency: {{ $json.urgency }}\\n\"{{ $json.message }}\"\\nDraft reply ready, reply within 5 minutes!",
         "username": "Lead Bot"
       },
       "id": "wf-llr-010",
@@ -170,7 +170,7 @@
     {
       "parameters": {
         "channel": "leads-warm",
-        "text": "Warm lead ({{ $json.score }}/10) — {{ $json.name }}. Score says: {{ $json.summary }}. Follow up within 2 hours.",
+        "text": "Warm lead ({{ $json.score }}/10) {{ $json.name }}. Score says: {{ $json.summary }}. Follow up within 2 hours.",
         "username": "Lead Bot"
       },
       "id": "wf-llr-012",
@@ -182,7 +182,7 @@
     {
       "parameters": {
         "channel": "leads-warm",
-        "text": "Cold lead ({{ $json.score }}/10) — {{ $json.name }}. Add to nurture sequence.",
+        "text": "Cold lead ({{ $json.score }}/10) {{ $json.name }}. Add to nurture sequence.",
         "username": "Lead Bot"
       },
       "id": "wf-llr-013",
@@ -194,7 +194,7 @@
     {
       "parameters": {
         "channel": "leads-hot",
-        "text": "⏰ No reply from team in 5 min — {{ $json.name }} (score {{ $json.score }}/10) still waiting. Draft: {{ $json.draftReply }}",
+        "text": "⏰ No reply from team in 5 min, {{ $json.name }} (score {{ $json.score }}/10) still waiting. Draft: {{ $json.draftReply }}",
         "username": "Lead Bot"
       },
       "id": "wf-llr-014",

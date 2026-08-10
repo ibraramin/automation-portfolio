@@ -47,7 +47,7 @@ export default function AuditForm() {
     );
     setStatus("sending");
     // Opens the visitor's mail app with everything pre-filled. Swap for a form
-    // backend (Formspree etc.) later — no server needed for now.
+    // backend (Formspree etc.) later, no server needed for now.
     window.location.href = `mailto:${SITE.email}?subject=${subject}&body=${body}`;
     window.setTimeout(() => setStatus("sent"), 600);
   }
@@ -60,7 +60,7 @@ export default function AuditForm() {
         </span>
         <h3 className="text-2xl font-semibold tracking-tight text-ink">Almost there.</h3>
         <p className="text-sm leading-relaxed text-muted">
-          Your email app should have opened with everything pre-filled — just hit send. We reply
+          Your email app should have opened with everything pre-filled, just hit send. We reply
           within one business day, usually faster.
         </p>
         <Button variant="secondary" onClick={() => setStatus("idle")}>

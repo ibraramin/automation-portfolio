@@ -1,7 +1,7 @@
 /**
  * Central brand + contact config.
  *
- * The brand name ("Nexus Automations") is a working placeholder — swap it here
+ * The brand name ("Nexus Automations") is a working placeholder, swap it here
  * and it updates across the whole site, including the demo lead magnets.
  */
 export const SITE = {

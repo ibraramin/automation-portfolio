@@ -13,13 +13,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nexus Automations — Automation Solutions for Small Businesses",
+  title: "Nexus Automations: Automation Solutions for Small Businesses",
   description:
-    "Custom automation for small businesses: WhatsApp flows, AI document processing, lead response, booking and CRM sync — built around your workflow. Free automation audit.",
+    "Custom automation for small businesses: WhatsApp flows, AI document processing, lead response, booking and CRM sync, built around your workflow. Free automation audit.",
   openGraph: {
-    title: "Nexus Automations — Automation Solutions for Small Businesses",
+    title: "Nexus Automations: Automation Solutions for Small Businesses",
     description:
-      "Custom automation for small businesses: WhatsApp flows, AI document processing, lead response, booking and CRM sync — built around your workflow. Free automation audit.",
+      "Custom automation for small businesses: WhatsApp flows, AI document processing, lead response, booking and CRM sync, built around your workflow. Free automation audit.",
     type: "website",
     locale: "en_GB",
   },

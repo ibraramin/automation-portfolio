@@ -1,6 +1,7 @@
 import Link from "next/link";
 import SectionHeading from "./SectionHeading";
 import Button from "./Button";
+import Reveal from "./Reveal";
 import Icon from "./icons";
 import { DEMOS, type DemoMeta } from "@/lib/demos";
 
@@ -8,7 +9,7 @@ function DemoCard({ demo }: { demo: DemoMeta }) {
   return (
     <Link
       href={`/demos/${demo.slug}`}
-      className="group relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-edge bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-wa/30 sm:p-7"
+      className="group relative flex h-full flex-col gap-4 overflow-hidden rounded-2xl border border-edge bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-wa/30 hover:shadow-[0_20px_60px_-24px_rgba(0,0,0,0.8),0_0_24px_-8px_rgba(37,211,102,0.35)] sm:p-7"
     >
       <div className="flex items-center justify-between gap-3">
         <span className="inline-flex items-center gap-2 rounded-full border border-wa/20 bg-wa/10 px-2.5 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-wa">
@@ -54,27 +55,31 @@ export default function DemosGrid() {
         <SectionHeading
           eyebrow="Live demos"
           title="Try the automation yourself."
-          subtitle="Live demos you can run right now — the exact workflows we build for clients."
+          subtitle="Live demos you can run right now, the exact workflows we build for clients."
         />
         {DEMOS.length > 0 ? (
           <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {DEMOS.map((demo) => (
-              <DemoCard key={demo.slug} demo={demo} />
+            {DEMOS.map((demo, index) => (
+              <Reveal key={demo.slug} delay={index * 80} className="h-full">
+                <DemoCard demo={demo} />
+              </Reveal>
             ))}
           </div>
         ) : (
-          <div className="mx-auto mt-14 max-w-xl rounded-2xl border border-dashed border-edge-strong bg-surface p-10 text-center">
-            <Icon name="zap" className="mx-auto h-8 w-8 text-wa" />
-            <p className="mt-4 text-lg font-semibold text-ink">
-              Demos are being published right now.
-            </p>
-            <p className="mt-2 text-sm leading-relaxed text-muted">
-              Book a live walkthrough instead — we&apos;ll show you the exact workflows on a call.
-            </p>
-            <div className="mt-6 flex justify-center">
-              <Button href="/contact">Book a live walkthrough</Button>
+          <Reveal className="mx-auto mt-14 max-w-xl" delay={100}>
+            <div className="rounded-2xl border border-dashed border-edge-strong bg-surface p-10 text-center">
+              <Icon name="zap" className="mx-auto h-8 w-8 text-wa" />
+              <p className="mt-4 text-lg font-semibold text-ink">
+                Demos are being published right now.
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-muted">
+                Book a live walkthrough instead, we&apos;ll show you the exact workflows on a call.
+              </p>
+              <div className="mt-6 flex justify-center">
+                <Button href="/contact">Book a live walkthrough</Button>
+              </div>
             </div>
-          </div>
+          </Reveal>
         )}
       </div>
     </section>

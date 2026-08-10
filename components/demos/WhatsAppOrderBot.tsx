@@ -99,7 +99,7 @@ export default function WhatsAppOrderBot() {
     setChips(null);
     push("user", label);
     setSelected(product);
-    await botSay(run, `Great choice! 🛍️ ${product.name} — which size do you need?`);
+    await botSay(run, `Great choice! 🛍️ ${product.name}, which size do you need?`);
     if (runRef.current !== run) return;
     setStage("size");
     setChips([...SIZES]);
@@ -122,7 +122,7 @@ export default function WhatsAppOrderBot() {
     const run = ++runRef.current;
     push("user", value);
     setAddress("");
-    await botSay(run, "Got it. Final step — payment via bKash 💚");
+    await botSay(run, "Got it. Final step, payment via bKash 💚");
     if (runRef.current !== run) return;
     setStage("payment");
   };
@@ -157,7 +157,7 @@ export default function WhatsAppOrderBot() {
     if (chip === "Shipped") {
       await botSay(
         run,
-        `📦 Order ${orderNumber} picked up by Pathao — tracking PATH-${orderNumber.replace("SN-", "")}. Expected delivery today, 6–9 PM.`,
+        `📦 Order ${orderNumber} picked up by Pathao, tracking PATH-${orderNumber.replace("SN-", "")}. Expected delivery today, 6–9 PM.`,
         900
       );
       if (runRef.current !== run) return;
@@ -166,7 +166,7 @@ export default function WhatsAppOrderBot() {
     } else {
       await botSay(
         run,
-        "🛵 Your order is out for delivery! The rider is on the way — keep an eye on WhatsApp. Thank you for shopping with ShopNest! 💚",
+        "🛵 Your order is out for delivery! The rider is on the way, keep an eye on WhatsApp. Thank you for shopping with ShopNest! 💚",
         900
       );
       if (runRef.current !== run) return;
@@ -181,7 +181,7 @@ export default function WhatsAppOrderBot() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // clipboard unavailable — the number is already selectable text
+      // clipboard unavailable, the number is already selectable text
     }
   };
 
@@ -223,7 +223,7 @@ export default function WhatsAppOrderBot() {
           </div>
         </div>
         <span className="rounded-full border border-[#25D366]/30 bg-[#25D366]/10 px-2.5 py-1 text-[10px] font-medium tracking-wide text-[#25D366]">
-          SIMULATION — no real payment
+          SIMULATION, no real payment
         </span>
       </div>
 
@@ -389,7 +389,7 @@ export default function WhatsAppOrderBot() {
             </div>
             {trxError && (
               <p className="text-xs text-amber-400">
-                TrxID must be 10–12 characters — try any fake ID like <span className="font-mono">8N7KD2QPL4</span>
+                TrxID must be 10–12 characters, try any fake ID like <span className="font-mono">8N7KD2QPL4</span>
               </p>
             )}
           </div>
@@ -410,7 +410,7 @@ export default function WhatsAppOrderBot() {
       <div className="border-t border-white/10 bg-[#0a0a0a] px-4 py-3">
         <p className="text-xs leading-relaxed text-white/60">
           <span className="font-semibold text-white/70">What&apos;s real here:</span> a production build uses the
-          WhatsApp Cloud API + bKash merchant API with the exact same flow — product buttons, payment
+          WhatsApp Cloud API + bKash merchant API with the exact same flow, product buttons, payment
           instruction, a human-confirmed TrxID check, sheet logging and Pathao dispatch. Everything above is simulated
           locally in your browser.
         </p>

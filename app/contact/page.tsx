@@ -3,18 +3,19 @@ import Header from "@/components/site/Header";
 import Footer from "@/components/site/Footer";
 import AuditForm from "@/components/site/AuditForm";
 import Button from "@/components/site/Button";
+import Reveal from "@/components/site/Reveal";
 import Icon from "@/components/site/icons";
 import { SITE } from "@/components/site/config";
 
 export const metadata: Metadata = {
-  title: "Free automation audit — Nexus Automations",
+  title: "Free automation audit: Nexus Automations",
   description:
     "Book a free automation audit. Tell us your three most annoying manual tasks and we'll show you exactly how to automate them.",
 };
 
 const POINTS = [
   "A map of your repetitive work, ranked by time saved",
-  "A fixed quote per workflow — no hourly billing",
+  "A fixed quote per workflow, no hourly billing",
   "A reply within one business day, usually faster",
 ];
 
@@ -32,7 +33,7 @@ export default function ContactPage() {
             className="pointer-events-none absolute -top-24 right-0 h-80 w-80 rounded-full bg-wa/10 blur-[120px]"
             aria-hidden="true"
           />
-          <div className="relative container-site pt-20 pb-16 md:pt-28">
+          <Reveal className="relative container-site pt-20 pb-16 md:pt-28">
             <p className="flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-wa">
               <span className="h-1 w-1 rounded-full bg-wa" aria-hidden="true" />
               Free audit
@@ -42,18 +43,21 @@ export default function ContactPage() {
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
               Tell us the tasks that eat most of your week. We&apos;ll show you exactly how to automate
-              them — before you spend a dime on manual work.
+              them, before you spend a dime on manual work.
             </p>
-          </div>
+          </Reveal>
         </section>
 
         <section className="container-site pb-20 sm:pb-28">
           <div className="grid gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-14">
-            <div className="rounded-2xl border border-edge bg-surface p-6 sm:p-8">
-              <AuditForm />
-            </div>
+            <Reveal className="h-full">
+              <div className="h-full rounded-2xl border border-edge bg-surface p-6 sm:p-8">
+                <AuditForm />
+              </div>
+            </Reveal>
 
-            <aside className="space-y-6">
+            <Reveal className="h-full" delay={120}>
+              <aside className="space-y-6">
               <div className="rounded-2xl border border-edge bg-surface p-6">
                 <h2 className="font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-muted">
                   What you get
@@ -95,15 +99,16 @@ export default function ContactPage() {
                 </div>
                 <p className="mt-4 flex items-center gap-2 text-xs leading-relaxed text-muted">
                   <Icon name="clock" className="h-3.5 w-3.5 shrink-0" />
-                  {SITE.timezone} — we&apos;re live during your business hours.
+                  {SITE.timezone}, we&apos;re live during your business hours.
                 </p>
               </div>
 
               <p className="px-1 text-xs leading-relaxed text-muted">
                 No pressure, no jargon and no pricing games. If we can&apos;t save you time, we&apos;ll tell
-                you — and point you to what can.
+                you, and point you to what can.
               </p>
-            </aside>
+              </aside>
+            </Reveal>
           </div>
         </section>
       </main>

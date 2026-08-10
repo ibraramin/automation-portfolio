@@ -5,13 +5,13 @@ type Variant = "primary" | "secondary" | "ghost";
 type Size = "sm" | "md" | "lg";
 
 const base =
-  "group inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-tight transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wa/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg";
+  "group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full font-medium tracking-tight transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wa/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg";
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-wa text-wa-ink shadow-[0_0_0_1px_rgba(37,211,102,0.25),0_8px_32px_-10px_rgba(37,211,102,0.55)] hover:bg-wa-strong hover:shadow-[0_0_0_1px_rgba(37,211,102,0.45),0_12px_48px_-8px_rgba(37,211,102,0.7)] hover:-translate-y-px active:translate-y-0",
+    "bg-wa text-wa-ink shadow-[0_0_0_1px_rgba(37,211,102,0.25),0_8px_32px_-10px_rgba(37,211,102,0.55)] before:pointer-events-none before:absolute before:inset-0 before:-translate-x-[130%] before:bg-[linear-gradient(105deg,transparent,rgba(255,255,255,0.35),transparent)] before:transition-transform before:duration-700 before:ease-out hover:bg-wa-strong hover:shadow-[0_0_0_1px_rgba(37,211,102,0.45),0_12px_48px_-8px_rgba(37,211,102,0.7)] hover:before:translate-x-[130%] hover:-translate-y-px active:translate-y-0",
   secondary:
-    "border border-edge bg-surface-soft text-ink hover:border-edge-strong hover:bg-surface-soft-2 hover:-translate-y-px active:translate-y-0",
+    "border border-edge bg-surface-soft text-ink before:pointer-events-none before:absolute before:inset-0 before:-translate-x-[130%] before:bg-[linear-gradient(105deg,transparent,rgba(255,255,255,0.14),transparent)] before:transition-transform before:duration-700 before:ease-out hover:border-edge-strong hover:bg-surface-soft-2 hover:before:translate-x-[130%] hover:-translate-y-px active:translate-y-0",
   ghost: "text-muted hover:text-ink",
 };
 

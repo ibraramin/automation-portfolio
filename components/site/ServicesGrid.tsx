@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SectionHeading from "./SectionHeading";
+import Reveal from "./Reveal";
 import Icon from "./icons";
 import { SERVICES, type Service } from "./services-data";
 
@@ -8,7 +9,7 @@ function ServiceCard({ service }: { service: Service }) {
   return (
     <Link
       href="/contact"
-      className="group relative flex flex-col gap-4 rounded-2xl border border-edge bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-edge-strong hover:shadow-[0_20px_60px_-24px_rgba(0,0,0,0.8)] sm:p-7"
+      className="group relative flex h-full flex-col gap-4 rounded-2xl border border-edge bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-wa/30 hover:shadow-[0_20px_60px_-24px_rgba(0,0,0,0.8),0_0_24px_-8px_rgba(37,211,102,0.35)] sm:p-7"
     >
       <div className="flex items-start justify-between">
         <span
@@ -20,7 +21,7 @@ function ServiceCard({ service }: { service: Service }) {
         </span>
         <Icon
           name="arrow-right"
-          className="h-4 w-4 text-muted transition-all duration-200 group-hover:translate-x-1 group-hover:text-ink"
+          className="h-4 w-4 text-muted transition-all duration-300 group-hover:translate-x-1 group-hover:text-ink"
         />
       </div>
       <div>
@@ -49,14 +50,16 @@ export default function ServicesGrid() {
         title={
           <>
             Automations that pay for themselves{" "}
-            <span className="text-muted">— in outcomes, not jargon.</span>
+            <span className="text-muted">in outcomes, not jargon.</span>
           </>
         }
         subtitle="Every workflow is custom-built, delivered in 1–2 weeks, and priced as one fixed quote per workflow."
       />
       <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {SERVICES.map((service) => (
-          <ServiceCard key={service.id} service={service} />
+        {SERVICES.map((service, index) => (
+          <Reveal key={service.id} delay={index * 80} className="h-full">
+            <ServiceCard service={service} />
+          </Reveal>
         ))}
       </div>
     </section>

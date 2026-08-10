@@ -8,13 +8,16 @@
    ------------------------------------------------------------------ */
 :root {
   color-scheme: dark;
-  --bg: #0a0a0a;
-  --surface: #111113;
-  --surface-2: #161618;
+  /* Soft blue-tinted dark palette. Contrast notes (vs WCAG AA 4.5:1):
+     ink #e6e8eb on bg #0e1218 ~= 14.9:1, muted #9aa3ad on bg ~= 7.3:1,
+     muted on surface #121821 ~= 6.7:1, wa #25d366 on bg ~= 10.4:1. */
+  --bg: #0e1218;
+  --surface: #121821;
+  --surface-2: #161e28;
   --surface-soft: rgb(255 255 255 / 0.04);
   --surface-soft-2: rgb(255 255 255 / 0.08);
-  --ink: #f4f4f5;
-  --muted: #a1a1aa;
+  --ink: #e6e8eb;
+  --muted: #9aa3ad;
   --edge: rgb(255 255 255 / 0.1);
   --edge-strong: rgb(255 255 255 / 0.25);
   --wa: #25d366;
@@ -63,17 +66,19 @@
 @theme {
   --animate-fade-up: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-pulse-dot: pulse-dot 2.2s ease-in-out infinite;
-  --animate-flow-y: flow-y 2.6s linear infinite;
   --animate-caret: caret 1.1s step-end infinite;
+  --animate-pop: pop 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 
   @keyframes fade-up {
     from {
       opacity: 0;
-      transform: translateY(16px);
+      transform: translateY(20px);
+      filter: blur(8px);
     }
     to {
       opacity: 1;
       transform: translateY(0);
+      filter: blur(0);
     }
   }
 
@@ -89,16 +94,6 @@
     }
   }
 
-  /* Flowing gradient down a vertical pipeline rail */
-  @keyframes flow-y {
-    0% {
-      background-position: 0 0;
-    }
-    100% {
-      background-position: 0 100%;
-    }
-  }
-
   @keyframes caret {
     0%,
     100% {
@@ -106,6 +101,19 @@
     }
     50% {
       opacity: 0;
+    }
+  }
+
+  /* Brief scale pop for a value that ticks up (orders counter) */
+  @keyframes pop {
+    0% {
+      transform: scale(1);
+    }
+    40% {
+      transform: scale(1.12);
+    }
+    100% {
+      transform: scale(1);
     }
   }
 }
@@ -141,7 +149,7 @@
 }
 
 @layer components {
-  /* Wide content container — full-width feel on desktop, safe on mobile */
+  /* Wide content container: full-width feel on desktop, safe on mobile */
   .container-site {
     margin-inline: auto;
     width: 100%;

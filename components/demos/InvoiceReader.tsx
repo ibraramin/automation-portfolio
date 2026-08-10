@@ -25,7 +25,7 @@ type LedgerRow = Extraction & { loggedAt: string };
 const SAMPLES: { id: string; label: string; data: Extraction }[] = [
   {
     id: "acme",
-    label: "Acme Supplies GmbH — invoice 2026-0142.pdf",
+    label: "Acme Supplies GmbH, invoice 2026-0142.pdf",
     data: {
       source: "sample",
       vendor: "Acme Supplies GmbH",
@@ -45,7 +45,7 @@ const SAMPLES: { id: string; label: string; data: Extraction }[] = [
   },
   {
     id: "techparts",
-    label: "TechParts Ltd — invoice INV-8831.pdf",
+    label: "TechParts Ltd, invoice INV-8831.pdf",
     data: {
       source: "sample",
       vendor: "TechParts Ltd",
@@ -229,7 +229,7 @@ export default function InvoiceReader() {
       {/* Mode selector */}
       <div className="border-b border-white/10 bg-[#111111] px-5 py-4">
         <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">
-          Step 1 — where does the invoice come from?
+          Step 1, where does the invoice come from?
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
           {SAMPLES.map((s) => (
@@ -242,7 +242,7 @@ export default function InvoiceReader() {
               <span className="block text-xs font-medium text-white/50">Sample invoice</span>
               <span className="mt-1 block text-sm font-semibold text-white">{s.label}</span>
               <span className="mt-2 inline-block rounded-full bg-[#25D366]/10 px-2 py-0.5 text-[10px] font-medium text-[#25D366]">
-                ground truth — instant
+                ground truth, instant
               </span>
             </button>
           ))}
@@ -296,7 +296,7 @@ export default function InvoiceReader() {
         <div className="border-b border-white/10 px-5 py-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">
-              Step 2 — extraction result
+              Step 2, extraction result
             </p>
             <span
               className={`rounded-full px-3 py-1 text-xs font-semibold ${
@@ -370,7 +370,7 @@ export default function InvoiceReader() {
             {logged ? "Logged to ledger ✓" : "Log to ledger"}
           </button>
           <p className="mt-2 text-xs text-white/50">
-            Production writes to Google Sheets / Supabase via n8n — same row, same shape.
+            Production writes to Google Sheets / Supabase via n8n, same row, same shape.
           </p>
         </div>
       )}
@@ -379,7 +379,7 @@ export default function InvoiceReader() {
       <div className="px-5 py-5">
         <div className="flex items-center justify-between">
           <p className="text-[10px] font-semibold tracking-widest text-white/50 uppercase">
-            Step 3 — ledger
+            Step 3, ledger
           </p>
           <span className="rounded-md border border-white/10 bg-[#111111] px-2 py-1 font-mono text-[10px] text-white/50">
             invoices_2026.csv
@@ -387,7 +387,7 @@ export default function InvoiceReader() {
         </div>
         {ledger.length === 0 ? (
           <p className="mt-3 rounded-xl border border-dashed border-white/15 bg-[#0a0a0a] px-4 py-6 text-center text-sm text-white/50">
-            No rows yet — extract an invoice and hit &quot;Log to ledger&quot;.
+            No rows yet, extract an invoice and hit &quot;Log to ledger&quot;.
           </p>
         ) : (
           <div className="mt-3 overflow-x-auto rounded-xl border border-white/10">

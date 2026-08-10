@@ -20,7 +20,7 @@ function Logo() {
     <Link
       href="/"
       className="group flex items-center gap-2.5"
-      aria-label={`${SITE.name} — home`}
+      aria-label={`${SITE.name}, home`}
     >
       <span className="grid h-9 w-9 place-items-center rounded-xl border border-edge bg-surface-soft transition-colors duration-200 group-hover:border-wa/50">
         <svg
@@ -62,7 +62,7 @@ function ThemeToggle() {
       initial = stored === "light" || prefersLight ? "light" : "dark";
       document.documentElement.classList.toggle("light", initial === "light");
     } catch {
-      // storage or matchMedia unavailable — keep default dark theme
+      // storage or matchMedia unavailable, keep default dark theme
     }
     const t = window.setTimeout(() => setTheme(initial), 0);
     return () => window.clearTimeout(t);
@@ -74,7 +74,7 @@ function ThemeToggle() {
     try {
       window.localStorage.setItem("nexus-theme", next);
     } catch {
-      // storage unavailable — theme still applies for this session
+      // storage unavailable, theme still applies for this session
     }
     setTheme(next);
   }
@@ -110,7 +110,7 @@ export default function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm font-medium text-muted transition-colors hover:text-ink"
+              className="relative text-sm font-medium text-muted transition-colors duration-200 hover:text-ink after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-wa/70 after:transition-transform after:duration-300 hover:after:scale-x-100"
             >
               {item.label}
             </Link>

@@ -83,7 +83,7 @@ export default function LeadResponse() {
     setSignals(sig);
     const firstName = name.trim().split(" ")[0] || "there";
 
-    const replyDraft = `Hi ${firstName}, thanks for reaching out!\n\n${sig.quantity !== "not stated" ? `${sig.quantity} ${sig.stage} by ${sig.urgency === "not stated" ? "your deadline" : sig.urgency} is very doable — we've got capacity this month.` : `We can definitely help with your ${sig.stage}.`} I'll send a tailored breakdown today with per-unit pricing and turnaround.\n\nWhat's the best email to send the quote to?\n\n— Nexus Automations`;
+    const replyDraft = `Hi ${firstName}, thanks for reaching out!\n\n${sig.quantity !== "not stated" ? `${sig.quantity} ${sig.stage} by ${sig.urgency === "not stated" ? "your deadline" : sig.urgency} is very doable, we've got capacity this month.` : `We can definitely help with your ${sig.stage}.`} I'll send a tailored breakdown today with per-unit pricing and turnaround.\n\nWhat's the best email to send the quote to?\n\nNexus Automations`;
 
     const plan: Omit<TimelineStep, "id">[] = [
       { time: "12:41", title: "Lead received via website form", detail: `From: ${name.trim() || "Anonymous"} · ${email.trim() || "no email"}` },
@@ -94,7 +94,7 @@ export default function LeadResponse() {
       },
       { time: "12:42", title: "Personalized reply drafted", detail: "OpenAI writes a reply from your brand voice + lead context" },
       { time: "12:42", title: "Lead saved to CRM (HubSpot)", detail: "Contact created with score, stage and source" },
-      { time: "12:42", title: "Team alerted on Slack", detail: "#leads-hot pinged — reply within 5 minutes" },
+      { time: "12:42", title: "Team alerted on Slack", detail: "#leads-hot pinged, reply within 5 minutes" },
     ];
 
     for (const step of plan) {
@@ -122,7 +122,7 @@ export default function LeadResponse() {
       {/* Lead form */}
       <form onSubmit={(e) => void handleSubmit(e)} className="border-b border-white/10 bg-[#111111] px-5 py-4">
         <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">
-          Step 1 — paste a lead message
+          Step 1, paste a lead message
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2">
@@ -174,11 +174,11 @@ export default function LeadResponse() {
         {/* Timeline */}
         <div className="border-b border-white/10 px-5 py-5 lg:border-r lg:border-b-0">
           <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">
-            Step 2 — what happens automatically
+            Step 2, what happens automatically
           </p>
           {steps.length === 0 && !running ? (
             <p className="mt-4 rounded-xl border border-dashed border-white/15 bg-[#0a0a0a] px-4 py-6 text-center text-sm text-white/60">
-              Hit &quot;Run the response flow&quot; — every step below is what n8n does in production.
+              Hit &quot;Run the response flow&quot;, every step below is what n8n does in production.
             </p>
           ) : (
             <ol className="mt-4 space-y-3">
@@ -244,7 +244,7 @@ export default function LeadResponse() {
       <div className="border-t border-white/10 bg-[#0a0a0a] px-5 py-3">
         <p className="text-xs leading-relaxed text-white/60">
           <span className="font-semibold text-white/70">What&apos;s real here:</span> production = n8n webhook + OpenAI
-          scoring + HubSpot/Airtable + Slack alert. Same pipeline, real tools — the scoring and drafting above are
+          scoring + HubSpot/Airtable + Slack alert. Same pipeline, real tools, the scoring and drafting above are
           simulated locally.
         </p>
       </div>

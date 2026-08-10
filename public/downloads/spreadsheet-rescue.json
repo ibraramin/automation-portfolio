@@ -1,0 +1,451 @@
+{
+  "name": "Spreadsheet Rescue (messy CSV → clean rows)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "spreadsheet-rescue",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "wf-ssr-001",
+      "name": "CSV Uploaded (webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-760, 220]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Convert the uploaded CSV text into a row array, keeping a rough header guess.\nconst csv = String($input.first().json.csv || $input.first().json.data || \"\");\nconst lines = csv.split(/\\r?\\n/).filter((l) => l.trim());\nconst guessHeader = /email|name|amount/i.test(lines[0] || \"\");\nconst header = guessHeader ? lines.shift().split(\",\").map((h) => h.trim()) : null;\nconst rows = lines.map((l, i) => {\n  const cells = l.split(\",\").map((c) => c.trim());\n  return { rowIndex: i + 1, raw: cells };\n});\nreturn {\n  json: {\n    headerGuess: header,\n    rows: rows,\n    inputCount: rows.length\n  }\n};"
+      },
+      "id": "wf-ssr-002",
+      "name": "Parse CSV Rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-560, 220]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "modelId": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You clean messy spreadsheet exports. Look at the sample rows and return ONLY strict JSON: { \"schema\": [{ \"field\": string, \"type\": \"string|email|date|number\", \"confidence\": number }], \"corrections\": [{ \"rowIndex\": number, \"field\": string, \"note\": string }] }. Pick the most likely field names, never invent data."
+            },
+            {
+              "role": "user",
+              "content": "={{ JSON.stringify({ headerGuess: $json.headerGuess, rows: $json.rows }) }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0
+        }
+      },
+      "id": "wf-ssr-003",
+      "name": "OpenAI: Suggest Schema",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.2,
+      "position": [-360, 220]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the model schema output and apply field alignment to each raw row.\nconst raw = $input.first().json.message?.content || \"\";\nconst start = raw.indexOf(\"{\");\nconst end = raw.lastIndexOf(\"}\");\nconst parsed = start !== -1 && end > start ? JSON.parse(raw.slice(start, end + 1)) : null;\nconst schema = parsed?.schema || [{ field: \"name\", type: \"string\" }, { field: \"email\", type: \"email\" }];\nconst rows = $json.rows.map((r, i) => {\n  const out = {};\n  schema.forEach((s, si) => {\n    out[s.field] = r.raw[si] || \"\";\n  });\n  return { rowIndex: i + 1, ...out };\n});\nreturn {\n  json: {\n    schema: schema,\n    rows: rows\n  }\n};"
+      },
+      "id": "wf-ssr-004",
+      "name": "Apply Schema + Normalize",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-160, 220]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Dedupe by lowercase email, keeping the first occurrence.\nconst seen = new Set();\nconst unique = [];\nlet removed = 0;\nfor (const row of $json.rows) {\n  const key = String(row.email || \"\").toLowerCase().trim();\n  if (seen.has(key)) {\n    removed++;\n  } else {\n    seen.add(key);\n    unique.push(row);\n  }\n}\nreturn {\n  json: {\n    ...$json,\n    rows: unique,\n    inputCount: $json.rows.length,\n    removedCount: removed\n  }\n};"
+      },
+      "id": "wf-ssr-005",
+      "name": "Dedupe by Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [40, 220]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "wf-ssr-cond-1",
+              "leftValue": "={{ $json.removedCount }}",
+              "rightValue": "0",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "wf-ssr-006",
+      "name": "Duplicates Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [240, 220]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "wf-ssr-set-1",
+              "name": "merged",
+              "value": true,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wf-ssr-007",
+      "name": "Flag Merged",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [440, 60]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "modelId": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Validate cleaned spreadsheet rows. Return ONLY strict JSON: { \"valid\": boolean, \"warnings\": [{ \"rowIndex\": number, \"field\": string, \"reason\": string }] }. Flag invalid emails, missing required fields and amounts that are not numbers."
+            },
+            {
+              "role": "user",
+              "content": "={{ JSON.stringify($json.rows) }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0
+        }
+      },
+      "id": "wf-ssr-008",
+      "name": "OpenAI: Validate Rows",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.2,
+      "position": [440, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build the cleanup report that will be posted to Slack.\nconst validation = $input.first().json.message?.content || \"\";\nconst start = validation.indexOf(\"{\");\nconst end = validation.lastIndexOf(\"}\");\nconst parsed = start !== -1 && end > start ? JSON.parse(validation.slice(start, end + 1)) : { valid: true, warnings: [] };\nreturn {\n  json: {\n    ...$json,\n    validation: parsed,\n    allValid: parsed.valid !== false && (parsed.warnings || []).length === 0,\n    warnings: parsed.warnings || [],\n    uniqueCount: $json.rows.length\n  }\n};"
+      },
+      "id": "wf-ssr-009",
+      "name": "Build Clean Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [640, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "wf-ssr-cond-2",
+              "leftValue": "={{ $json.allValid }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "wf-ssr-010",
+      "name": "All Rows Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [840, 400]
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "tableId": "customers",
+        "matchingColumns": "email",
+        "rows": "={{ $json.rows }}",
+        "options": {}
+      },
+      "id": "wf-ssr-011",
+      "name": "Supabase: Upsert Customers",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1.2,
+      "position": [1040, 220]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "table": "customers_2026",
+        "records": "={{ $json.rows }}",
+        "options": {}
+      },
+      "id": "wf-ssr-012",
+      "name": "Airtable: Append Clean Rows",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 1.2,
+      "position": [1240, 220]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": "={{ $env.GOOGLE_SHEET_ID }}",
+        "sheetName": "customers_2026.csv",
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {}
+        },
+        "options": {}
+      },
+      "id": "wf-ssr-013",
+      "name": "Sheets: Export Backup",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1.2,
+      "position": [1440, 220]
+    },
+    {
+      "parameters": {
+        "channel": "#ops",
+        "text": "={{ 'Cleanup report: ' + $json.inputCount + ' rows in, ' + $json.uniqueCount + ' unique out, ' + $json.removedCount + ' duplicates merged. Uploaded to Supabase, Airtable and Sheets.' }}"
+      },
+      "id": "wf-ssr-014",
+      "name": "Slack: Cleanup Report",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1640, 220]
+    },
+    {
+      "parameters": {},
+      "id": "wf-ssr-015",
+      "name": "Done",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1840, 220]
+    },
+    {
+      "parameters": {
+        "channel": "#ops",
+        "text": "={{ 'Some rows need review before upload:\\n' + $json.warnings.map(w => '- row ' + w.rowIndex + ' ' + w.field + ': ' + w.reason).join('\\n') }}"
+      },
+      "id": "wf-ssr-016",
+      "name": "Slack: Review Warnings",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1040, 620]
+    },
+    {
+      "parameters": {},
+      "id": "wf-ssr-017",
+      "name": "Hold for Review",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1240, 620]
+    }
+  ],
+  "connections": {
+    "CSV Uploaded (webhook)": {
+      "main": [
+        [
+          {
+            "node": "Parse CSV Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse CSV Rows": {
+      "main": [
+        [
+          {
+            "node": "OpenAI: Suggest Schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI: Suggest Schema": {
+      "main": [
+        [
+          {
+            "node": "Apply Schema + Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Schema + Normalize": {
+      "main": [
+        [
+          {
+            "node": "Dedupe by Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedupe by Email": {
+      "main": [
+        [
+          {
+            "node": "Duplicates Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Duplicates Found?": {
+      "main": [
+        [
+          {
+            "node": "Flag Merged",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI: Validate Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flag Merged": {
+      "main": [
+        [
+          {
+            "node": "OpenAI: Validate Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI: Validate Rows": {
+      "main": [
+        [
+          {
+            "node": "Build Clean Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Clean Report": {
+      "main": [
+        [
+          {
+            "node": "All Rows Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "All Rows Valid?": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Upsert Customers",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack: Review Warnings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Upsert Customers": {
+      "main": [
+        [
+          {
+            "node": "Airtable: Append Clean Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: Append Clean Rows": {
+      "main": [
+        [
+          {
+            "node": "Sheets: Export Backup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets: Export Backup": {
+      "main": [
+        [
+          {
+            "node": "Slack: Cleanup Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Cleanup Report": {
+      "main": [
+        [
+          {
+            "node": "Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Review Warnings": {
+      "main": [
+        [
+          {
+            "node": "Hold for Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

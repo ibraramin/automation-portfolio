@@ -1,11 +1,11 @@
-# Portfolio Feature Spec — Nexus Automations
+# Portfolio Feature Spec - Nexus Automations
 
-**Scope:** feature · **Status:** implemented v1 (Aug 2026) · **Repo:** /home/ibrar/Businesss/Ideas2
+**Scope:** feature · **Status:** implemented v3 (Aug 2026) · **Repo:** /home/ibrar/Businesss/Ideas2
 **Stack:** Next.js 16.3 (App Router, Turbopack) · React 19.2 · TypeScript · Tailwind CSS v4 · tesseract.js ^7 (client-side OCR, lazy-loaded)
 
 ## 1. Business goal
 
-Convert visitors (non-technical SMB owners in Bangladesh and Europe) into **"free automation audit"** bookings. The site sells outcomes, not tools: no public pricing, one repeated CTA, live interactive demos as proof.
+Convert visitors (non-technical SMB owners in Bangladesh and Europe) into **"free automation audit"** bookings. The site sells outcomes, not tools: no public pricing, one repeated CTA, live interactive demos as proof. Positioning is channel-neutral: n8n + AI automation across WhatsApp, web, email and phone, with WhatsApp as a flagship demo rather than the brand identity.
 
 ## 2. Design system
 
@@ -25,8 +25,8 @@ Convert visitors (non-technical SMB owners in Bangladesh and Europe) into **"fre
 
 ## 3. Brand + contact (single source of truth)
 
-`components/site/config.ts` exports `SITE` — rename brand and update contact in ONE place:
-- `name`: "Nexus Automations" (placeholder — rename before domain purchase)
+`components/site/config.ts` exports `SITE` - rename brand and update contact in ONE place:
+- `name`: "Nexus Automations" (placeholder - rename before domain purchase)
 - `whatsappUrl`: `https://wa.me/8801333095960`
 - `email`: `ibrarshafin2002@gmail.com`
 - `cta`: "Free automation audit"
@@ -45,19 +45,24 @@ Convert visitors (non-technical SMB owners in Bangladesh and Europe) into **"fre
 
 All demos: `data-demo-interacted` attribute, "SIMULATION"-style honesty badges, "What's real here" production notes, restart flows, race-safe timers (runRef pattern, async setState in effects).
 
-1. **WhatsApp Order Bot** (`components/demos/WhatsAppOrderBot.tsx`) — mock chat: bilingual greeting (Bangla+English, `lang="bn"` on Bangla), product chips (Cotton Kurti ৳899 / Denim Jacket ৳1,499 / Saree ৳2,200), size, address, bKash Send-Money instruction (01711-223344), TrxID entry → format check + **human-confirm note** (there is no public bKash API to verify personal TrxIDs — the n8n JSON names its node "placeholder"), courier tracking (Pathao). **BD wedge.**
-2. **AI Invoice Reader** (`components/demos/InvoiceReader.tsx`) — sample invoices (Acme Supplies GmbH, TechParts Ltd) with instant ground-truth extraction; upload = **images only** (tesseract.js is image-only; `accept="image/*"`, PDFs → paste-text fallback, honest message); per-field confidence, validation chip, "Log to ledger" → `invoices_2026.csv` table. **EU wedge.**
-3. **Lightning Lead Response** (`components/demos/LeadResponse.tsx`) — lead form → 5-step timeline (received → AI score + extracted signal chips → reply draft → saved to HubSpot → Slack alert). **Both markets.**
+1. **WhatsApp Order Bot** (`components/demos/WhatsAppOrderBot.tsx`) - mock chat: bilingual greeting (Bangla+English, `lang="bn"` on Bangla), product chips (Cotton Kurti ৳899 / Denim Jacket ৳1,499 / Saree ৳2,200), size, address, bKash Send-Money instruction (01711-223344), TrxID entry → format check + **human-confirm note** (there is no public bKash API to verify personal TrxIDs - the n8n JSON names its node "placeholder"), courier tracking (Pathao). **BD wedge.**
+2. **AI Invoice Reader** (`components/demos/InvoiceReader.tsx`) - sample invoices (Acme Supplies GmbH, TechParts Ltd) with instant ground-truth extraction; upload = **images only** (tesseract.js is image-only; `accept="image/*"`, PDFs → paste-text fallback, honest message); per-field confidence, validation chip, "Log to ledger" → `invoices_2026.csv` table. **EU wedge.**
+3. **Lightning Lead Response** (`components/demos/LeadResponse.tsx`) - lead form → 5-step timeline (received → AI score + extracted signal chips → reply draft → saved to HubSpot → Slack alert). **Both markets.**
+4. **Meeting Minutes Bot** (`components/demos/MeetingMinutesBot.tsx`) - paste a transcript or pick a sample (Q3 launch sync / Client kickoff) → simulated Whisper transcription → AI extracts decisions and owner-assigned action items (regex + simulated step timeline) → Notion page + Slack #minutes post. Metric: "2 hrs of notes → 5 min".
+5. **Spreadsheet Rescue** (`components/demos/SpreadsheetRescue.tsx`) - paste a messy CSV or use the embedded sample → simulated AI cleaning: schema suggestion, dedupe by email, date/amount standardization, validation warnings → clean rows table → "Export to CRM/Sheets" appends to a visible `customers_2026.csv` view. Metric: "A week of cleanup → one upload".
+6. **Email Triage** (`components/demos/EmailTriage.tsx`) - simulated Gmail inbox (3 prefilled emails) → AI classifies (lead / invoice / spam), ranks priority, drafts a reply → HITL approval card (Approve and send / Hold) → sends, logs to HubSpot timeline, files invoice, trashes spam. Metric: "Inbox zero, minus the stress".
 
 ## 6. Lead magnet
 
-Three downloadable n8n workflow JSONs (`public/downloads/`): `whatsapp-order-bot.json` (26 nodes), `ai-invoice-reader.json` (21), `lightning-lead-response.json` (19) — realistic node graphs with `connections`, honest placeholder names. Downloaded via `<a download data-json-downloaded>`.
+Six downloadable n8n workflow JSONs (`public/downloads/`): `whatsapp-order-bot.json` (26 nodes), `ai-invoice-reader.json` (21), `lightning-lead-response.json` (19), `meeting-minutes-bot.json` (16), `spreadsheet-rescue.json` (17), `email-triage.json` (22) - realistic node graphs with `connections`, honest placeholder names. Downloaded via `<a download data-json-downloaded>`.
 
 ## 7. Copy guardrails (enforced)
 
 - No public pricing. "Without the Western agency overhead" (not "fraction of the price").
-- No unsourced metrics: "book more, faster", "cut no-shows" — no "3x"/"half"/"3.2s".
+- No unsourced metrics: "book more, faster", "cut no-shows" - no "3x"/"half"/"3.2s".
 - Outcome-first, jargon-free, WhatsApp/email-first contact.
+- **Zero em dashes** in any copy or n8n JSON strings; re-punctuate with periods, colons or restructured sentences.
+- **Channel-neutral language**: WhatsApp is a flagship channel, not the brand; services and demos cover WhatsApp, web, email and phone.
 
 ## 8. Conversion funnel + deferred Phase 2
 
@@ -66,5 +71,5 @@ Three downloadable n8n workflow JSONs (`public/downloads/`): `whatsapp-order-bot
 
 ## 9. Quality gates (all passing)
 
-`npx eslint .` clean · `npx tsc --noEmit` clean · `npm run build` OK (10 routes, 3 SSG demo pages).
-Council review (2 models, 2 rounds): round 1 REJECT → all findings fixed; round 2 REJECT on 3 findings → all resolved (brand leak in lead-magnet JSON fixed, contrast sweep to ≥ white/60 for informational text, numeric capability claims accepted as sanctioned capability statements — "under 5 seconds" reply, "10+ hours a week" saved, "under 5 minutes" build). Live contact: WhatsApp 8801333095960, email ibrarshafin2002@gmail.com. Pushed to github.com/ibraramin/automation-portfolio.
+`npx eslint .` clean · `npx tsc --noEmit` clean · `npm run build` OK (10 routes, 6 SSG demo pages).
+Council review (2 models, 2 rounds): round 1 REJECT → all findings fixed; round 2 REJECT on 3 findings → all resolved (brand leak in lead-magnet JSON fixed, contrast sweep to ≥ white/60 for informational text, numeric capability claims accepted as sanctioned capability statements - "under 5 seconds" reply, "10+ hours a week" saved, "under 5 minutes" build). Live contact: WhatsApp 8801333095960, email ibrarshafin2002@gmail.com. Pushed to github.com/ibraramin/automation-portfolio.
