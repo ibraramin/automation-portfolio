@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Button from "./Button";
 import Icon from "./icons";
@@ -25,7 +25,7 @@ function Logo() {
       <span className="grid h-9 w-9 place-items-center rounded-xl border border-edge bg-surface-soft transition-colors duration-200 group-hover:border-wa/50">
         <svg
           viewBox="0 0 24 24"
-          className="h-5 w-5 text-wa"
+          className="h-5 w-5 text-wa transition-transform duration-300 group-hover:scale-110"
           fill="none"
           stroke="currentColor"
           strokeWidth="1.6"
@@ -52,6 +52,7 @@ function Logo() {
 
 function ThemeToggle() {
   const [theme, setTheme] = useState<Theme | null>(null);
+  const animTimer = useRef<number | null>(null);
 
   useEffect(() => {
     let initial: Theme = "dark";
@@ -68,15 +69,31 @@ function ThemeToggle() {
     return () => window.clearTimeout(t);
   }, []);
 
+  // Clear a pending theme-anim timer on unmount, no leaks.
+  useEffect(
+    () => () => {
+      if (animTimer.current !== null) window.clearTimeout(animTimer.current);
+    },
+    [],
+  );
+
   function toggle() {
+    const root = document.documentElement;
     const next: Theme = theme === "light" ? "dark" : "light";
-    document.documentElement.classList.toggle("light", next === "light");
+    // Seamless switch: let colors cross-fade for ~300ms, then clean up.
+    root.classList.add("theme-anim");
+    if (animTimer.current !== null) window.clearTimeout(animTimer.current);
+    root.classList.toggle("light", next === "light");
     try {
       window.localStorage.setItem("nexus-theme", next);
     } catch {
       // storage unavailable, theme still applies for this session
     }
     setTheme(next);
+    animTimer.current = window.setTimeout(() => {
+      root.classList.remove("theme-anim");
+      animTimer.current = null;
+    }, 300);
   }
 
   return (

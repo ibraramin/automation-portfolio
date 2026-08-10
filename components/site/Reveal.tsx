@@ -7,7 +7,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
  * - IntersectionObserver, threshold 0.15, fires once, then unobserves.
  * - Easing cubic-bezier(0.22, 1, 0.36, 1), 500 to 800ms by default.
  * - Stagger via the `delay` prop (keep under ~300ms per element).
- * - prefers-reduced-motion: renders fully visible, no transitions.
+ * - prefers-reduced-motion: opacity-only fade, still fully visible.
  * - No layout shift: only opacity / transform / filter are animated, and the
  *   element always occupies its space in the layout.
  */
@@ -44,7 +44,7 @@ export default function Reveal({
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || reduced) return;
+    if (!el) return;
 
     if (typeof IntersectionObserver === "undefined") {
       const t = window.setTimeout(() => setVisible(true), 0);
@@ -64,26 +64,26 @@ export default function Reveal({
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [reduced]);
+  }, []);
 
   const eased = "cubic-bezier(0.22, 1, 0.36, 1)";
   const hidden: CSSProperties = {};
-  if (variant === "up") hidden.transform = "translateY(24px)";
-  if (variant === "zoom") hidden.transform = "scale(0.96)";
-  if (blur) hidden.filter = "blur(8px)";
+  if (!reduced) {
+    if (variant === "up") hidden.transform = "translateY(24px)";
+    if (variant === "zoom") hidden.transform = "scale(0.96)";
+    if (blur) hidden.filter = "blur(8px)";
+  }
   hidden.opacity = 0;
 
-  const style: CSSProperties = reduced
-    ? {}
-    : {
-        opacity: visible ? 1 : 0,
-        transform: visible ? "none" : hidden.transform,
-        filter: visible ? "none" : hidden.filter,
-        transition: `opacity ${duration}ms ${eased} ${delay}ms, transform ${duration}ms ${eased} ${delay}ms, filter ${duration}ms ${eased} ${delay}ms`,
-      };
+  const style: CSSProperties = {
+    opacity: visible ? 1 : 0,
+    transform: visible ? "none" : hidden.transform,
+    filter: visible ? "none" : hidden.filter,
+    transition: `opacity ${duration}ms ${eased} ${delay}ms, transform ${duration}ms ${eased} ${delay}ms, filter ${duration}ms ${eased} ${delay}ms`,
+  };
 
   return (
-    <div ref={ref} className={className} style={style}>
+    <div ref={ref} className={`${className} reveal-fade`} style={style}>
       {children}
     </div>
   );

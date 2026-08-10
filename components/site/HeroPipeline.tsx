@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Icon, { type IconName } from "./icons";
 
 /**
  * Animated "pipeline" card for the hero. Pure CSS + React state, no libs.
- * - Cycling typewriter of business problems the pipeline "solves"
+ * - Cycling typewriter of business problems the pipeline solves
  * - A looping progress simulation: one order travels through four stages,
  *   connectors fill as it moves, status chips flip, the counter ticks up
- * - Respects prefers-reduced-motion (renders a static completed state)
+ * - Runs for everyone. Under prefers-reduced-motion the order advances
+ *   stepwise with opacity-only fades: no sliding dot, no scale travel
  * - Fixed-height rows so nothing shifts on load
  */
 
@@ -26,8 +27,16 @@ const STAGES: { icon: IconName; title: string; note: string }[] = [
   { icon: "send", title: "Delivered + tracked", note: "Courier booked, customer updated" },
 ];
 
-const STAGE_MS = 2000; // time spent on each stage, including the "all done" beat
-const FILL_MS = STAGE_MS - 200; // connector + dot travel time, synced to the stage tick
+const ROTATING_METRICS = [
+  "avg reply 3.2 s",
+  "invoices filed 17 this week",
+  "leads answered under 5 min",
+  "no-shows cut in half",
+];
+
+const STAGE_MS = 2000; // time per stage, including the "all done" beat
+const FILL_MS = STAGE_MS - 200; // connector + dot travel time, synced to the tick
+const METRIC_MS = 3600; // rotate the status line
 const START_ORDERS = 142;
 const STAGE_COUNT = STAGES.length;
 const DONE_POS = STAGE_COUNT; // pos value meaning "all stages complete"
@@ -54,9 +63,23 @@ function useTypewriter(phrases: string[], reduced: boolean) {
 
   useEffect(() => {
     if (reduced) {
-      const t = window.setTimeout(() => setDisplay(phrases[0]), 0);
-      return () => window.clearTimeout(t);
+      // Stepwise: swap the whole phrase on a fade, no character typing.
+      let alive = true;
+      let timer = 0;
+      const cycle = () => {
+        timer = window.setTimeout(() => {
+          if (!alive) return;
+          setIndex((i) => (i + 1) % phrases.length);
+          cycle();
+        }, 2600);
+      };
+      cycle();
+      return () => {
+        alive = false;
+        window.clearTimeout(timer);
+      };
     }
+
     const current = phrases[index % phrases.length];
     if (!deleting && display === current) {
       const hold = window.setTimeout(() => setDeleting(true), 1600);
@@ -80,7 +103,7 @@ function useTypewriter(phrases: string[], reduced: boolean) {
     return () => window.clearTimeout(tick);
   }, [display, deleting, index, phrases, reduced]);
 
-  return display;
+  return reduced ? phrases[index % phrases.length] : display;
 }
 
 type StageState = "done" | "active" | "queued";
@@ -90,30 +113,69 @@ export default function HeroPipeline() {
   const typed = useTypewriter(PROBLEMS, reduced);
   const [pos, setPos] = useState(0);
   const [orders, setOrders] = useState(START_ORDERS);
+  const [metricIdx, setMetricIdx] = useState(0);
   const posRef = useRef(0);
 
-  // Loop the order through the stages. setState only fires inside the
-  // interval callback, never synchronously inside the effect body.
+  // Loop the order through the stages for everyone. A chained timeout
+  // (not an interval) advances one stage at a time, so a backgrounded tab
+  // resumes cleanly: the next tick fires once when the tab is visible again.
   useEffect(() => {
-    if (reduced) return;
-    const id = window.setInterval(() => {
+    let alive = true;
+    let timer = 0;
+    let lastTick = performance.now();
+
+    const advance = () => {
       const next = (posRef.current + 1) % (DONE_POS + 1);
       posRef.current = next;
       setPos(next);
       if (next === 0) setOrders((o) => o + 1);
-    }, STAGE_MS);
-    return () => window.clearInterval(id);
-  }, [reduced]);
+    };
 
-  // Reduced motion: render the whole pipeline as a static "all done" state.
+    const schedule = () => {
+      timer = window.setTimeout(() => {
+        if (!alive) return;
+        lastTick = performance.now();
+        advance();
+        schedule();
+      }, STAGE_MS);
+    };
+
+    const onVisible = () => {
+      if (document.visibilityState !== "visible") return;
+      if (performance.now() - lastTick >= STAGE_MS) {
+        window.clearTimeout(timer);
+        lastTick = performance.now();
+        advance();
+        schedule();
+      }
+    };
+
+    schedule();
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      alive = false;
+      window.clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, []);
+
+  // Rotate the status line on the metric strip, same chained pattern.
   useEffect(() => {
-    if (!reduced) return;
-    const t = window.setTimeout(() => {
-      posRef.current = DONE_POS;
-      setPos(DONE_POS);
-    }, 0);
-    return () => window.clearTimeout(t);
-  }, [reduced]);
+    let alive = true;
+    let timer = 0;
+    const cycle = () => {
+      timer = window.setTimeout(() => {
+        if (!alive) return;
+        setMetricIdx((i) => (i + 1) % ROTATING_METRICS.length);
+        cycle();
+      }, METRIC_MS);
+    };
+    cycle();
+    return () => {
+      alive = false;
+      window.clearTimeout(timer);
+    };
+  }, []);
 
   const allDone = pos === DONE_POS;
 
@@ -124,18 +186,25 @@ export default function HeroPipeline() {
     return "queued";
   }
 
-  // Connector i sits between stage i and stage i + 1.
-  function connector(i: number) {
+  // Connector i sits between stage i and stage i + 1. Normal motion fills
+  // it with a scaleX slide; reduced motion lights it up with an opacity fade.
+  function fillStyle(i: number): CSSProperties {
     const filling = pos === i + 1;
-    const filled = Math.min(pos, DONE_POS) >= i + 2;
+    const on = filling || Math.min(pos, DONE_POS) >= i + 2;
+    if (reduced) {
+      return {
+        opacity: on ? 1 : 0,
+        transition: filling ? "opacity 350ms ease" : "none",
+      };
+    }
     return {
-      scale: filled || filling ? 1 : 0,
+      transform: `scaleX(${on ? 1 : 0})`,
       transition: filling ? `transform ${FILL_MS}ms linear` : "none",
     };
   }
 
   const dotPct = pos === 0 ? 0 : allDone ? 1 : pos / (DONE_POS - 1);
-  const dotTransition = reduced || pos === 0 ? "none" : `transform ${FILL_MS}ms linear`;
+  const dotTransition = pos === 0 ? "none" : `transform ${FILL_MS}ms linear`;
 
   const activeNote = allDone
     ? "Order complete. Next one rolls in…"
@@ -163,7 +232,13 @@ export default function HeroPipeline() {
           <span className="shrink-0 font-mono text-[10.5px] uppercase tracking-[0.14em] text-muted">
             Solves:
           </span>
-          <span className="truncate text-sm font-medium text-ink">{typed}</span>
+          {reduced ? (
+            <span key={typed} className="animate-fade-in truncate text-sm font-medium text-ink">
+              {typed}
+            </span>
+          ) : (
+            <span className="truncate text-sm font-medium text-ink">{typed}</span>
+          )}
           <span className="h-4 w-[2px] shrink-0 animate-caret bg-wa" />
         </div>
 
@@ -175,26 +250,28 @@ export default function HeroPipeline() {
           <div className="absolute inset-x-7 top-[18px] h-[3px]">
             <div className="flex h-full">
               {[0, 1, 2].map((i) => {
-                const c = connector(i);
+                const s = fillStyle(i);
                 return (
                   <div key={i} className="h-full flex-1 overflow-hidden">
                     <div
-                      className="h-full w-full origin-left bg-linear-to-r from-wa to-sky"
-                      style={{ transform: `scaleX(${c.scale})`, transition: c.transition }}
+                      className="fill-fade h-full w-full origin-left bg-linear-to-r from-wa to-sky"
+                      style={s}
                     />
                   </div>
                 );
               })}
             </div>
           </div>
-          {/* traveling order dot */}
-          <span
-            className="absolute top-[13px] z-10 h-3.5 w-3.5 rounded-full bg-wa shadow-[0_0_14px_rgba(37,211,102,0.7)]"
-            style={{
-              transform: `translateX(calc(28px + (100cqw - 56px) * ${dotPct} - 7px))`,
-              transition: dotTransition,
-            }}
-          />
+          {/* traveling order dot (hidden under reduced motion) */}
+          {!reduced ? (
+            <span
+              className="absolute top-[13px] z-10 h-3.5 w-3.5 rounded-full bg-wa shadow-[0_0_14px_rgba(37,211,102,0.7)]"
+              style={{
+                transform: `translateX(calc(28px + (100cqw - 56px) * ${dotPct} - 7px))`,
+                transition: dotTransition,
+              }}
+            />
+          ) : null}
           {/* stage nodes */}
           {STAGES.map((stage, i) => {
             const state = stageState(i);
@@ -243,17 +320,28 @@ export default function HeroPipeline() {
         {/* Active stage note, fixed height, no layout shift */}
         <div className="mt-3 flex h-5 items-center justify-center gap-2" aria-hidden="true">
           <span className="h-1.5 w-1.5 shrink-0 animate-pulse-dot rounded-full bg-wa" />
-          <p className="truncate text-xs text-muted">{activeNote}</p>
+          <p key={activeNote} className="animate-fade-in truncate text-xs text-muted">
+            {activeNote}
+          </p>
         </div>
 
         {/* Live metric strip, fixed height, no layout shift */}
         <div className="mt-3 flex h-11 items-center justify-between gap-3 rounded-xl border border-edge bg-surface-soft px-4">
-          <span className="truncate text-xs text-muted">Orders handled today</span>
+          <span className="min-w-0 truncate text-xs text-muted">Orders handled today</span>
           <span className="flex shrink-0 items-baseline gap-2 font-mono text-sm font-semibold text-ink">
-            <span key={orders} className="animate-pop inline-block tabular-nums" aria-hidden="true">
+            <span
+              key={orders}
+              className={`inline-block tabular-nums ${reduced ? "" : "animate-pop"}`}
+              aria-hidden="true"
+            >
               {orders}
             </span>
-            <span className="text-[10px] font-normal text-muted">avg reply 3.2 s</span>
+            <span
+              key={metricIdx}
+              className="animate-fade-in max-w-40 truncate text-[10px] font-normal text-muted"
+            >
+              {ROTATING_METRICS[metricIdx % ROTATING_METRICS.length]}
+            </span>
           </span>
         </div>
       </div>

@@ -7,12 +7,13 @@ import ProcessSection from "@/components/site/ProcessSection";
 import CTASection from "@/components/site/CTASection";
 import HeroPipeline from "@/components/site/HeroPipeline";
 import Button from "@/components/site/Button";
+import CountUp from "@/components/site/CountUp";
 import Icon from "@/components/site/icons";
 
 const STATS = [
-  { value: "10+", label: "hours saved every week" },
-  { value: "<5 min", label: "lead response, on autopilot" },
-  { value: "1–2 wks", label: "from kickoff to live" },
+  { to: 10, prefix: "", suffix: "+", label: "hours saved every week" },
+  { to: 5, prefix: "<", suffix: " min", label: "lead response, on autopilot" },
+  { to: 2, prefix: "", suffix: " wks", label: "from kickoff to live" },
 ];
 
 function Hero() {
@@ -23,11 +24,12 @@ function Hero() {
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute -top-40 -left-40 h-[30rem] w-[30rem] rounded-full bg-wa/10 blur-[130px]"
+        className="animate-glow-drift pointer-events-none absolute -top-40 -left-40 h-[30rem] w-[30rem] rounded-full bg-[radial-gradient(circle_at_35%_35%,rgba(37,211,102,0.16),transparent_60%)] bg-[length:180%_180%] blur-[130px]"
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute top-20 -right-40 h-[26rem] w-[26rem] rounded-full bg-sky/10 blur-[130px]"
+        className="animate-glow-drift pointer-events-none absolute top-20 -right-40 h-[26rem] w-[26rem] rounded-full bg-[radial-gradient(circle_at_65%_35%,rgba(56,189,248,0.14),transparent_60%)] bg-[length:180%_180%] blur-[130px]"
+        style={{ animationDelay: "-6s" }}
         aria-hidden="true"
       />
 
@@ -79,8 +81,8 @@ function Hero() {
             {STATS.map((stat) => (
               <div key={stat.label}>
                 <dt className="sr-only">{stat.label}</dt>
-                <dd className="font-mono text-xl font-semibold tracking-tight text-ink sm:text-2xl">
-                  {stat.value}
+                <dd className="font-mono text-xl font-semibold tracking-tight text-ink tabular-nums sm:text-2xl">
+                  <CountUp to={stat.to} prefix={stat.prefix} suffix={stat.suffix} />
                 </dd>
                 <dd className="mt-1 text-xs leading-snug text-muted">{stat.label}</dd>
               </div>
