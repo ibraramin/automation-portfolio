@@ -1,0 +1,376 @@
+{
+  "name": "AI Invoice Reader (VAT extraction → Google Sheets)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "invoice-reader",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "wf-air-001",
+      "name": "Webhook: File Upload",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, -120]
+    },
+    {
+      "parameters": {
+        "pollTimes": { "item": [{ "mode": "everyDay" }] },
+        "options": {
+          "customEmailConfig": "imap.gmail.com:993:TLS"
+        },
+        "name": "={{ $json.mailbox }}",
+        "username": "={{ $json.username }}"
+      },
+      "id": "wf-air-002",
+      "name": "Inbox: Supplier Invoices",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 1.1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "conditions": [
+            { "id": "hasAtt", "leftValue": "={{ $json.attachments?.length > 0 }}", "rightValue": true, "operator": { "type": "boolean", "operation": "true" } }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "wf-air-003",
+      "name": "Has Attachment?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [240, -60]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "conditions": [
+            { "id": "ext", "leftValue": "={{ $json.attachments?.[0]?.fileName?.split('.').pop()?.toLowerCase() }}", "rightValue": "pdf", "operator": { "type": "string", "operation": "in" } }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "wf-air-004",
+      "name": "Attachment Is PDF?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [480, -60]
+    },
+    {
+      "parameters": {
+        "channel": "invoice-queue",
+        "text": "⚠️ Unsupported attachment type ({{ $json.attachments?.[0]?.fileName }}) — send a PDF or image.",
+        "username": "Invoice Bot"
+      },
+      "id": "wf-air-005",
+      "name": "Warn: Unsupported File",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [720, 140]
+    },
+    {
+      "parameters": {
+        "operation": "binary",
+        "binaryPropertyName": "data",
+        "options": {}
+      },
+      "id": "wf-air-006",
+      "name": "Read Attachment Binary",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1,
+      "position": [720, -140]
+    },
+    {
+      "parameters": {
+        "operation": "fromPdf",
+        "binaryPropertyName": "data",
+        "options": {}
+      },
+      "id": "wf-air-007",
+      "name": "Extract Text from PDF",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [960, -140]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = String($input.first().json.text ?? '');\nconst cleaned = raw.replace(/\\r\\n/g, '\\n').replace(/[ \\t]+/g, ' ').trim();\nreturn [{ json: { text: cleaned, length: cleaned.length, attachmentName: $('Inbox: Supplier Invoices').item.json.attachments?.[0]?.fileName } }];"
+      },
+      "id": "wf-air-008",
+      "name": "Normalize OCR / PDF Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, -140]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "modelId": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You extract invoice fields as strict JSON: {\"vendor\":\"\",\"invoiceNumber\":\"\",\"date\":\"\",\"currency\":\"EUR\",\"net\":0,\"vatRate\":0,\"vat\":0,\"total\":0,\"lines\":[{\"description\":\"\",\"qty\":0,\"unit\":\"\",\"amount\":0}]}. Numbers as floats, no thousand separators. If a field is missing use null."
+            },
+            {
+              "role": "user",
+              "content": [
+                { "type": "text", "text": "Extract the invoice fields from this document:" },
+                { "type": "image", "image": "={{ $('Read Attachment Binary').item.binary.data }}" }
+              ]
+            }
+          ]
+        },
+        "options": { "temperature": 0 }
+      },
+      "id": "wf-air-009",
+      "name": "OpenAI Vision: Extract Invoice",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.2,
+      "position": [1440, -140]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.message?.content ?? $input.first().json.choices?.[0]?.message?.content ?? '';\nconst start = raw.indexOf('{');\nconst end = raw.lastIndexOf('}');\nlet parsed = {};\nif (start >= 0 && end > start) {\n  try { parsed = JSON.parse(raw.slice(start, end + 1)); } catch (e) { parsed = {}; }\n}\nconst required = ['vendor', 'invoiceNumber', 'date', 'total'];\nconst missing = required.filter((k) => parsed[k] == null || parsed[k] === '');\nparsed.lines = Array.isArray(parsed.lines) ? parsed.lines : [];\nreturn [{ json: { ...parsed, missing, complete: missing.length === 0, confidence: $('OpenAI Vision: Extract Invoice').item.json.confidence ?? 0.9 } }];"
+      },
+      "id": "wf-air-010",
+      "name": "Parse + Validate JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1680, -140]
+    },
+    {
+      "parameters": {
+        "jsCode": "const inv = $input.first().json;\nconst lines = (inv.lines ?? []).map((l) => ({ ...l, amount: Number(l.amount ?? 0) }));\nconst net = lines.reduce((s, l) => s + l.amount, 0) || Number(inv.net ?? 0);\nconst vatRate = Number(inv.vatRate ?? 0);\nconst vat = Number(inv.vat ?? (net * vatRate / 100).toFixed(2));\nconst total = Number(inv.total ?? (net + vat).toFixed(2));\nreturn [{ json: { ...inv, net, vatRate, vat, total } }];"
+      },
+      "id": "wf-air-011",
+      "name": "Compute Totals & VAT",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1920, -140]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "conditions": [
+            { "id": "cmp", "leftValue": "={{ $json.complete }}", "rightValue": true, "operator": { "type": "boolean", "operation": "true" } }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "wf-air-012",
+      "name": "All Fields Validated?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2160, -140]
+    },
+    {
+      "parameters": {
+        "operation": "list",
+        "documentId": "={{ $('Google Sheets').item.json.documentId }}",
+        "sheetName": "invoices_2026",
+        "options": { "returnAllMatches": true }
+      },
+      "id": "wf-air-013",
+      "name": "Lookup Existing Invoices",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [2400, -240]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "conditions": [
+            { "id": "dup", "leftValue": "={{ $json.invoiceNumber }}", "rightValue": "={{ $('Lookup Existing Invoices').item.json.invoiceNumber }}", "operator": { "type": "string", "operation": "equals" } }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "wf-air-014",
+      "name": "Duplicate Invoice?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2640, -240]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "options": {}
+      },
+      "id": "wf-air-015",
+      "name": "Gmail: Already Logged",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [2880, -80]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": "={{ $('Google Sheets').item.json.documentId }}",
+        "sheetName": "invoices_2026",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ $json.date }}",
+            "vendor": "={{ $json.vendor }}",
+            "invoice_number": "={{ $json.invoiceNumber }}",
+            "net_eur": "={{ $json.net }}",
+            "vat_eur": "={{ $json.vat }}",
+            "total_eur": "={{ $json.total }}",
+            "status": "validated",
+            "source": "={{ $('Inbox: Supplier Invoices').item.json.subject || 'upload' }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "wf-air-016",
+      "name": "Append to invoices_2026",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [2880, -240]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "options": {}
+      },
+      "id": "wf-air-017",
+      "name": "Gmail: Confirm to Sender",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [3120, -240]
+    },
+    {
+      "parameters": {
+        "channel": "finance",
+        "text": "🧾 Invoice {{ $json.invoiceNumber }} from {{ $json.vendor }} — €{{ $json.total }} logged. Lines: {{ $json.lines.length }}.",
+        "username": "Invoice Bot"
+      },
+      "id": "wf-air-018",
+      "name": "Slack: Logged Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [3120, -120]
+    },
+    {
+      "parameters": {
+        "channel": "finance",
+        "text": "⚠️ Invoice needs review — missing: {{ $json.missing.join(', ') }}. File: {{ $('Normalize OCR / PDF Text').item.json.attachmentName }}.",
+        "username": "Invoice Bot"
+      },
+      "id": "wf-air-019",
+      "name": "Slack: Review Needed",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [2400, -40]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "flag", "name": "needsReview", "value": true }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wf-air-020",
+      "name": "Flag: Needs Review",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2.2,
+      "position": [2640, -40]
+    },
+    {
+      "parameters": {},
+      "id": "wf-air-021",
+      "name": "Done",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [3360, -240]
+    }
+  ],
+  "connections": {
+    "Webhook: File Upload": {
+      "main": [[{ "node": "Has Attachment?", "type": "main", "index": 0 }]]
+    },
+    "Inbox: Supplier Invoices": {
+      "main": [[{ "node": "Has Attachment?", "type": "main", "index": 0 }]]
+    },
+    "Has Attachment?": {
+      "main": [
+        [{ "node": "Attachment Is PDF?", "type": "main", "index": 0 }],
+        [{ "node": "Done", "type": "main", "index": 0 }]
+      ]
+    },
+    "Attachment Is PDF?": {
+      "main": [
+        [{ "node": "Read Attachment Binary", "type": "main", "index": 0 }],
+        [{ "node": "Warn: Unsupported File", "type": "main", "index": 0 }]
+      ]
+    },
+    "Warn: Unsupported File": {
+      "main": [[{ "node": "Done", "type": "main", "index": 0 }]]
+    },
+    "Read Attachment Binary": {
+      "main": [[{ "node": "Extract Text from PDF", "type": "main", "index": 0 }]]
+    },
+    "Extract Text from PDF": {
+      "main": [[{ "node": "Normalize OCR / PDF Text", "type": "main", "index": 0 }]]
+    },
+    "Normalize OCR / PDF Text": {
+      "main": [[{ "node": "OpenAI Vision: Extract Invoice", "type": "main", "index": 0 }]]
+    },
+    "OpenAI Vision: Extract Invoice": {
+      "main": [[{ "node": "Parse + Validate JSON", "type": "main", "index": 0 }]]
+    },
+    "Parse + Validate JSON": {
+      "main": [[{ "node": "Compute Totals & VAT", "type": "main", "index": 0 }]]
+    },
+    "Compute Totals & VAT": {
+      "main": [[{ "node": "All Fields Validated?", "type": "main", "index": 0 }]]
+    },
+    "All Fields Validated?": {
+      "main": [
+        [{ "node": "Lookup Existing Invoices", "type": "main", "index": 0 }],
+        [{ "node": "Slack: Review Needed", "type": "main", "index": 0 }]
+      ]
+    },
+    "Slack: Review Needed": {
+      "main": [[{ "node": "Flag: Needs Review", "type": "main", "index": 0 }]]
+    },
+    "Flag: Needs Review": {
+      "main": [[{ "node": "Done", "type": "main", "index": 0 }]]
+    },
+    "Lookup Existing Invoices": {
+      "main": [[{ "node": "Duplicate Invoice?", "type": "main", "index": 0 }]]
+    },
+    "Duplicate Invoice?": {
+      "main": [
+        [{ "node": "Gmail: Already Logged", "type": "main", "index": 0 }],
+        [{ "node": "Append to invoices_2026", "type": "main", "index": 0 }]
+      ]
+    },
+    "Gmail: Already Logged": {
+      "main": [[{ "node": "Done", "type": "main", "index": 0 }]]
+    },
+    "Append to invoices_2026": {
+      "main": [[{ "node": "Gmail: Confirm to Sender", "type": "main", "index": 0 }]]
+    },
+    "Gmail: Confirm to Sender": {
+      "main": [[{ "node": "Slack: Logged Notification", "type": "main", "index": 0 }]]
+    },
+    "Slack: Logged Notification": {
+      "main": [[{ "node": "Done", "type": "main", "index": 0 }]]
+    }
+  }
+}

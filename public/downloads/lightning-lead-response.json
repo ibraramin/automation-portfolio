@@ -1,0 +1,330 @@
+{
+  "name": "Lightning Lead Response (score → reply → CRM → Slack)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lightning-lead-response",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "wf-llr-001",
+      "name": "Lead Received (webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json;\nconst text = body.message ?? body.text ?? '';\nreturn [{ json: {\n  message: String(text),\n  name: body.name ?? 'there',\n  email: body.email ?? '',\n  phone: body.phone ?? '',\n  channel: body.channel ?? 'website',\n  receivedAt: new Date().toISOString()\n}}];"
+      },
+      "id": "wf-llr-002",
+      "name": "Normalize Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "conditions": [
+            { "id": "hasMsg", "leftValue": "={{ $json.message.trim().length >= 10 }}", "rightValue": true, "operator": { "type": "boolean", "operation": "true" } }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "wf-llr-003",
+      "name": "Is Real Message?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [480, 0]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "modelId": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Score this B2B lead message. Reply with STRICT JSON only: {\"score\":0-10,\"intent\":\"high|medium|low\",\"budget\":\"strong|weak|unknown\",\"urgency\":\"end of month\"|\"this week\"|\"asap\"|\"none\",\"quantity\":\"20 units\"|\"unknown\",\"stage\":\"pricing request\"|\"demo request\"|\"questions\"|\"other\",\"summary\":\"one sentence\"}"
+            },
+            { "role": "user", "content": "={{ $json.message }}" }
+          ]
+        },
+        "options": { "temperature": 0 }
+      },
+      "id": "wf-llr-004",
+      "name": "OpenAI: Score Lead",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.2,
+      "position": [720, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.message?.content ?? $input.first().json.choices?.[0]?.message?.content ?? '';\nconst start = raw.indexOf('{');\nconst end = raw.lastIndexOf('}');\nlet score = {};\nif (start >= 0 && end > start) {\n  try { score = JSON.parse(raw.slice(start, end + 1)); } catch (e) { score = {}; }\n}\nreturn [{ json: { ...$('Normalize Lead').item.json, ...score, score: Number(score.score ?? 5) } }];"
+      },
+      "id": "wf-llr-005",
+      "name": "Parse Score JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 0]
+    },
+    {
+      "parameters": {
+        "dataType": "number",
+        "value1": "={{ $json.score }}",
+        "options": {},
+        "rules": {
+          "values": [
+            { "value": 8, "regex": ">=" },
+            { "value": 5, "regex": ">=" }
+          ]
+        }
+      },
+      "id": "wf-llr-006",
+      "name": "Route by Score",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2.2,
+      "position": [1200, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $input.first().json;\nconst name = lead.name?.split(' ')[0] || 'there';\nreturn [{ json: {\n  ...lead,\n  draftReply: `Hi ${name}, thanks for reaching out!\\n\\n${lead.quantity !== 'unknown' ? lead.quantity + ' by ' + (lead.urgency !== 'none' ? lead.urgency : 'end of month') + ' is very doable — we have capacity this month.' : 'Happy to help with that.'} I'll send a tailored breakdown today. What's the best email for it?\\n\\n— The Automation Collective`\n}}];"
+      },
+      "id": "wf-llr-007",
+      "name": "Draft Personalized Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1440, -140]
+    },
+    {
+      "parameters": {
+        "resource": "contact",
+        "operation": "upsert",
+        "matchAgainst": "email",
+        "searchByEmail": "={{ $json.email }}",
+        "additionalFields": {
+          "firstname": "={{ $json.name }}",
+          "phone": "={{ $json.phone }}",
+          "hs_lead_status": "new",
+          "notes_last_contacted": "={{ $json.summary }}"
+        },
+        "options": {}
+      },
+      "id": "wf-llr-008",
+      "name": "HubSpot: Save Lead",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [1440, 0]
+    },
+    {
+      "parameters": {
+        "table": "leads",
+        "operation": "append",
+        "base": { "__rl": true, "value": "app-leads-2026", "mode": "id" },
+        "fields": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $json.name }}",
+            "email": "={{ $json.email }}",
+            "message": "={{ $json.message }}",
+            "score": "={{ $json.score }}",
+            "stage": "={{ $json.stage }}",
+            "status": "new"
+          }
+        },
+        "options": {}
+      },
+      "id": "wf-llr-009",
+      "name": "Airtable: Log Lead",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1680, 0]
+    },
+    {
+      "parameters": {
+        "channel": "leads-hot",
+        "text": "🔥 HOT LEAD ({{ $json.score }}/10) — {{ $json.name }}\\nIntent: {{ $json.intent }} | Budget: {{ $json.budget }} | Urgency: {{ $json.urgency }}\\n\"{{ $json.message }}\"\\nDraft reply ready — reply within 5 minutes!",
+        "username": "Lead Bot"
+      },
+      "id": "wf-llr-010",
+      "name": "Slack: Hot Lead Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [1680, 140]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "options": {}
+      },
+      "id": "wf-llr-011",
+      "name": "Gmail: Send Draft Reply",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1920, -140]
+    },
+    {
+      "parameters": {
+        "channel": "leads-warm",
+        "text": "Warm lead ({{ $json.score }}/10) — {{ $json.name }}. Score says: {{ $json.summary }}. Follow up within 2 hours.",
+        "username": "Lead Bot"
+      },
+      "id": "wf-llr-012",
+      "name": "Slack: Warm Lead",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [1920, 140]
+    },
+    {
+      "parameters": {
+        "channel": "leads-warm",
+        "text": "Cold lead ({{ $json.score }}/10) — {{ $json.name }}. Add to nurture sequence.",
+        "username": "Lead Bot"
+      },
+      "id": "wf-llr-013",
+      "name": "Slack: Nurture Queue",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [2160, 140]
+    },
+    {
+      "parameters": {
+        "channel": "leads-hot",
+        "text": "⏰ No reply from team in 5 min — {{ $json.name }} (score {{ $json.score }}/10) still waiting. Draft: {{ $json.draftReply }}",
+        "username": "Lead Bot"
+      },
+      "id": "wf-llr-014",
+      "name": "Slack: Follow-up Reminder",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [1920, 280]
+    },
+    {
+      "parameters": {
+        "amount": 5,
+        "unit": "minutes",
+        "options": {}
+      },
+      "id": "wf-llr-015",
+      "name": "Delay: Wait for Reply",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [2160, 280]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "tag", "name": "leadStatus", "value": "nurture" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wf-llr-016",
+      "name": "Tag: Needs Human Call",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2.2,
+      "position": [1440, 280]
+    },
+    {
+      "parameters": {
+        "resource": "contact",
+        "operation": "update",
+        "matchAgainst": "email",
+        "searchByEmail": "={{ $json.email }}",
+        "additionalFields": { "hs_lead_status": "open" },
+        "options": {}
+      },
+      "id": "wf-llr-017",
+      "name": "HubSpot: Mark Open",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [2400, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const s = Number($input.first().json.score ?? 0);\nreturn [{ json: { ...$input.first().json, route: s >= 8 ? 'hot' : s >= 5 ? 'warm' : 'cold' } }];"
+      },
+      "id": "wf-llr-018",
+      "name": "Resolve Route",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1440, 0]
+    },
+    {
+      "parameters": {},
+      "id": "wf-llr-019",
+      "name": "Done",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [2640, 0]
+    }
+  ],
+  "connections": {
+    "Lead Received (webhook)": {
+      "main": [[{ "node": "Normalize Lead", "type": "main", "index": 0 }]]
+    },
+    "Normalize Lead": {
+      "main": [[{ "node": "Is Real Message?", "type": "main", "index": 0 }]]
+    },
+    "Is Real Message?": {
+      "main": [
+        [{ "node": "OpenAI: Score Lead", "type": "main", "index": 0 }],
+        [{ "node": "Done", "type": "main", "index": 0 }]
+      ]
+    },
+    "OpenAI: Score Lead": {
+      "main": [[{ "node": "Parse Score JSON", "type": "main", "index": 0 }]]
+    },
+    "Parse Score JSON": {
+      "main": [[{ "node": "Route by Score", "type": "main", "index": 0 }]]
+    },
+    "Route by Score": {
+      "main": [
+        [{ "node": "Draft Personalized Reply", "type": "main", "index": 0 }],
+        [{ "node": "Resolve Route", "type": "main", "index": 0 }],
+        [{ "node": "Resolve Route", "type": "main", "index": 0 }]
+      ]
+    },
+    "Draft Personalized Reply": {
+      "main": [[{ "node": "HubSpot: Save Lead", "type": "main", "index": 0 }]]
+    },
+    "Resolve Route": {
+      "main": [[{ "node": "HubSpot: Save Lead", "type": "main", "index": 0 }]]
+    },
+    "HubSpot: Save Lead": {
+      "main": [[{ "node": "Airtable: Log Lead", "type": "main", "index": 0 }]]
+    },
+    "Airtable: Log Lead": {
+      "main": [[{ "node": "Gmail: Send Draft Reply", "type": "main", "index": 0 }]]
+    },
+    "Gmail: Send Draft Reply": {
+      "main": [[{ "node": "Slack: Hot Lead Alert", "type": "main", "index": 0 }]]
+    },
+    "Slack: Hot Lead Alert": {
+      "main": [[{ "node": "Delay: Wait for Reply", "type": "main", "index": 0 }]]
+    },
+    "Delay: Wait for Reply": {
+      "main": [[{ "node": "Slack: Follow-up Reminder", "type": "main", "index": 0 }]]
+    },
+    "Slack: Follow-up Reminder": {
+      "main": [[{ "node": "Done", "type": "main", "index": 0 }]]
+    },
+    "Slack: Warm Lead": {
+      "main": [[{ "node": "Tag: Needs Human Call", "type": "main", "index": 0 }]]
+    },
+    "Tag: Needs Human Call": {
+      "main": [[{ "node": "HubSpot: Mark Open", "type": "main", "index": 0 }]]
+    },
+    "HubSpot: Mark Open": {
+      "main": [[{ "node": "Done", "type": "main", "index": 0 }]]
+    },
+    "Slack: Nurture Queue": {
+      "main": [[{ "node": "Done", "type": "main", "index": 0 }]]
+    }
+  }
+}

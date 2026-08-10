@@ -1,0 +1,501 @@
+{
+  "name": "WhatsApp Order Bot (bKash + Pathao)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-order-bot",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "wf-wab-001",
+      "name": "WhatsApp Message Received",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json;\nconst message = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];\nreturn [{ json: {\n  from: message?.from ?? '',\n  text: message?.text?.body ?? (message?.interactive?.button_reply?.title ?? ''),\n  type: message?.type ?? 'text',\n  ts: message?.timestamp ?? '',\n  stage: $('WhatsApp Message Received').first().json?.query?.stage ?? 'greeting'\n}}];"
+      },
+      "id": "wf-wab-002",
+      "name": "Parse Incoming Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 0]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.stage }}",
+        "options": {},
+        "rules": {
+          "values": [
+            { "value": "greeting" },
+            { "value": "product" },
+            { "value": "size" },
+            { "value": "address" },
+            { "value": "payment" }
+          ]
+        }
+      },
+      "id": "wf-wab-003",
+      "name": "Order Stage Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [480, 0]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "messagingProduct": "whatsapp",
+        "from": "={{ $json.from }}",
+        "messageType": "interactive",
+        "interactiveType": "button",
+        "interactiveHeader": {
+          "type": "text",
+          "text": "Welcome to ShopNest BD! ভাতিজা, ki kinte chan? 😊"
+        },
+        "interactiveBody": { "text": "Pick a product and I'll arrange delivery + payment." },
+        "interactiveFooter": { "text": "ShopNest BD • Dhaka" },
+        "interactiveButtons": [
+          { "type": "reply", "title": "Cotton Kurti ৳899", "id": "p-kurti" },
+          { "type": "reply", "title": "Denim Jacket ৳1,499", "id": "p-jacket" },
+          { "type": "reply", "title": "Saree ৳2,200", "id": "p-saree" }
+        ]
+      },
+      "id": "wf-wab-004",
+      "name": "Send Product Menu",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [720, -140]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "name", "name": "product", "value": "={{ $json.interactive?.button_reply?.title }}" },
+            { "id": "price", "name": "productPrice", "value": "={{ $json.interactive?.button_reply?.id === 'p-kurti' ? 899 : $json.interactive?.button_reply?.id === 'p-jacket' ? 1499 : 2200 }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wf-wab-005",
+      "name": "Remember: Product Choice",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2.2,
+      "position": [960, -140]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "messagingProduct": "whatsapp",
+        "from": "={{ $json.from }}",
+        "messageType": "interactive",
+        "interactiveType": "button",
+        "interactiveHeader": { "type": "text", "text": "Great choice! 🛍️" },
+        "interactiveBody": { "text": "{{ $('Remember: Product Choice').item.json.product }} — which size?" },
+        "interactiveButtons": [
+          { "type": "reply", "title": "S", "id": "s" },
+          { "type": "reply", "title": "M", "id": "m" },
+          { "type": "reply", "title": "L", "id": "l" },
+          { "type": "reply", "title": "XL", "id": "xl" }
+        ]
+      },
+      "id": "wf-wab-006",
+      "name": "Ask for Size",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [720, 0]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "size", "name": "size", "value": "={{ $json.interactive?.button_reply?.title }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wf-wab-007",
+      "name": "Remember: Size",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2.2,
+      "position": [960, 0]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "messagingProduct": "whatsapp",
+        "from": "={{ $json.from }}",
+        "messageType": "text",
+        "text": "Perfect. Please send your delivery address (plus a contact number): 📍"
+      },
+      "id": "wf-wab-008",
+      "name": "Ask Delivery Address",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [720, 140]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { ...$input.first().json, address: $input.first().json.text, addressValid: String($input.first().json.text).length > 8 } }];"
+      },
+      "id": "wf-wab-009",
+      "name": "Parse Address Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 140]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "addr", "name": "deliveryAddress", "value": "={{ $json.address }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wf-wab-010",
+      "name": "Remember: Address",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2.2,
+      "position": [1200, 140]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "messagingProduct": "whatsapp",
+        "from": "={{ $json.from }}",
+        "messageType": "text",
+        "text": "Please Send Money to 01711-223344 (ShopNest BD) — amount ৳{{ $('Remember: Product Choice').item.json.productPrice }}.\n\nThen reply with your bKash Transaction ID (10-12 digits) to confirm. ✅"
+      },
+      "id": "wf-wab-011",
+      "name": "Send bKash Instructions",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [720, 280]
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "amount": 1,
+        "unit": "minutes",
+        "options": {}
+      },
+      "id": "wf-wab-012",
+      "name": "Wait for TrxID",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [960, 280]
+    },
+    {
+      "parameters": {
+        "jsCode": "const trx = String($input.first().json.text ?? '').trim();\nconst valid = /^[A-Za-z0-9]{10,12}$/.test(trx);\nreturn [{ json: { ...$input.first().json, trxId: trx, trxValid: valid } }];"
+      },
+      "id": "wf-wab-013",
+      "name": "Validate TrxID Format",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 280]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "conditions": [
+            { "id": "trx", "leftValue": "={{ $json.trxValid }}", "rightValue": true, "operator": { "type": "boolean", "operation": "true" } }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "wf-wab-014",
+      "name": "TrxID Looks Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1440, 280]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "messagingProduct": "whatsapp",
+        "from": "={{ $json.from }}",
+        "messageType": "text",
+        "text": "That TrxID doesn't look right (needs 10-12 characters). Please double-check and send it again."
+      },
+      "id": "wf-wab-015",
+      "name": "Reject Invalid TrxID",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [1680, 420]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout/payment/execute",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "={{ $('Wait for TrxID').item.json.headers?.authorization }}" },
+            { "name": "X-APP-Key", "value": "={{ $('Wait for TrxID').item.json.headers?.['x-app-key'] }}" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ paymentID: $('Wait for TrxID').item.json.query?.paymentID, trxID: $json.trxId }) }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "wf-wab-016",
+      "name": "Verify bKash Payment (placeholder)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1680, 280]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "conditions": [
+            { "id": "paid", "leftValue": "={{ $json.transactionStatus }}", "rightValue": "Completed", "operator": { "type": "string", "operation": "equals" } }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "wf-wab-017",
+      "name": "Payment Verified?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1920, 280]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "messagingProduct": "whatsapp",
+        "from": "={{ $json.from }}",
+        "messageType": "text",
+        "text": "We couldn't confirm that payment yet. Please try again or contact us — we're here to help."
+      },
+      "id": "wf-wab-018",
+      "name": "Reject Unconfirmed Payment",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [2160, 420]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": "={{ $('Google Sheets').item.json.documentId }}",
+        "sheetName": "orders",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "order_id": "={{ $('Wait for TrxID').item.json.query?.orderId || ('SN-' + Math.floor(1000 + Math.random() * 9000)) }}",
+            "customer": "={{ $json.from }}",
+            "product": "={{ $('Remember: Product Choice').item.json.product }}",
+            "size": "={{ $('Remember: Size').item.json.size }}",
+            "address": "={{ $('Remember: Address').item.json.deliveryAddress }}",
+            "amount_bdt": "={{ $('Remember: Product Choice').item.json.productPrice }}",
+            "trx_id": "={{ $json.trxId }}",
+            "status": "paid"
+          }
+        },
+        "options": {}
+      },
+      "id": "wf-wab-019",
+      "name": "Log Order to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [2160, 280]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "messagingProduct": "whatsapp",
+        "from": "={{ $json.from }}",
+        "messageType": "text",
+        "text": "Payment confirmed ✓\nOrder {{ $json.order_id }} placed.\nDelivery via Pathao — expected today, 6–9 PM. 🛵"
+      },
+      "id": "wf-wab-020",
+      "name": "Order Confirmed + Number",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [2400, 280]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api-hermes.pathao.com/aladdin/api/v1/orders",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "Authorization", "value": "Bearer {{ $('Wait for TrxID').item.json.headers?.pathao_token }}" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ recipient_name: $json.from, recipient_phone: $json.from, delivery_address: $('Remember: Address').item.json.deliveryAddress, merchant_order_id: $json.order_id }) }}",
+        "options": {}
+      },
+      "id": "wf-wab-021",
+      "name": "Create Pathao Delivery (placeholder)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2640, 280]
+    },
+    {
+      "parameters": {
+        "amount": 45,
+        "unit": "minutes",
+        "options": {}
+      },
+      "id": "wf-wab-022",
+      "name": "Delay: Courier Pickup",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [2880, 280]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "messagingProduct": "whatsapp",
+        "from": "={{ $json.from }}",
+        "messageType": "text",
+        "text": "📦 Order {{ $json.order_id }} shipped via Pathao — tracking: PATH-{{ $json.consignment_id }}."
+      },
+      "id": "wf-wab-023",
+      "name": "Shipped Update",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [3120, 280]
+    },
+    {
+      "parameters": {
+        "amount": 45,
+        "unit": "minutes",
+        "options": {}
+      },
+      "id": "wf-wab-024",
+      "name": "Delay: Out for Delivery",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [3360, 280]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "messagingProduct": "whatsapp",
+        "from": "={{ $json.from }}",
+        "messageType": "text",
+        "text": "🛵 Your order is out for delivery — expected 6–9 PM. Thank you for shopping with ShopNest BD! 💚"
+      },
+      "id": "wf-wab-025",
+      "name": "Out for Delivery",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [3600, 280]
+    },
+    {
+      "parameters": {},
+      "id": "wf-wab-026",
+      "name": "Done",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [3840, 280]
+    }
+  ],
+  "connections": {
+    "WhatsApp Message Received": {
+      "main": [[{ "node": "Parse Incoming Message", "type": "main", "index": 0 }]]
+    },
+    "Parse Incoming Message": {
+      "main": [[{ "node": "Order Stage Router", "type": "main", "index": 0 }]]
+    },
+    "Order Stage Router": {
+      "main": [
+        [{ "node": "Send Product Menu", "type": "main", "index": 0 }],
+        [{ "node": "Ask for Size", "type": "main", "index": 0 }],
+        [{ "node": "Ask Delivery Address", "type": "main", "index": 0 }],
+        [{ "node": "Send bKash Instructions", "type": "main", "index": 0 }],
+        [{ "node": "Validate TrxID Format", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send Product Menu": {
+      "main": [[{ "node": "Remember: Product Choice", "type": "main", "index": 0 }]]
+    },
+    "Remember: Product Choice": {
+      "main": [[{ "node": "Done", "type": "main", "index": 0 }]]
+    },
+    "Ask for Size": {
+      "main": [[{ "node": "Remember: Size", "type": "main", "index": 0 }]]
+    },
+    "Remember: Size": {
+      "main": [[{ "node": "Done", "type": "main", "index": 0 }]]
+    },
+    "Ask Delivery Address": {
+      "main": [[{ "node": "Parse Address Text", "type": "main", "index": 0 }]]
+    },
+    "Parse Address Text": {
+      "main": [[{ "node": "Remember: Address", "type": "main", "index": 0 }]]
+    },
+    "Remember: Address": {
+      "main": [[{ "node": "Done", "type": "main", "index": 0 }]]
+    },
+    "Send bKash Instructions": {
+      "main": [[{ "node": "Wait for TrxID", "type": "main", "index": 0 }]]
+    },
+    "Wait for TrxID": {
+      "main": [[{ "node": "Validate TrxID Format", "type": "main", "index": 0 }]]
+    },
+    "Validate TrxID Format": {
+      "main": [[{ "node": "TrxID Looks Valid?", "type": "main", "index": 0 }]]
+    },
+    "TrxID Looks Valid?": {
+      "main": [
+        [{ "node": "Verify bKash Payment (placeholder)", "type": "main", "index": 0 }],
+        [{ "node": "Reject Invalid TrxID", "type": "main", "index": 0 }]
+      ]
+    },
+    "Reject Invalid TrxID": {
+      "main": [[{ "node": "Wait for TrxID", "type": "main", "index": 0 }]]
+    },
+    "Verify bKash Payment (placeholder)": {
+      "main": [[{ "node": "Payment Verified?", "type": "main", "index": 0 }]]
+    },
+    "Payment Verified?": {
+      "main": [
+        [{ "node": "Log Order to Sheet", "type": "main", "index": 0 }],
+        [{ "node": "Reject Unconfirmed Payment", "type": "main", "index": 0 }]
+      ]
+    },
+    "Reject Unconfirmed Payment": {
+      "main": [[{ "node": "Done", "type": "main", "index": 0 }]]
+    },
+    "Log Order to Sheet": {
+      "main": [[{ "node": "Order Confirmed + Number", "type": "main", "index": 0 }]]
+    },
+    "Order Confirmed + Number": {
+      "main": [[{ "node": "Create Pathao Delivery (placeholder)", "type": "main", "index": 0 }]]
+    },
+    "Create Pathao Delivery (placeholder)": {
+      "main": [[{ "node": "Delay: Courier Pickup", "type": "main", "index": 0 }]]
+    },
+    "Delay: Courier Pickup": {
+      "main": [[{ "node": "Shipped Update", "type": "main", "index": 0 }]]
+    },
+    "Shipped Update": {
+      "main": [[{ "node": "Delay: Out for Delivery", "type": "main", "index": 0 }]]
+    },
+    "Delay: Out for Delivery": {
+      "main": [[{ "node": "Out for Delivery", "type": "main", "index": 0 }]]
+    },
+    "Out for Delivery": {
+      "main": [[{ "node": "Done", "type": "main", "index": 0 }]]
+    }
+  }
+}
