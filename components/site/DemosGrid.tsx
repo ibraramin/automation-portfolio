@@ -9,7 +9,7 @@ function DemoCard({ demo }: { demo: DemoMeta }) {
   return (
     <Link
       href={`/demos/${demo.slug}`}
-      className="group relative flex h-full flex-col gap-4 overflow-hidden rounded-2xl border border-edge bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-wa/30 hover:shadow-[0_20px_60px_-24px_rgba(0,0,0,0.8),0_0_24px_-8px_rgba(37,211,102,0.35)] sm:p-7"
+      className="group relative z-0 flex h-full flex-col gap-4 overflow-hidden rounded-2xl border border-edge bg-surface p-6 transition-[transform,border-color] duration-300 ease-out hover:-translate-y-1 hover:border-wa/30 after:pointer-events-none after:absolute after:inset-0 after:rounded-2xl after:shadow-[0_20px_60px_-24px_rgba(0,0,0,0.8),0_0_24px_-8px_rgba(37,211,102,0.35)] after:opacity-0 after:transition-opacity after:duration-300 group-hover:after:opacity-100 sm:p-7"
     >
       <div className="flex items-center justify-between gap-3">
         <span className="inline-flex items-center gap-2 rounded-full border border-wa/20 bg-wa/10 px-2.5 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-wa">
@@ -45,7 +45,8 @@ export default function DemosGrid() {
   return (
     <section
       id="demos"
-      className="relative overflow-hidden border-y border-edge bg-surface/30 py-20 sm:py-28"
+      className="cv-auto relative overflow-hidden border-y border-edge bg-surface/30 py-20 sm:py-28"
+      style={{ containIntrinsicSize: "auto 46rem" }}
     >
       <div
         className="pointer-events-none absolute inset-0 bg-grid opacity-60 mask-fade-b"

@@ -119,7 +119,7 @@ export default function Header() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-edge bg-bg/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-edge bg-bg/95">
       <div className="container-site flex h-16 items-center justify-between gap-4">
         <Logo />
         <nav className="hidden items-center gap-8 md:flex" aria-label="Main">
@@ -155,7 +155,7 @@ export default function Header() {
       {open ? (
         <div
           id="mobile-nav"
-          className="border-t border-edge bg-surface/95 px-6 py-5 backdrop-blur-xl md:hidden"
+          className="border-t border-edge bg-surface/95 px-6 py-5 md:hidden"
         >
           <nav className="flex flex-col gap-1" aria-label="Mobile">
             {NAV.map((item) => (

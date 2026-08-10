@@ -5,7 +5,10 @@ import { SITE } from "./config";
 
 export default function CTASection() {
   return (
-    <section className="relative overflow-hidden border-t border-edge py-24 sm:py-32">
+    <section
+      className="cv-auto relative overflow-hidden border-t border-edge py-24 sm:py-32"
+      style={{ containIntrinsicSize: "auto 34rem" }}
+    >
       <div
         className="pointer-events-none absolute inset-0 bg-grid opacity-40 mask-fade-b"
         aria-hidden="true"

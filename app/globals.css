@@ -129,14 +129,19 @@
     }
   }
 
-  /* Slow drift of the hero glow gradients, 12s round trip */
+  /* Slow drift of the hero glow gradients, 12s round trip.
+     Transform-only (translate + scale), never background-position:
+     animating background-position repaints the blurred layer every
+     frame, while transform just moves the pre-blurred compositor
+     layer. The blobs sit well offscreen (-left-40 etc.), so the
+     translate range cannot reveal their edges. */
   @keyframes glow-drift {
     0%,
     100% {
-      background-position: 0% 50%;
+      transform: translate3d(0, 0, 0) scale(1);
     }
     50% {
-      background-position: 100% 50%;
+      transform: translate3d(3rem, 2rem, 0) scale(1.18);
     }
   }
 }
@@ -189,15 +194,19 @@
     }
   }
 
-  /* Seamless theme switch: the toggle adds this class for ~300ms */
+  /* Seamless theme switch: the toggle adds this class for ~300ms.
+     Scoped to background-color + color only. Border-color is dropped
+     (the site has hundreds of bordered elements; their 1px strokes add
+     no visible value to the cross-fade and would triple the transition
+     work), and the sweep is shortened to 200ms. Still a property-only
+     transition: no layout, no paint of interiors. */
   html.theme-anim,
   html.theme-anim *,
   html.theme-anim *::before,
   html.theme-anim *::after {
     transition:
-      background-color 0.25s ease,
-      color 0.25s ease,
-      border-color 0.25s ease !important;
+      background-color 0.2s ease,
+      color 0.2s ease !important;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -260,5 +269,17 @@
   .mask-fade-b {
     -webkit-mask-image: linear-gradient(to bottom, black 35%, transparent 100%);
     mask-image: linear-gradient(to bottom, black 35%, transparent 100%);
+  }
+
+  /* Skip rendering below-fold sections until they scroll near.
+     contain-intrinsic-size keeps a stable box so the scrollbar never
+     jumps and IntersectionObserver geometry stays valid. The `auto`
+     keyword remembers the real size after the first render. Browsers
+     without content-visibility support simply ignore these lines.
+     Callers override the size with an inline containIntrinsicSize
+     style when the section is much taller or shorter than 30rem. */
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 30rem;
   }
 }

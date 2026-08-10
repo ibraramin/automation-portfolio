@@ -216,7 +216,7 @@ export default function HeroPipeline() {
         className="absolute -inset-6 rounded-[2rem] bg-linear-to-br from-wa/10 via-transparent to-sky/10 blur-2xl"
         aria-hidden="true"
       />
-      <div className="relative rounded-2xl border border-edge bg-surface/90 p-5 shadow-[0_24px_80px_-32px_rgba(0,0,0,0.9)] backdrop-blur-sm sm:p-6">
+      <div className="relative rounded-2xl border border-edge bg-surface/95 p-5 shadow-[0_24px_80px_-32px_rgba(0,0,0,0.9)] sm:p-6">
         <div className="flex items-center justify-between gap-3">
           <p className="flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-muted">
             <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-wa" aria-hidden="true" />
@@ -254,7 +254,7 @@ export default function HeroPipeline() {
                 return (
                   <div key={i} className="h-full flex-1 overflow-hidden">
                     <div
-                      className="fill-fade h-full w-full origin-left bg-linear-to-r from-wa to-sky"
+                      className="fill-fade h-full w-full origin-left bg-linear-to-r from-wa to-sky [will-change:transform]"
                       style={s}
                     />
                   </div>
@@ -265,7 +265,7 @@ export default function HeroPipeline() {
           {/* traveling order dot (hidden under reduced motion) */}
           {!reduced ? (
             <span
-              className="absolute top-[13px] z-10 h-3.5 w-3.5 rounded-full bg-wa shadow-[0_0_14px_rgba(37,211,102,0.7)]"
+              className="absolute top-[13px] z-10 h-3.5 w-3.5 rounded-full bg-wa shadow-[0_0_14px_rgba(37,211,102,0.7)] [will-change:transform]"
               style={{
                 transform: `translateX(calc(28px + (100cqw - 56px) * ${dotPct} - 7px))`,
                 transition: dotTransition,

@@ -19,7 +19,8 @@ function ServiceBlock({ service, index }: { service: Service; index: number }) {
   return (
     <article
       id={service.id}
-      className="grid gap-8 border-t border-edge py-14 first:border-t-0 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-14"
+      className="cv-auto grid gap-8 border-t border-edge py-14 first:border-t-0 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-14"
+      style={{ containIntrinsicSize: "auto 30rem" }}
     >
       <div>
         <p className="font-mono text-xs font-medium uppercase tracking-[0.22em] text-muted">

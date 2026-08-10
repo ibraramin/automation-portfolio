@@ -24,11 +24,11 @@ function Hero() {
         aria-hidden="true"
       />
       <div
-        className="animate-glow-drift pointer-events-none absolute -top-40 -left-40 h-[30rem] w-[30rem] rounded-full bg-[radial-gradient(circle_at_35%_35%,rgba(37,211,102,0.16),transparent_60%)] bg-[length:180%_180%] blur-[130px]"
+        className="animate-glow-drift pointer-events-none absolute -top-40 -left-40 h-[30rem] w-[30rem] rounded-full bg-[radial-gradient(circle_at_35%_35%,rgba(37,211,102,0.16),transparent_60%)] bg-[length:180%_180%] blur-[130px] [will-change:transform]"
         aria-hidden="true"
       />
       <div
-        className="animate-glow-drift pointer-events-none absolute top-20 -right-40 h-[26rem] w-[26rem] rounded-full bg-[radial-gradient(circle_at_65%_35%,rgba(56,189,248,0.14),transparent_60%)] bg-[length:180%_180%] blur-[130px]"
+        className="animate-glow-drift pointer-events-none absolute top-20 -right-40 h-[26rem] w-[26rem] rounded-full bg-[radial-gradient(circle_at_65%_35%,rgba(56,189,248,0.14),transparent_60%)] bg-[length:180%_180%] blur-[130px] [will-change:transform]"
         style={{ animationDelay: "-6s" }}
         aria-hidden="true"
       />

@@ -9,7 +9,7 @@ function ServiceCard({ service }: { service: Service }) {
   return (
     <Link
       href="/contact"
-      className="group relative flex h-full flex-col gap-4 rounded-2xl border border-edge bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-wa/30 hover:shadow-[0_20px_60px_-24px_rgba(0,0,0,0.8),0_0_24px_-8px_rgba(37,211,102,0.35)] sm:p-7"
+      className="group relative z-0 flex h-full flex-col gap-4 rounded-2xl border border-edge bg-surface p-6 transition-[transform,border-color] duration-300 ease-out hover:-translate-y-1 hover:border-wa/30 after:pointer-events-none after:absolute after:inset-0 after:rounded-2xl after:shadow-[0_20px_60px_-24px_rgba(0,0,0,0.8),0_0_24px_-8px_rgba(37,211,102,0.35)] after:opacity-0 after:transition-opacity after:duration-300 group-hover:after:opacity-100 sm:p-7"
     >
       <div className="flex items-start justify-between">
         <span
@@ -21,7 +21,7 @@ function ServiceCard({ service }: { service: Service }) {
         </span>
         <Icon
           name="arrow-right"
-          className="h-4 w-4 text-muted transition-all duration-300 group-hover:translate-x-1 group-hover:text-ink"
+          className="h-4 w-4 text-muted transition-[transform,color] duration-300 group-hover:translate-x-1 group-hover:text-ink"
         />
       </div>
       <div>
@@ -44,7 +44,11 @@ function ServiceCard({ service }: { service: Service }) {
 
 export default function ServicesGrid() {
   return (
-    <section id="services" className="container-site py-20 sm:py-28">
+    <section
+      id="services"
+      className="cv-auto container-site py-20 sm:py-28"
+      style={{ containIntrinsicSize: "auto 54rem" }}
+    >
       <SectionHeading
         eyebrow="What we automate"
         title={

@@ -26,7 +26,10 @@ const STEPS = [
 
 export default function ProcessSection() {
   return (
-    <section className="container-site py-20 sm:py-28">
+    <section
+      className="cv-auto container-site py-20 sm:py-28"
+      style={{ containIntrinsicSize: "auto 42rem" }}
+    >
       <SectionHeading
         eyebrow="How it works"
         title={
