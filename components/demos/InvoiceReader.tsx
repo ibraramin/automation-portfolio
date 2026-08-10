@@ -224,11 +224,11 @@ export default function InvoiceReader() {
   return (
     <div
       data-demo-interacted={interacted ? "true" : undefined}
-      className="overflow-hidden rounded-2xl border border-white/10 bg-[#0e0e0e]"
+      className="overflow-hidden rounded-2xl border border-edge bg-surface"
     >
       {/* Mode selector */}
-      <div className="border-b border-white/10 bg-[#111111] px-5 py-4">
-        <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">
+      <div className="border-b border-edge bg-surface-2 px-5 py-4">
+        <p className="text-[10px] font-semibold tracking-widest text-muted uppercase">
           Step 1, where does the invoice come from?
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
@@ -237,11 +237,11 @@ export default function InvoiceReader() {
               key={s.id}
               type="button"
               onClick={() => pickSample(s)}
-              className="rounded-xl border border-white/10 bg-[#0a0a0a] p-4 text-left transition-colors hover:border-[#25D366]/50"
+              className="rounded-xl border border-edge bg-surface-soft p-4 text-left transition-colors hover:border-wa/50"
             >
-              <span className="block text-xs font-medium text-white/50">Sample invoice</span>
-              <span className="mt-1 block text-sm font-semibold text-white">{s.label}</span>
-              <span className="mt-2 inline-block rounded-full bg-[#25D366]/10 px-2 py-0.5 text-[10px] font-medium text-[#25D366]">
+              <span className="block text-xs font-medium text-muted">Sample invoice</span>
+              <span className="mt-1 block text-sm font-semibold text-ink">{s.label}</span>
+              <span className="mt-2 inline-block rounded-full bg-wa/10 px-2 py-0.5 text-[10px] font-medium text-wa">
                 ground truth, instant
               </span>
             </button>
@@ -249,42 +249,42 @@ export default function InvoiceReader() {
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="flex flex-col items-start justify-center rounded-xl border border-dashed border-white/20 bg-[#0a0a0a] p-4 text-left transition-colors hover:border-[#25D366]/60"
+            className="flex flex-col items-start justify-center rounded-xl border border-dashed border-edge-strong bg-surface-soft p-4 text-left transition-colors hover:border-wa/60"
           >
-            <span className="block text-xs font-medium text-white/50">Upload your own</span>
-            <span className="mt-1 block text-sm font-semibold text-white">
+            <span className="block text-xs font-medium text-muted">Upload your own</span>
+            <span className="mt-1 block text-sm font-semibold text-ink">
               Image (OCR)
             </span>
-            <span className="mt-2 text-[10px] text-white/50">tesseract.js runs in your browser</span>
+            <span className="mt-2 text-[10px] text-muted">tesseract.js runs in your browser</span>
           </button>
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => void handleFile(e)} />
         </div>
         {ocrStatus === "reading" && (
-          <div className="mt-4 flex items-center gap-2 rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-[#25D366]" />
-            <p className="text-sm text-white/70">AI reading your document…</p>
+          <div className="mt-4 flex items-center gap-2 rounded-xl border border-edge bg-surface-soft px-4 py-3">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-edge-strong border-t-wa" />
+            <p className="text-sm text-ink/90">AI reading your document…</p>
           </div>
         )}
       </div>
 
       {/* Paste fallback */}
       {pasteFallback && (
-        <div className="border-b border-white/10 bg-[#10130f] px-5 py-4">
+        <div className="border-b border-edge bg-surface-soft px-5 py-4">
           <p className="text-sm font-medium text-amber-300">
             Couldn&apos;t read enough text from that file.
           </p>
-          <p className="mt-1 text-xs text-white/50">Paste the invoice text instead and the same extraction runs on it:</p>
+          <p className="mt-1 text-xs text-muted">Paste the invoice text instead and the same extraction runs on it:</p>
           <textarea
             value={pastedText}
             onChange={(e) => setPastedText(e.target.value)}
             rows={4}
             placeholder={"Acme Supplies GmbH\nInvoice 2026-0142\nDate: 12.03.2026\n1x Ergo chair 160.00\nTotal: 1485.12 EUR incl. VAT 19%"}
-            className="mt-3 w-full rounded-xl border border-white/10 bg-[#0a0a0a] p-3 font-mono text-xs text-white placeholder-white/25 outline-none focus:border-[#25D366]/60"
+            className="mt-3 w-full rounded-xl border border-edge bg-surface-soft p-3 font-mono text-xs text-ink placeholder:text-muted/60 outline-none focus:border-wa/60"
           />
           <button
             type="button"
             onClick={submitPasted}
-            className="mt-3 rounded-full bg-[#25D366] px-5 py-2 text-sm font-semibold text-black hover:bg-[#1fb958]"
+            className="mt-3 rounded-full bg-wa px-5 py-2 text-sm font-semibold text-wa-ink hover:bg-wa-strong"
           >
             Extract from pasted text
           </button>
@@ -293,9 +293,9 @@ export default function InvoiceReader() {
 
       {/* Extraction result */}
       {hasExtraction && (
-        <div className="border-b border-white/10 px-5 py-5">
+        <div className="border-b border-edge px-5 py-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">
+            <p className="text-[10px] font-semibold tracking-widest text-muted uppercase">
               Step 2, extraction result
             </p>
             <span
@@ -320,19 +320,19 @@ export default function InvoiceReader() {
                     ? `${extraction.lines.length} line${extraction.lines.length === 1 ? "" : "s"}`
                     : String(value);
               return (
-                <div key={field.key} className="rounded-xl border border-white/10 bg-[#0a0a0a] p-3">
+                <div key={field.key} className="rounded-xl border border-edge bg-surface-soft p-3">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs text-white/50">{field.label}</p>
-                    <p className="font-mono text-xs font-semibold text-white">{display}</p>
+                    <p className="text-xs text-muted">{field.label}</p>
+                    <p className="font-mono text-xs font-semibold text-ink">{display}</p>
                   </div>
                   <div className="mt-2 flex items-center gap-2">
-                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-edge">
                       <div
-                        className="h-full rounded-full bg-[#25D366]"
+                        className="h-full rounded-full bg-wa"
                         style={{ width: `${conf}%` }}
                       />
                     </div>
-                    <span className="font-mono text-[10px] text-white/60">{conf}%</span>
+                    <span className="font-mono text-[10px] text-muted">{conf}%</span>
                   </div>
                 </div>
               );
@@ -340,21 +340,21 @@ export default function InvoiceReader() {
           </div>
 
           {extraction.lines.length > 0 && (
-            <div className="mt-4 overflow-x-auto rounded-xl border border-white/10">
+            <div className="mt-4 overflow-x-auto rounded-xl border border-edge">
               <table className="w-full text-left text-sm">
-                <thead className="bg-[#111111] text-xs text-white/50">
+                <thead className="bg-surface-2 text-xs text-muted">
                   <tr>
                     <th className="px-4 py-2 font-medium">Line item</th>
                     <th className="px-4 py-2 font-medium">Qty</th>
                     <th className="px-4 py-2 font-medium">Amount</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5 bg-[#0a0a0a]">
+                <tbody className="divide-y divide-edge bg-surface-soft">
                   {extraction.lines.map((line, i) => (
                     <tr key={i}>
-                      <td className="px-4 py-2 text-white/85">{line.description}</td>
-                      <td className="px-4 py-2 text-white/60">{line.qty} {line.unit}</td>
-                      <td className="px-4 py-2 font-mono text-white/85">{euro(line.amount)}</td>
+                      <td className="px-4 py-2 text-ink">{line.description}</td>
+                      <td className="px-4 py-2 text-muted">{line.qty} {line.unit}</td>
+                      <td className="px-4 py-2 font-mono text-ink">{euro(line.amount)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -365,11 +365,11 @@ export default function InvoiceReader() {
           <button
             type="button"
             onClick={logToLedger}
-            className="mt-4 rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-black hover:bg-[#1fb958]"
+            className="mt-4 rounded-full bg-wa px-5 py-2.5 text-sm font-semibold text-wa-ink hover:bg-wa-strong"
           >
             {logged ? "Logged to ledger ✓" : "Log to ledger"}
           </button>
-          <p className="mt-2 text-xs text-white/50">
+          <p className="mt-2 text-xs text-muted">
             Production writes to Google Sheets / Supabase via n8n, same row, same shape.
           </p>
         </div>
@@ -378,21 +378,21 @@ export default function InvoiceReader() {
       {/* Ledger */}
       <div className="px-5 py-5">
         <div className="flex items-center justify-between">
-          <p className="text-[10px] font-semibold tracking-widest text-white/50 uppercase">
+          <p className="text-[10px] font-semibold tracking-widest text-muted uppercase">
             Step 3, ledger
           </p>
-          <span className="rounded-md border border-white/10 bg-[#111111] px-2 py-1 font-mono text-[10px] text-white/50">
+          <span className="rounded-md border border-edge bg-surface-2 px-2 py-1 font-mono text-[10px] text-muted">
             invoices_2026.csv
           </span>
         </div>
         {ledger.length === 0 ? (
-          <p className="mt-3 rounded-xl border border-dashed border-white/15 bg-[#0a0a0a] px-4 py-6 text-center text-sm text-white/50">
+          <p className="mt-3 rounded-xl border border-dashed border-edge bg-surface-soft px-4 py-6 text-center text-sm text-muted">
             No rows yet, extract an invoice and hit &quot;Log to ledger&quot;.
           </p>
         ) : (
-          <div className="mt-3 overflow-x-auto rounded-xl border border-white/10">
+          <div className="mt-3 overflow-x-auto rounded-xl border border-edge">
             <table className="w-full text-left text-sm">
-              <thead className="bg-[#111111] text-xs text-white/50">
+              <thead className="bg-surface-2 text-xs text-muted">
                 <tr>
                   <th className="px-3 py-2 font-medium">Date</th>
                   <th className="px-3 py-2 font-medium">Vendor</th>
@@ -402,14 +402,14 @@ export default function InvoiceReader() {
                   <th className="px-3 py-2 font-medium">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5 bg-[#0a0a0a]">
+              <tbody className="divide-y divide-edge bg-surface-soft">
                 {ledger.map((row, i) => (
                   <tr key={i}>
-                    <td className="px-3 py-2 font-mono text-white/70">{row.loggedAt}</td>
-                    <td className="px-3 py-2 text-white/85">{row.vendor}</td>
-                    <td className="px-3 py-2 font-mono text-white/85">{row.invoiceNumber}</td>
-                    <td className="px-3 py-2 font-mono text-white/85">{euro(row.totalEur)}</td>
-                    <td className="px-3 py-2 font-mono text-white/60">{euro(row.vatEur)}</td>
+                    <td className="px-3 py-2 font-mono text-ink/90">{row.loggedAt}</td>
+                    <td className="px-3 py-2 text-ink">{row.vendor}</td>
+                    <td className="px-3 py-2 font-mono text-ink">{row.invoiceNumber}</td>
+                    <td className="px-3 py-2 font-mono text-ink">{euro(row.totalEur)}</td>
+                    <td className="px-3 py-2 font-mono text-muted">{euro(row.vatEur)}</td>
                     <td className="px-3 py-2">
                       <span
                         className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
@@ -429,9 +429,9 @@ export default function InvoiceReader() {
         )}
       </div>
 
-      <div className="border-t border-white/10 bg-[#0a0a0a] px-5 py-3">
-        <p className="text-xs leading-relaxed text-white/50">
-          <span className="font-semibold text-white/70">Demo extracts in-browser;</span> your file never leaves
+      <div className="border-t border-edge bg-surface-soft px-5 py-3">
+        <p className="text-xs leading-relaxed text-muted">
+          <span className="font-semibold text-ink/90">Demo extracts in-browser;</span> your file never leaves
           this page. A production run sends the same PDF to OpenAI Vision via n8n and appends the validated row
           straight to Google Sheets.
         </p>

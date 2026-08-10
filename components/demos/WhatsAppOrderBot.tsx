@@ -208,28 +208,28 @@ export default function WhatsAppOrderBot() {
   return (
     <div
       data-demo-interacted={interacted ? "true" : undefined}
-      className="overflow-hidden rounded-2xl border border-white/10 bg-[#0e0e0e] shadow-2xl shadow-black/50"
+      className="overflow-hidden rounded-2xl border border-edge bg-surface shadow-2xl shadow-black/50"
     >
       {/* Chat header */}
-      <div className="flex items-center justify-between gap-3 border-b border-white/10 bg-[#111111] px-4 py-3">
+      <div className="flex items-center justify-between gap-3 border-b border-edge bg-surface-2 px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#25D366] text-lg font-bold text-black">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-wa text-lg font-bold text-wa-ink">
             S
           </div>
           <div>
-            <p className="text-sm font-semibold text-white">ShopNest</p>
-            <p className="flex items-center gap-1 text-xs text-white/50">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#25D366]" /> online
+            <p className="text-sm font-semibold text-ink">ShopNest</p>
+            <p className="flex items-center gap-1 text-xs text-muted">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-wa" /> online
             </p>
           </div>
         </div>
-        <span className="rounded-full border border-[#25D366]/30 bg-[#25D366]/10 px-2.5 py-1 text-[10px] font-medium tracking-wide text-[#25D366]">
+        <span className="rounded-full border border-wa/30 bg-wa/10 px-2.5 py-1 text-[10px] font-medium tracking-wide text-wa">
           SIMULATION, no real payment
         </span>
       </div>
 
       {/* Messages */}
-      <div className="flex h-[420px] flex-col gap-2 overflow-y-auto bg-[#0b0b0b] bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.04)_1px,transparent_0)] bg-[size:22px_22px] p-4">
+      <div className="flex h-[420px] flex-col gap-2 overflow-y-auto bg-bg bg-[radial-gradient(circle_at_1px_1px,var(--grid-line)_1px,transparent_0)] bg-[size:22px_22px] p-4">
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -238,23 +238,23 @@ export default function WhatsAppOrderBot() {
             <div
               className={`rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
                 msg.from === "user"
-                  ? "rounded-br-sm bg-[#25D366] text-black"
-                  : "rounded-bl-sm border border-white/10 bg-[#1a1a1a] text-white/90"
+                  ? "rounded-br-sm bg-wa text-wa-ink"
+                  : "rounded-bl-sm border border-edge bg-surface-2 text-ink"
               }`}
               lang={msg.lang}
             >
               {msg.text}
             </div>
-            <span className="mt-1 px-1 text-[10px] text-white/50">{msg.time}</span>
+            <span className="mt-1 px-1 text-[10px] text-muted">{msg.time}</span>
           </div>
         ))}
 
         {typing && (
-          <div className="flex items-center gap-1.5 self-start rounded-2xl rounded-bl-sm border border-white/10 bg-[#1a1a1a] px-4 py-3">
+          <div className="flex items-center gap-1.5 self-start rounded-2xl rounded-bl-sm border border-edge bg-surface-2 px-4 py-3">
             {[0, 1, 2].map((i) => (
               <span
                 key={i}
-                className="h-1.5 w-1.5 animate-bounce rounded-full bg-white/40"
+                className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted/40"
                 style={{ animationDelay: `${i * 120}ms` }}
               />
             ))}
@@ -264,41 +264,41 @@ export default function WhatsAppOrderBot() {
         {/* Verifying spinner */}
         {verifying && (
           <div className="flex max-w-[80%] flex-col self-start">
-            <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm border border-white/10 bg-[#1a1a1a] px-4 py-2.5">
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-[#25D366]" />
-              <span className="text-sm text-white/70">Verifying payment with bKash…</span>
+            <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm border border-edge bg-surface-2 px-4 py-2.5">
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-edge-strong border-t-wa" />
+              <span className="text-sm text-ink/90">Verifying payment with bKash…</span>
             </div>
-            <span className="mt-1 px-1 text-[10px] text-white/50">{nowTime()}</span>
+            <span className="mt-1 px-1 text-[10px] text-muted">{nowTime()}</span>
           </div>
         )}
 
         {/* bKash payment card */}
         {stage === "payment" && (
-          <div className="self-start max-w-[85%] rounded-2xl rounded-bl-sm border border-[#25D366]/25 bg-[#10231a] p-4">
-            <p className="text-[10px] font-semibold tracking-widest text-[#25D366] uppercase">
+          <div className="self-start max-w-[85%] rounded-2xl rounded-bl-sm border border-wa/25 bg-wa/10 p-4">
+            <p className="text-[10px] font-semibold tracking-widest text-wa uppercase">
               bKash payment instruction
             </p>
-            <p className="mt-2 text-sm leading-relaxed text-white/90">
+            <p className="mt-2 text-sm leading-relaxed text-ink">
               Send Money to{" "}
               <button
                 type="button"
                 onClick={copyNumber}
-                className="font-mono font-semibold text-[#25D366] underline-offset-2 hover:underline"
+                className="font-mono font-semibold text-wa underline-offset-2 hover:underline"
               >
                 {BKASH_NUMBER}
               </button>{" "}
               (ShopNest), amount{" "}
-              <span className="font-semibold text-white">
+              <span className="font-semibold text-ink">
                 {selected ? selected.price : "৳899"}
               </span>
               . Then send us your Transaction ID.
             </p>
-            <div className="mt-3 flex items-center justify-between rounded-lg border border-white/10 bg-black/40 px-3 py-2">
-              <span className="font-mono text-xs text-white/60">{BKASH_NUMBER}</span>
+            <div className="mt-3 flex items-center justify-between rounded-lg border border-edge bg-surface-soft-2 px-3 py-2">
+              <span className="font-mono text-xs text-muted">{BKASH_NUMBER}</span>
               <button
                 type="button"
                 onClick={copyNumber}
-                className="rounded-md bg-[#25D366] px-2 py-1 text-xs font-semibold text-black hover:bg-[#1fb958]"
+                className="rounded-md bg-wa px-2 py-1 text-xs font-semibold text-wa-ink hover:bg-wa-strong"
               >
                 {copied ? "Copied ✓" : "Copy"}
               </button>
@@ -308,15 +308,15 @@ export default function WhatsAppOrderBot() {
 
         {/* Order confirmed card */}
         {stage === "confirmed" && (
-          <div className="self-start max-w-[85%] rounded-2xl rounded-bl-sm border border-white/10 bg-[#111111] p-4">
-            <p className="text-[10px] font-semibold tracking-widest text-[#25D366] uppercase">
+          <div className="self-start max-w-[85%] rounded-2xl rounded-bl-sm border border-edge bg-surface-2 p-4">
+            <p className="text-[10px] font-semibold tracking-widest text-wa uppercase">
               Order confirmed
             </p>
-            <p className="mt-2 text-sm text-white/90">
-              Order <span className="font-mono font-semibold text-white">{orderNumber}</span>{" "}
+            <p className="mt-2 text-sm text-ink">
+              Order <span className="font-mono font-semibold text-ink">{orderNumber}</span>{" "}
               · {selected?.name} {selected?.price} · size {messages.filter((m) => SIZES.includes(m.text)).at(-1)?.text ?? "M"}
             </p>
-            <p className="mt-1 text-xs text-white/50">Courier: Pathao · ETA today, 6–9 PM</p>
+            <p className="mt-1 text-xs text-muted">Courier: Pathao · ETA today, 6–9 PM</p>
           </div>
         )}
 
@@ -325,7 +325,7 @@ export default function WhatsAppOrderBot() {
 
       {/* Quick-reply chips */}
       {chips && (
-        <div className="flex flex-wrap gap-2 border-t border-white/10 bg-[#111111] px-4 py-3">
+        <div className="flex flex-wrap gap-2 border-t border-edge bg-surface-2 px-4 py-3">
           {chips.map((chip) => (
             <button
               key={chip}
@@ -335,7 +335,7 @@ export default function WhatsAppOrderBot() {
                 else if (stage === "confirmed" || stage === "shipped") void handleTracking(chip);
                 else void handleProduct(chip);
               }}
-              className="rounded-full border border-[#25D366]/40 bg-[#25D366]/10 px-3.5 py-1.5 text-xs font-medium text-[#25D366] transition-colors hover:bg-[#25D366]/20"
+              className="rounded-full border border-wa/40 bg-wa/10 px-3.5 py-1.5 text-xs font-medium text-wa transition-colors hover:bg-wa/20"
             >
               {chip}
             </button>
@@ -344,7 +344,7 @@ export default function WhatsAppOrderBot() {
       )}
 
       {/* Input area */}
-      <div className="border-t border-white/10 bg-[#111111] px-4 py-3">
+      <div className="border-t border-edge bg-surface-2 px-4 py-3">
         {stage === "address" && (
           <div className="flex gap-2">
             <input
@@ -354,12 +354,12 @@ export default function WhatsAppOrderBot() {
                 if (e.key === "Enter") void submitAddress();
               }}
               placeholder="e.g. 12 Market Street"
-              className="flex-1 rounded-full border border-white/10 bg-[#0a0a0a] px-4 py-2.5 text-sm text-white placeholder-white/30 outline-none focus:border-[#25D366]/60"
+              className="flex-1 rounded-full border border-edge bg-surface-soft px-4 py-2.5 text-sm text-ink placeholder:text-muted/60 outline-none focus:border-wa/60"
             />
             <button
               type="button"
               onClick={() => void submitAddress()}
-              className="rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-black hover:bg-[#1fb958]"
+              className="rounded-full bg-wa px-5 py-2.5 text-sm font-semibold text-wa-ink hover:bg-wa-strong"
             >
               Send
             </button>
@@ -379,12 +379,12 @@ export default function WhatsAppOrderBot() {
                   if (e.key === "Enter") void submitTrxId();
                 }}
                 placeholder="Paste your bKash Transaction ID (10–12 digits)"
-                className="flex-1 rounded-full border border-white/10 bg-[#0a0a0a] px-4 py-2.5 font-mono text-sm text-white placeholder-white/30 outline-none focus:border-[#25D366]/60"
+                className="flex-1 rounded-full border border-edge bg-surface-soft px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted/60 outline-none focus:border-wa/60"
               />
               <button
                 type="button"
                 onClick={() => void submitTrxId()}
-                className="rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-black hover:bg-[#1fb958]"
+                className="rounded-full bg-wa px-5 py-2.5 text-sm font-semibold text-wa-ink hover:bg-wa-strong"
               >
                 Verify
               </button>
@@ -401,7 +401,7 @@ export default function WhatsAppOrderBot() {
           <button
             type="button"
             onClick={restart}
-            className="w-full rounded-full border border-white/10 px-4 py-2.5 text-sm font-medium text-white/60 transition-colors hover:border-white/25 hover:text-white"
+            className="w-full rounded-full border border-edge px-4 py-2.5 text-sm font-medium text-muted transition-colors hover:border-edge-strong hover:text-ink"
           >
             ↺ Restart simulation
           </button>
@@ -409,9 +409,9 @@ export default function WhatsAppOrderBot() {
       </div>
 
       {/* What's real here */}
-      <div className="border-t border-white/10 bg-[#0a0a0a] px-4 py-3">
-        <p className="text-xs leading-relaxed text-white/60">
-          <span className="font-semibold text-white/70">What&apos;s real here:</span> a production build uses the
+      <div className="border-t border-edge bg-surface-soft px-4 py-3">
+        <p className="text-xs leading-relaxed text-muted">
+          <span className="font-semibold text-ink/90">What&apos;s real here:</span> a production build uses the
           WhatsApp Cloud API + bKash merchant API with the exact same flow, product buttons, payment
           instruction, a human-confirmed TrxID check, sheet logging and Pathao dispatch. Everything above is simulated
           locally in your browser.

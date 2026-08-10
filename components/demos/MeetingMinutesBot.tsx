@@ -152,26 +152,26 @@ export default function MeetingMinutesBot() {
   return (
     <div
       data-demo-interacted={interacted ? "true" : undefined}
-      className="overflow-hidden rounded-2xl border border-white/10 bg-[#0e0e0e]"
+      className="overflow-hidden rounded-2xl border border-edge bg-surface"
     >
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-white/10 bg-[#111111] px-5 py-3">
+      <div className="flex items-center justify-between border-b border-edge bg-surface-2 px-5 py-3">
         <div className="flex items-center gap-2.5">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#25D366]/15 text-sm">📝</span>
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-wa/15 text-sm">📝</span>
           <div>
-            <p className="text-sm font-semibold text-white">Meeting Minutes Bot</p>
-            <p className="text-[11px] text-white/55">Transcript to Notion + Slack</p>
+            <p className="text-sm font-semibold text-ink">Meeting Minutes Bot</p>
+            <p className="text-[11px] text-muted">Transcript to Notion + Slack</p>
           </div>
         </div>
-        <span className="rounded-full border border-[#25D366]/30 bg-[#25D366]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-[#25D366]">
+        <span className="rounded-full border border-wa/30 bg-wa/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-wa">
           Simulation
         </span>
       </div>
 
       {/* Transcript input */}
-      <form onSubmit={(e) => void handleRun(e)} className="border-b border-white/10 bg-[#111111] px-5 py-4">
+      <form onSubmit={(e) => void handleRun(e)} className="border-b border-edge bg-surface-2 px-5 py-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">
+          <p className="text-[10px] font-semibold tracking-widest text-muted uppercase">
             Step 1, paste a transcript
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -182,8 +182,8 @@ export default function MeetingMinutesBot() {
                 onClick={() => pickSample(i)}
                 className={`rounded-full border px-3 py-1 text-xs transition-colors ${
                   title === s.title
-                    ? "border-[#25D366]/50 bg-[#25D366]/10 text-[#25D366]"
-                    : "border-white/15 bg-white/5 text-white/60 hover:border-white/25"
+                    ? "border-wa/50 bg-wa/10 text-wa"
+                    : "border-edge bg-surface-soft text-muted hover:border-edge-strong"
                 }`}
               >
                 {s.label}
@@ -196,13 +196,13 @@ export default function MeetingMinutesBot() {
           onChange={(e) => setTranscript(e.target.value)}
           rows={7}
           placeholder="Paste a raw meeting transcript, one speaker turn per line..."
-          className="mt-3 w-full rounded-xl border border-white/10 bg-[#0a0a0a] p-3 font-mono text-xs leading-relaxed text-white/85 placeholder-white/25 outline-none focus:border-[#25D366]/60"
+          className="mt-3 w-full rounded-xl border border-edge bg-surface-soft p-3 font-mono text-xs leading-relaxed text-ink placeholder:text-muted/60 outline-none focus:border-wa/60"
         />
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <button
             type="submit"
             disabled={running || transcript.trim().length < 30}
-            className="rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-black hover:bg-[#1fb958] disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-full bg-wa px-5 py-2.5 text-sm font-semibold text-wa-ink hover:bg-wa-strong disabled:cursor-not-allowed disabled:opacity-50"
           >
             {running ? "Running…" : "Run the minutes flow →"}
           </button>
@@ -210,7 +210,7 @@ export default function MeetingMinutesBot() {
             <button
               type="button"
               onClick={reset}
-              className="rounded-full border border-white/10 px-5 py-2.5 text-sm font-medium text-white/60 hover:border-white/25 hover:text-white"
+              className="rounded-full border border-edge px-5 py-2.5 text-sm font-medium text-muted hover:border-edge-strong hover:text-ink"
             >
               ↺ Reset
             </button>
@@ -220,12 +220,12 @@ export default function MeetingMinutesBot() {
 
       <div className="grid gap-0 lg:grid-cols-[1.1fr_1fr]">
         {/* Timeline */}
-        <div className="border-b border-white/10 px-5 py-5 lg:border-r lg:border-b-0">
-          <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">
+        <div className="border-b border-edge px-5 py-5 lg:border-r lg:border-b-0">
+          <p className="text-[10px] font-semibold tracking-widest text-muted uppercase">
             Step 2, what happens automatically
           </p>
           {steps.length === 0 && !running ? (
-            <p className="mt-4 rounded-xl border border-dashed border-white/15 bg-[#0a0a0a] px-4 py-6 text-center text-sm text-white/60">
+            <p className="mt-4 rounded-xl border border-dashed border-edge bg-surface-soft px-4 py-6 text-center text-sm text-muted">
               Hit &quot;Run the minutes flow&quot;, every step below is what n8n does in production.
             </p>
           ) : (
@@ -233,22 +233,22 @@ export default function MeetingMinutesBot() {
               {steps.map((step, i) => (
                 <li key={step.id} className="flex gap-3">
                   <div className="flex flex-col items-center">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#25D366] text-xs font-bold text-black">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-wa text-xs font-bold text-wa-ink">
                       ✓
                     </span>
-                    {i < steps.length - 1 && <span className="mt-1 w-px flex-1 bg-white/10" />}
+                    {i < steps.length - 1 && <span className="mt-1 w-px flex-1 bg-edge" />}
                   </div>
                   <div className="pb-1">
-                    <p className="font-mono text-[11px] text-[#25D366]">{step.time}</p>
-                    <p className="text-sm font-medium text-white">{step.title}</p>
-                    <p className="mt-0.5 text-xs text-white/60">{step.detail}</p>
+                    <p className="font-mono text-[11px] text-wa">{step.time}</p>
+                    <p className="text-sm font-medium text-ink">{step.title}</p>
+                    <p className="mt-0.5 text-xs text-muted">{step.detail}</p>
                   </div>
                 </li>
               ))}
               {running && (
                 <li className="flex items-center gap-3">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-[#25D366]" />
-                  <span className="text-sm text-white/50">Processing…</span>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-edge-strong border-t-wa" />
+                  <span className="text-sm text-muted">Processing…</span>
                 </li>
               )}
             </ol>
@@ -257,54 +257,54 @@ export default function MeetingMinutesBot() {
 
         {/* Minutes output */}
         <div className="px-5 py-5">
-          <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">Minutes</p>
+          <p className="text-[10px] font-semibold tracking-widest text-muted uppercase">Minutes</p>
           {minutes ? (
             <div className="mt-3 space-y-4">
               <div>
-                <p className="text-sm font-semibold text-white">{minutes.title}</p>
-                <p className="font-mono text-[11px] text-white/55">
+                <p className="text-sm font-semibold text-ink">{minutes.title}</p>
+                <p className="font-mono text-[11px] text-muted">
                   {new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} ·{" "}
                   {minutes.actions.length} action items
                 </p>
               </div>
 
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-white/55">Decisions</p>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted">Decisions</p>
                 <ul className="mt-2 space-y-1.5">
                   {minutes.decisions.map((d, i) => (
-                    <li key={i} className="flex gap-2 text-xs leading-relaxed text-white/75">
-                      <span className="mt-0.5 h-3 w-3 shrink-0 rounded-[3px] border border-[#25D366]/50 bg-[#25D366]/10" />
+                    <li key={i} className="flex gap-2 text-xs leading-relaxed text-ink/90">
+                      <span className="mt-0.5 h-3 w-3 shrink-0 rounded-[3px] border border-wa/50 bg-wa/10" />
                       {d}
                     </li>
                   ))}
                   {minutes.decisions.length === 0 && (
-                    <li className="text-xs text-white/55">No explicit decisions found in this transcript.</li>
+                    <li className="text-xs text-muted">No explicit decisions found in this transcript.</li>
                   )}
                 </ul>
               </div>
 
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-white/55">Action items</p>
-                <div className="mt-2 overflow-hidden rounded-xl border border-white/10">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted">Action items</p>
+                <div className="mt-2 overflow-hidden rounded-xl border border-edge">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-white/5 text-[10px] uppercase tracking-widest text-white/55">
+                    <thead className="bg-surface-soft text-[10px] uppercase tracking-widest text-muted">
                       <tr>
                         <th className="px-3 py-2 font-medium">Owner</th>
                         <th className="px-3 py-2 font-medium">Task</th>
                         <th className="px-3 py-2 font-medium">Deadline</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/10">
+                    <tbody className="divide-y divide-edge">
                       {minutes.actions.map((a, i) => (
                         <tr key={i}>
-                          <td className="px-3 py-2 align-top font-medium text-[#25D366]">{a.owner}</td>
-                          <td className="px-3 py-2 align-top leading-relaxed text-white/75">{a.task}</td>
-                          <td className="px-3 py-2 align-top font-mono text-[11px] text-white/60">{a.deadline}</td>
+                          <td className="px-3 py-2 align-top font-medium text-wa">{a.owner}</td>
+                          <td className="px-3 py-2 align-top leading-relaxed text-ink/90">{a.task}</td>
+                          <td className="px-3 py-2 align-top font-mono text-[11px] text-muted">{a.deadline}</td>
                         </tr>
                       ))}
                       {minutes.actions.length === 0 && (
                         <tr>
-                          <td colSpan={3} className="px-3 py-3 text-white/55">
+                          <td colSpan={3} className="px-3 py-3 text-muted">
                             No clear owners in this transcript, AI flags it for review.
                           </td>
                         </tr>
@@ -316,14 +316,14 @@ export default function MeetingMinutesBot() {
 
               {minutes.deadlineNotes.length > 0 && (
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-white/55">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-muted">
                     Deadlines spotted
                   </p>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {minutes.deadlineNotes.map((d) => (
                       <span
                         key={d}
-                        className="rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[11px] text-white/70"
+                        className="rounded-full border border-edge bg-surface-soft px-2.5 py-1 text-[11px] text-ink/90"
                       >
                         {d}
                       </span>
@@ -336,8 +336,8 @@ export default function MeetingMinutesBot() {
                 <span
                   className={`rounded-full border px-3 py-1 text-[11px] font-medium ${
                     done >= 4
-                      ? "border-[#25D366]/40 bg-[#25D366]/10 text-[#25D366]"
-                      : "border-white/15 bg-white/5 text-white/50"
+                      ? "border-wa/40 bg-wa/10 text-wa"
+                      : "border-edge bg-surface-soft text-muted"
                   }`}
                 >
                   {done >= 4 ? "✓ Notion: page created" : "Notion: pending"}
@@ -345,8 +345,8 @@ export default function MeetingMinutesBot() {
                 <span
                   className={`rounded-full border px-3 py-1 text-[11px] font-medium ${
                     done >= 5
-                      ? "border-[#25D366]/40 bg-[#25D366]/10 text-[#25D366]"
-                      : "border-white/15 bg-white/5 text-white/50"
+                      ? "border-wa/40 bg-wa/10 text-wa"
+                      : "border-edge bg-surface-soft text-muted"
                   }`}
                 >
                   {done >= 5 ? "✓ Slack: #minutes posted" : "Slack: pending"}
@@ -354,16 +354,16 @@ export default function MeetingMinutesBot() {
               </div>
             </div>
           ) : (
-            <p className="mt-3 rounded-xl border border-dashed border-white/15 bg-[#0a0a0a] px-4 py-6 text-center text-sm text-white/60">
+            <p className="mt-3 rounded-xl border border-dashed border-edge bg-surface-soft px-4 py-6 text-center text-sm text-muted">
               Minutes, decisions and action items land here after the run.
             </p>
           )}
         </div>
       </div>
 
-      <div className="border-t border-white/10 bg-[#0a0a0a] px-5 py-3">
-        <p className="text-xs leading-relaxed text-white/60">
-          <span className="font-semibold text-white/70">What&apos;s real here:</span> production = recording in,
+      <div className="border-t border-edge bg-surface-soft px-5 py-3">
+        <p className="text-xs leading-relaxed text-muted">
+          <span className="font-semibold text-ink/90">What&apos;s real here:</span> production = recording in,
           Whisper transcribes, OpenAI extracts structured minutes, then Notion and Slack get the result. The
           transcription and extraction above are simulated locally.
         </p>

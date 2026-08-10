@@ -16,4 +16,22 @@
   <url>
     <loc>https://nexusautomations.dev/privacy</loc>
   </url>
+  <url>
+    <loc>https://nexusautomations.dev/demos/whatsapp-order-bot</loc>
+  </url>
+  <url>
+    <loc>https://nexusautomations.dev/demos/ai-invoice-reader</loc>
+  </url>
+  <url>
+    <loc>https://nexusautomations.dev/demos/lightning-lead-response</loc>
+  </url>
+  <url>
+    <loc>https://nexusautomations.dev/demos/meeting-minutes-bot</loc>
+  </url>
+  <url>
+    <loc>https://nexusautomations.dev/demos/spreadsheet-rescue</loc>
+  </url>
+  <url>
+    <loc>https://nexusautomations.dev/demos/email-triage</loc>
+  </url>
 </urlset>

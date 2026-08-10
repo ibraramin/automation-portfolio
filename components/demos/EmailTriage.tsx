@@ -68,10 +68,10 @@ const CLASSIFICATIONS: Record<number, { category: Category; priority: number; dr
 
 function chipClass(c: Category): string {
   if (c === "lead")
-    return "rounded-full border border-[#25D366]/40 bg-[#25D366]/10 px-2.5 py-0.5 text-[10px] font-semibold text-[#25D366]";
+    return "rounded-full border border-wa/40 bg-wa/10 px-2.5 py-0.5 text-[10px] font-semibold text-wa";
   if (c === "invoice")
     return "rounded-full border border-sky/40 bg-sky/10 px-2.5 py-0.5 text-[10px] font-semibold text-sky";
-  return "rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold text-white/50 line-through";
+  return "rounded-full border border-edge bg-surface-soft px-2.5 py-0.5 text-[10px] font-semibold text-muted line-through";
 }
 
 export default function EmailTriage() {
@@ -202,39 +202,39 @@ export default function EmailTriage() {
   return (
     <div
       data-demo-interacted={interacted ? "true" : undefined}
-      className="overflow-hidden rounded-2xl border border-white/10 bg-[#0e0e0e]"
+      className="overflow-hidden rounded-2xl border border-edge bg-surface"
     >
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-white/10 bg-[#111111] px-5 py-3">
+      <div className="flex items-center justify-between border-b border-edge bg-surface-2 px-5 py-3">
         <div className="flex items-center gap-2.5">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#25D366]/15 text-sm">✉️</span>
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-wa/15 text-sm">✉️</span>
           <div>
-            <p className="text-sm font-semibold text-white">Email Triage</p>
-            <p className="text-[11px] text-white/55">Gmail watch + AI triage + human approval</p>
+            <p className="text-sm font-semibold text-ink">Email Triage</p>
+            <p className="text-[11px] text-muted">Gmail watch + AI triage + human approval</p>
           </div>
         </div>
-        <span className="rounded-full border border-[#25D366]/30 bg-[#25D366]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-[#25D366]">
+        <span className="rounded-full border border-wa/30 bg-wa/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-wa">
           Simulation
         </span>
       </div>
 
       {/* Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 bg-[#111111] px-5 py-3">
-        <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-edge bg-surface-2 px-5 py-3">
+        <p className="text-[10px] font-semibold tracking-widest text-muted uppercase">
           Step 1, pull new mail
         </p>
         <div className="flex gap-2">
           <button
             onClick={() => void runTriage()}
             disabled={running}
-            className="rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-black hover:bg-[#1fb958] disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-full bg-wa px-5 py-2.5 text-sm font-semibold text-wa-ink hover:bg-wa-strong disabled:cursor-not-allowed disabled:opacity-50"
           >
             {running ? "Running…" : steps.length === 0 ? "Run the triage →" : "Re-run triage →"}
           </button>
           {steps.length > 0 && !running && (
             <button
               onClick={reset}
-              className="rounded-full border border-white/10 px-5 py-2.5 text-sm font-medium text-white/60 hover:border-white/25 hover:text-white"
+              className="rounded-full border border-edge px-5 py-2.5 text-sm font-medium text-muted hover:border-edge-strong hover:text-ink"
             >
               ↺ Reset
             </button>
@@ -244,12 +244,12 @@ export default function EmailTriage() {
 
       <div className="grid gap-0 lg:grid-cols-[1.1fr_1fr]">
         {/* Timeline */}
-        <div className="border-b border-white/10 px-5 py-5 lg:border-r lg:border-b-0">
-          <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">
+        <div className="border-b border-edge px-5 py-5 lg:border-r lg:border-b-0">
+          <p className="text-[10px] font-semibold tracking-widest text-muted uppercase">
             Step 2, what happens automatically
           </p>
           {steps.length === 0 && !running ? (
-            <p className="mt-4 rounded-xl border border-dashed border-white/15 bg-[#0a0a0a] px-4 py-6 text-center text-sm text-white/60">
+            <p className="mt-4 rounded-xl border border-dashed border-edge bg-surface-soft px-4 py-6 text-center text-sm text-muted">
               Hit &quot;Run the triage&quot;, every step below is what n8n does in production.
             </p>
           ) : (
@@ -257,22 +257,22 @@ export default function EmailTriage() {
               {steps.map((step, i) => (
                 <li key={step.id} className="flex gap-3">
                   <div className="flex flex-col items-center">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#25D366] text-xs font-bold text-black">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-wa text-xs font-bold text-wa-ink">
                       ✓
                     </span>
-                    {i < steps.length - 1 && <span className="mt-1 w-px flex-1 bg-white/10" />}
+                    {i < steps.length - 1 && <span className="mt-1 w-px flex-1 bg-edge" />}
                   </div>
                   <div className="pb-1">
-                    <p className="font-mono text-[11px] text-[#25D366]">{step.time}</p>
-                    <p className="text-sm font-medium text-white">{step.title}</p>
-                    <p className="mt-0.5 text-xs text-white/60">{step.detail}</p>
+                    <p className="font-mono text-[11px] text-wa">{step.time}</p>
+                    <p className="text-sm font-medium text-ink">{step.title}</p>
+                    <p className="mt-0.5 text-xs text-muted">{step.detail}</p>
                   </div>
                 </li>
               ))}
               {running && (
                 <li className="flex items-center gap-3">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-[#25D366]" />
-                  <span className="text-sm text-white/50">Processing…</span>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-edge-strong border-t-wa" />
+                  <span className="text-sm text-muted">Processing…</span>
                 </li>
               )}
             </ol>
@@ -282,8 +282,8 @@ export default function EmailTriage() {
         {/* Inbox */}
         <div className="px-5 py-5">
           <div className="flex items-center justify-between">
-            <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">Inbox (simulated)</p>
-            <span className="rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 font-mono text-[10px] text-white/60">
+            <p className="text-[10px] font-semibold tracking-widest text-muted uppercase">Inbox (simulated)</p>
+            <span className="rounded-full border border-edge bg-surface-soft px-2.5 py-0.5 font-mono text-[10px] text-muted">
               Gmail
             </span>
           </div>
@@ -292,37 +292,37 @@ export default function EmailTriage() {
               <li
                 key={em.id}
                 className={`rounded-xl border p-3 transition-opacity ${
-                  em.status === "archived" ? "border-white/10 opacity-60" : "border-white/10 bg-white/[0.03]"
+                  em.status === "archived" ? "border-edge opacity-60" : "border-edge bg-surface-soft"
                 }`}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-white">{em.from}</p>
-                    <p className="truncate text-xs text-white/70">{em.subject}</p>
-                    <p className="mt-1 line-clamp-1 text-xs text-white/45">{em.preview}</p>
+                    <p className="truncate text-sm font-medium text-ink">{em.from}</p>
+                    <p className="truncate text-xs text-ink/90">{em.subject}</p>
+                    <p className="mt-1 line-clamp-1 text-xs text-muted">{em.preview}</p>
                   </div>
-                  <span className="shrink-0 font-mono text-[10px] text-white/55">{em.time}</span>
+                  <span className="shrink-0 font-mono text-[10px] text-muted">{em.time}</span>
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   {em.category ? (
                     <span className={chipClass(em.category)}>{em.category.toUpperCase()}</span>
                   ) : (
-                    <span className="rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-medium text-white/55">
+                    <span className="rounded-full border border-edge bg-surface-soft px-2.5 py-0.5 text-[10px] font-medium text-muted">
                       {running ? "classifying…" : "unread"}
                     </span>
                   )}
                   {em.priority !== null && em.category !== "spam" && (
-                    <span className="rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 font-mono text-[10px] text-white/60">
+                    <span className="rounded-full border border-edge bg-surface-soft px-2.5 py-0.5 font-mono text-[10px] text-muted">
                       P{em.priority}
                     </span>
                   )}
                   {em.status === "drafted" && (
-                    <span className="rounded-full border border-[#25D366]/40 bg-[#25D366]/10 px-2.5 py-0.5 text-[10px] font-medium text-[#25D366]">
+                    <span className="rounded-full border border-wa/40 bg-wa/10 px-2.5 py-0.5 text-[10px] font-medium text-wa">
                       draft ready
                     </span>
                   )}
                   {em.status === "sent" && (
-                    <span className="rounded-full border border-[#25D366]/40 bg-[#25D366]/10 px-2.5 py-0.5 text-[10px] font-medium text-[#25D366]">
+                    <span className="rounded-full border border-wa/40 bg-wa/10 px-2.5 py-0.5 text-[10px] font-medium text-wa">
                       ✓ replied
                     </span>
                   )}
@@ -332,7 +332,7 @@ export default function EmailTriage() {
                     </span>
                   )}
                   {em.status === "archived" && (
-                    <span className="rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-medium text-white/50">
+                    <span className="rounded-full border border-edge bg-surface-soft px-2.5 py-0.5 text-[10px] font-medium text-muted">
                       archived
                     </span>
                   )}
@@ -348,25 +348,25 @@ export default function EmailTriage() {
 
           {/* Human-in-the-loop approval */}
           {leadEmail && leadEmail.draft && leadEmail.status === "drafted" && (
-            <div className="mt-4 rounded-xl border border-[#25D366]/30 bg-[#0a0a0a] p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-white/60">
+            <div className="mt-4 rounded-xl border border-wa/30 bg-surface-soft p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted">
                 Draft, human approval needed
               </p>
-              <pre className="mt-2 whitespace-pre-wrap rounded-lg border border-white/10 bg-black/30 p-3 font-sans text-xs leading-relaxed text-white/85">
+              <pre className="mt-2 whitespace-pre-wrap rounded-lg border border-edge bg-surface-soft-2 p-3 font-sans text-xs leading-relaxed text-ink">
                 {leadEmail.draft}
               </pre>
               <div className="mt-3 flex gap-2">
                 <button
                   onClick={() => void approve()}
                   disabled={running}
-                  className="rounded-full bg-[#25D366] px-4 py-2 text-xs font-semibold text-black hover:bg-[#1fb958] disabled:opacity-50"
+                  className="rounded-full bg-wa px-4 py-2 text-xs font-semibold text-wa-ink hover:bg-wa-strong disabled:opacity-50"
                 >
                   Approve and send →
                 </button>
                 <button
                   onClick={() => void hold()}
                   disabled={running}
-                  className="rounded-full border border-white/15 px-4 py-2 text-xs font-medium text-white/60 hover:border-white/25 hover:text-white"
+                  className="rounded-full border border-edge px-4 py-2 text-xs font-medium text-muted hover:border-edge-strong hover:text-ink"
                 >
                   Hold
                 </button>
@@ -376,9 +376,9 @@ export default function EmailTriage() {
         </div>
       </div>
 
-      <div className="border-t border-white/10 bg-[#0a0a0a] px-5 py-3">
-        <p className="text-xs leading-relaxed text-white/60">
-          <span className="font-semibold text-white/70">What&apos;s real here:</span> production = Gmail API watch +
+      <div className="border-t border-edge bg-surface-soft px-5 py-3">
+        <p className="text-xs leading-relaxed text-muted">
+          <span className="font-semibold text-ink/90">What&apos;s real here:</span> production = Gmail API watch +
           n8n + OpenAI classification, with the draft sent to Slack for a human approval click. On approval the reply
           sends and HubSpot logs the exchange. The inbox above is simulated.
         </p>

@@ -117,11 +117,11 @@ export default function LeadResponse() {
   return (
     <div
       data-demo-interacted={interacted ? "true" : undefined}
-      className="overflow-hidden rounded-2xl border border-white/10 bg-[#0e0e0e]"
+      className="overflow-hidden rounded-2xl border border-edge bg-surface"
     >
       {/* Lead form */}
-      <form onSubmit={(e) => void handleSubmit(e)} className="border-b border-white/10 bg-[#111111] px-5 py-4">
-        <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">
+      <form onSubmit={(e) => void handleSubmit(e)} className="border-b border-edge bg-surface-2 px-5 py-4">
+        <p className="text-[10px] font-semibold tracking-widest text-muted uppercase">
           Step 1, paste a lead message
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -130,23 +130,23 @@ export default function LeadResponse() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
-              className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] p-3 text-sm text-white placeholder-white/25 outline-none focus:border-[#25D366]/60"
+              className="w-full rounded-xl border border-edge bg-surface-soft p-3 text-sm text-ink placeholder:text-muted/60 outline-none focus:border-wa/60"
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs text-white/50">Lead name</label>
+            <label className="mb-1 block text-xs text-muted">Lead name</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-3 py-2 text-sm text-white outline-none focus:border-[#25D366]/60"
+              className="w-full rounded-xl border border-edge bg-surface-soft px-3 py-2 text-sm text-ink outline-none focus:border-wa/60"
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs text-white/50">Lead email</label>
+            <label className="mb-1 block text-xs text-muted">Lead email</label>
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-3 py-2 text-sm text-white outline-none focus:border-[#25D366]/60"
+              className="w-full rounded-xl border border-edge bg-surface-soft px-3 py-2 text-sm text-ink outline-none focus:border-wa/60"
             />
           </div>
         </div>
@@ -154,7 +154,7 @@ export default function LeadResponse() {
           <button
             type="submit"
             disabled={running}
-            className="rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-black hover:bg-[#1fb958] disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-full bg-wa px-5 py-2.5 text-sm font-semibold text-wa-ink hover:bg-wa-strong disabled:cursor-not-allowed disabled:opacity-50"
           >
             {running ? "Running…" : "Run the response flow →"}
           </button>
@@ -162,7 +162,7 @@ export default function LeadResponse() {
             <button
               type="button"
               onClick={reset}
-              className="rounded-full border border-white/10 px-5 py-2.5 text-sm font-medium text-white/60 hover:border-white/25 hover:text-white"
+              className="rounded-full border border-edge px-5 py-2.5 text-sm font-medium text-muted hover:border-edge-strong hover:text-ink"
             >
               ↺ Reset
             </button>
@@ -172,12 +172,12 @@ export default function LeadResponse() {
 
       <div className="grid gap-0 lg:grid-cols-[1.1fr_1fr]">
         {/* Timeline */}
-        <div className="border-b border-white/10 px-5 py-5 lg:border-r lg:border-b-0">
-          <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">
+        <div className="border-b border-edge px-5 py-5 lg:border-r lg:border-b-0">
+          <p className="text-[10px] font-semibold tracking-widest text-muted uppercase">
             Step 2, what happens automatically
           </p>
           {steps.length === 0 && !running ? (
-            <p className="mt-4 rounded-xl border border-dashed border-white/15 bg-[#0a0a0a] px-4 py-6 text-center text-sm text-white/60">
+            <p className="mt-4 rounded-xl border border-dashed border-edge bg-surface-soft px-4 py-6 text-center text-sm text-muted">
               Hit &quot;Run the response flow&quot;, every step below is what n8n does in production.
             </p>
           ) : (
@@ -185,22 +185,22 @@ export default function LeadResponse() {
               {steps.map((step, i) => (
                 <li key={step.id} className="flex gap-3">
                   <div className="flex flex-col items-center">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#25D366] text-xs font-bold text-black">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-wa text-xs font-bold text-wa-ink">
                       ✓
                     </span>
-                    {i < steps.length - 1 && <span className="mt-1 w-px flex-1 bg-white/10" />}
+                    {i < steps.length - 1 && <span className="mt-1 w-px flex-1 bg-edge" />}
                   </div>
                   <div className="pb-1">
-                    <p className="font-mono text-[11px] text-[#25D366]">{step.time}</p>
-                    <p className="text-sm font-medium text-white">{step.title}</p>
-                    <p className="mt-0.5 text-xs text-white/60">{step.detail}</p>
+                    <p className="font-mono text-[11px] text-wa">{step.time}</p>
+                    <p className="text-sm font-medium text-ink">{step.title}</p>
+                    <p className="mt-0.5 text-xs text-muted">{step.detail}</p>
                   </div>
                 </li>
               ))}
               {running && (
                 <li className="flex items-center gap-3">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-[#25D366]" />
-                  <span className="text-sm text-white/50">Processing…</span>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-edge-strong border-t-wa" />
+                  <span className="text-sm text-muted">Processing…</span>
                 </li>
               )}
             </ol>
@@ -209,41 +209,41 @@ export default function LeadResponse() {
 
         {/* Signals + draft */}
         <div className="px-5 py-5">
-          <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">
+          <p className="text-[10px] font-semibold tracking-widest text-muted uppercase">
             Signals extracted
           </p>
           {signals ? (
             <div className="mt-3 flex flex-wrap gap-2">
-              <span className="rounded-full border border-[#25D366]/40 bg-[#25D366]/10 px-3 py-1 text-xs font-medium text-[#25D366]">
+              <span className="rounded-full border border-wa/40 bg-wa/10 px-3 py-1 text-xs font-medium text-wa">
                 ⚡ urgency: {signals.urgency}
               </span>
-              <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/80">
+              <span className="rounded-full border border-edge bg-surface-soft px-3 py-1 text-xs font-medium text-ink/90">
                 📦 quantity: {signals.quantity}
               </span>
-              <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/80">
+              <span className="rounded-full border border-edge bg-surface-soft px-3 py-1 text-xs font-medium text-ink/90">
                 🧭 stage: {signals.stage}
               </span>
             </div>
           ) : (
-            <p className="mt-3 text-xs text-white/50">Extracted from the lead message when you run the flow.</p>
+            <p className="mt-3 text-xs text-muted">Extracted from the lead message when you run the flow.</p>
           )}
 
-          <p className="mt-5 text-[10px] font-semibold tracking-widest text-white/60 uppercase">
+          <p className="mt-5 text-[10px] font-semibold tracking-widest text-muted uppercase">
             Reply draft
           </p>
           {draft ? (
-            <pre className="mt-3 whitespace-pre-wrap rounded-xl border border-white/10 bg-[#0a0a0a] p-4 font-sans text-sm leading-relaxed text-white/85">
+            <pre className="mt-3 whitespace-pre-wrap rounded-xl border border-edge bg-surface-soft p-4 font-sans text-sm leading-relaxed text-ink">
               {draft}
             </pre>
           ) : (
-            <p className="mt-3 text-xs text-white/50">The AI-written reply lands here after scoring.</p>
+            <p className="mt-3 text-xs text-muted">The AI-written reply lands here after scoring.</p>
           )}
         </div>
       </div>
 
-      <div className="border-t border-white/10 bg-[#0a0a0a] px-5 py-3">
-        <p className="text-xs leading-relaxed text-white/60">
-          <span className="font-semibold text-white/70">What&apos;s real here:</span> production = n8n webhook + OpenAI
+      <div className="border-t border-edge bg-surface-soft px-5 py-3">
+        <p className="text-xs leading-relaxed text-muted">
+          <span className="font-semibold text-ink/90">What&apos;s real here:</span> production = n8n webhook + OpenAI
           scoring + HubSpot/Airtable + Slack alert. Same pipeline, real tools, the scoring and drafting above are
           simulated locally.
         </p>
