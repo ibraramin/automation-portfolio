@@ -121,7 +121,7 @@ export default function LeadResponse() {
     >
       {/* Lead form */}
       <form onSubmit={(e) => void handleSubmit(e)} className="border-b border-white/10 bg-[#111111] px-5 py-4">
-        <p className="text-[10px] font-semibold tracking-widest text-white/40 uppercase">
+        <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">
           Step 1 — paste a lead message
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -173,11 +173,11 @@ export default function LeadResponse() {
       <div className="grid gap-0 lg:grid-cols-[1.1fr_1fr]">
         {/* Timeline */}
         <div className="border-b border-white/10 px-5 py-5 lg:border-r lg:border-b-0">
-          <p className="text-[10px] font-semibold tracking-widest text-white/40 uppercase">
+          <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">
             Step 2 — what happens automatically
           </p>
           {steps.length === 0 && !running ? (
-            <p className="mt-4 rounded-xl border border-dashed border-white/15 bg-[#0a0a0a] px-4 py-6 text-center text-sm text-white/35">
+            <p className="mt-4 rounded-xl border border-dashed border-white/15 bg-[#0a0a0a] px-4 py-6 text-center text-sm text-white/60">
               Hit &quot;Run the response flow&quot; — every step below is what n8n does in production.
             </p>
           ) : (
@@ -209,7 +209,7 @@ export default function LeadResponse() {
 
         {/* Signals + draft */}
         <div className="px-5 py-5">
-          <p className="text-[10px] font-semibold tracking-widest text-white/40 uppercase">
+          <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">
             Signals extracted
           </p>
           {signals ? (
@@ -228,7 +228,7 @@ export default function LeadResponse() {
             <p className="mt-3 text-xs text-white/50">Extracted from the lead message when you run the flow.</p>
           )}
 
-          <p className="mt-5 text-[10px] font-semibold tracking-widest text-white/40 uppercase">
+          <p className="mt-5 text-[10px] font-semibold tracking-widest text-white/60 uppercase">
             Reply draft
           </p>
           {draft ? (
@@ -242,7 +242,7 @@ export default function LeadResponse() {
       </div>
 
       <div className="border-t border-white/10 bg-[#0a0a0a] px-5 py-3">
-        <p className="text-xs leading-relaxed text-white/40">
+        <p className="text-xs leading-relaxed text-white/60">
           <span className="font-semibold text-white/70">What&apos;s real here:</span> production = n8n webhook + OpenAI
           scoring + HubSpot/Airtable + Slack alert. Same pipeline, real tools — the scoring and drafting above are
           simulated locally.

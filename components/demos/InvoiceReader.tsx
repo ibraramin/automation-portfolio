@@ -228,7 +228,7 @@ export default function InvoiceReader() {
     >
       {/* Mode selector */}
       <div className="border-b border-white/10 bg-[#111111] px-5 py-4">
-        <p className="text-[10px] font-semibold tracking-widest text-white/40 uppercase">
+        <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">
           Step 1 — where does the invoice come from?
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
@@ -295,7 +295,7 @@ export default function InvoiceReader() {
       {hasExtraction && (
         <div className="border-b border-white/10 px-5 py-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[10px] font-semibold tracking-widest text-white/40 uppercase">
+            <p className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">
               Step 2 — extraction result
             </p>
             <span
@@ -332,7 +332,7 @@ export default function InvoiceReader() {
                         style={{ width: `${conf}%` }}
                       />
                     </div>
-                    <span className="font-mono text-[10px] text-white/40">{conf}%</span>
+                    <span className="font-mono text-[10px] text-white/60">{conf}%</span>
                   </div>
                 </div>
               );

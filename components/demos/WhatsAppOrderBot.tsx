@@ -408,7 +408,7 @@ export default function WhatsAppOrderBot() {
 
       {/* What's real here */}
       <div className="border-t border-white/10 bg-[#0a0a0a] px-4 py-3">
-        <p className="text-xs leading-relaxed text-white/40">
+        <p className="text-xs leading-relaxed text-white/60">
           <span className="font-semibold text-white/70">What&apos;s real here:</span> a production build uses the
           WhatsApp Cloud API + bKash merchant API with the exact same flow — product buttons, payment
           instruction, a human-confirmed TrxID check, sheet logging and Pathao dispatch. Everything above is simulated

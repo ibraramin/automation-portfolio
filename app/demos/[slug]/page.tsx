@@ -122,7 +122,7 @@ export default async function DemoPage(props: PageProps<"/demos/[slug]">) {
                 </span>
               ))}
             </div>
-            <p className="mt-4 text-sm leading-relaxed text-white/45">
+            <p className="mt-4 text-sm leading-relaxed text-white/60">
               This exact flow ships as a downloadable n8n workflow — point it at your own accounts, fill in the
               credentials and it runs on your VPS or the n8n cloud.
             </p>

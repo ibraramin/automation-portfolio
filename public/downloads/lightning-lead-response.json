@@ -92,7 +92,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const lead = $input.first().json;\nconst name = lead.name?.split(' ')[0] || 'there';\nreturn [{ json: {\n  ...lead,\n  draftReply: `Hi ${name}, thanks for reaching out!\\n\\n${lead.quantity !== 'unknown' ? lead.quantity + ' by ' + (lead.urgency !== 'none' ? lead.urgency : 'end of month') + ' is very doable — we have capacity this month.' : 'Happy to help with that.'} I'll send a tailored breakdown today. What's the best email for it?\\n\\n— The Automation Collective`\n}}];"
+        "jsCode": "const lead = $input.first().json;\nconst name = lead.name?.split(' ')[0] || 'there';\nreturn [{ json: {\n  ...lead,\n  draftReply: `Hi ${name}, thanks for reaching out!\\n\\n${lead.quantity !== 'unknown' ? lead.quantity + ' by ' + (lead.urgency !== 'none' ? lead.urgency : 'end of month') + ' is very doable — we have capacity this month.' : 'Happy to help with that.'} I'll send a tailored breakdown today. What's the best email for it?\\n\\n— Nexus Automations`\n}}];"
       },
       "id": "wf-llr-007",
       "name": "Draft Personalized Reply",
