@@ -27,7 +27,7 @@ npx tsc --noEmit # typecheck
 ```
 app/
   page.tsx              # Home: hero → proof → services → demos → process → CTA
-  services/page.tsx     # 6 service lines (outcome-first, no pricing)
+  services/page.tsx     # 10 service lines (outcome-first, no pricing, driven by services-data.ts)
   demos/page.tsx        # Demo index
   demos/[slug]/page.tsx # Demo detail (async params, SSG, JSON download)
   contact/page.tsx      # Audit form (Web3Forms + mailto fallback)
@@ -38,6 +38,7 @@ components/
 lib/demos.ts            # DemoMeta contract + DEMOS registry (drives /demos grid)
 public/downloads/       # n8n workflow JSONs (lead magnets)
 docs/plans + docs/specs # Plan + repo/feature specs
+blueprints/               # Service spec-sheet library (10 sheets) → tested n8n blueprints
 ```
 
 ## How to add a demo
@@ -67,4 +68,4 @@ Note: `npm run start` is **not available** with a static export. There is no Nod
 
 ## Deferred (Phase 2)
 
-Analytics on `data-demo-interacted`/`data-json-downloaded`, voice AI demo, real case studies, final brand + domain, tesseract asset self-hosting, branded email alias.
+Analytics on `data-demo-interacted`/`data-json-downloaded`, voice AI demo, demos for the four newest services (support triage, prospect outbound, review management, e-commerce ops), real case studies, final brand + domain, tesseract asset self-hosting, branded email alias.

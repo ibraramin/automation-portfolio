@@ -13,7 +13,7 @@ Client-ready portfolio site for a Dhaka-based SMB automation collective selling 
 - Git repo initialized at scaffold.
 
 ## Site structure
-- `/` - Home: hero (outcome-first tagline, who we help, proof strip), services (6 lines, channel-neutral: omni-channel order/lead capture, AI document processing, lightning lead response, booking + no-show recovery, voice AI receptionist, reporting + ops automation - priced per-workflow menu, no public pricing), demos grid (6 live demos), case studies placeholder (2 slots), CTA strip (free automation audit call), footer (contact: WhatsApp + email, Dhaka → remote EU).
+- `/` - Home: hero (outcome-first tagline, who we help, proof strip), services (10 lines, channel-neutral: omni-channel order/lead capture, AI document processing, lightning lead response, booking + no-show recovery, voice AI receptionist, reporting + ops automation, AI support triage and ticketing, prospect list building and AI outbound, review management and reputation, e-commerce ops sync - priced per-workflow menu, no public pricing), demos grid (6 live demos), case studies placeholder (2 slots), CTA strip (free automation audit call), footer (contact: WhatsApp + email, Dhaka → remote EU).
 - `/demos` + `/demos/[slug]` - live interactive demos (6): whatsapp-order-bot, ai-invoice-reader, lightning-lead-response, meeting-minutes-bot, spreadsheet-rescue, email-triage.
 - `/services` - service detail pages or single page with anchors.
 - `/contact` - audit booking form: name, business, pain, WhatsApp/email; v1 = mailto fallback or Formspree placeholder.
@@ -26,6 +26,9 @@ Client-ready portfolio site for a Dhaka-based SMB automation collective selling 
 4. **Meeting Minutes Bot** - paste a transcript or pick a sample → simulated Whisper transcription → AI summary with decisions and owner-assigned action items → posted to Notion + Slack timeline. Metric: "2 hrs of notes → 5 min". n8n JSON download.
 5. **Spreadsheet Rescue** - paste a messy CSV or pick a sample → simulated AI cleaning (schema suggestion, dedupe, standardization, validation) → clean rows table → export to CRM/Sheets view. Metric: "a week of cleanup → one upload". n8n JSON download.
 6. **Email Triage** - simulated Gmail inbox (3 sample emails) → AI classifies (lead/invoice/spam), prioritizes, drafts a reply → human approves (HITL) → sends + logs to CRM timeline. Metric: "inbox zero without the stress". n8n JSON download.
+
+## Blueprint spec-sheet library
+Each of the 10 services has a blueprint spec sheet in `blueprints/specs/` (01 to 10), written so a blueprint agent can build and stress-test a production n8n workflow from the sheet alone. The 4 newest services (AI support triage and ticketing, prospect list building and AI outbound, review management and reputation, e-commerce ops sync) have spec sheets but NO demos built yet; their interactive demos are deferred.
 
 ## Copy guardrails
 - Zero em dashes repo-wide; re-punctuate with periods, colons or restructured sentences.
@@ -40,4 +43,4 @@ Client-ready portfolio site for a Dhaka-based SMB automation collective selling 
 Demo interaction rate, JSON downloads, audit-call bookings, first paid trial ($200) conversion.
 
 ## Deferred (Phase 2b+)
-Real case studies (need 2-3 delivered projects), branding/domain, analytics, real form backend, voice agent demo, BD section in Bangla with bKash pricing in BDT.
+Real case studies (need 2-3 delivered projects), branding/domain, analytics, real form backend, voice agent demo, BD section in Bangla with bKash pricing in BDT, demos for the four newest services (AI support triage and ticketing, prospect list building and AI outbound, review management and reputation, e-commerce ops sync).
