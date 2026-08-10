@@ -159,9 +159,12 @@
     color: var(--ink);
   }
 
-  /* Custom scrollbars, scoped by feature query so Firefox and WebKit
-     never both style the same element. Flips with the theme via tokens. */
-  @supports (scrollbar-color: auto) {
+  /* Custom scrollbars. The webkit rules below must be the ONLY ones applied
+     on Chromium/Safari: once scrollbar-color/scrollbar-width are set, the
+     browser ignores ::-webkit-scrollbar (Chromium 121+ behavior). So the
+     standard properties are gated to engines WITHOUT ::-webkit-scrollbar
+     support (Firefox, where a flat thin bar is the engine limit). */
+  @supports not selector(::-webkit-scrollbar) {
     html {
       scrollbar-width: thin;
       scrollbar-color: var(--edge-strong) transparent;
