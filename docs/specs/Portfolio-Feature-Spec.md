@@ -35,8 +35,8 @@ Convert visitors (non-technical SMB owners in Bangladesh and Europe) into **"fre
 
 | Route | Contents |
 |---|---|
-| `/` | Header (sticky, mobile menu) → Hero (outcome copy, stats: 10+ hrs saved / <5 min reply / 1–2 wks build) → ProofStrip (GMT+6, Payoneer, EU-hosted GDPR, n8n+AI) → ServicesGrid (10 services, outcome language, no pricing) → DemosGrid (live `DEMOS` from `lib/demos.ts`, graceful empty fallback) → ProcessSection (audit → quote → build → handover) → CTASection → Footer |
-| `/services` | 10 detailed service blocks (pain / what we build / tech / who it's for) |
+| `/` | Header (sticky, mobile menu) → Hero (outcome copy, stats: 10+ hrs saved / <5 min reply / 1–2 wks build) → ProofStrip (GMT+6, Payoneer, EU-hosted GDPR, n8n+AI) → ServicesGrid (11 services, outcome language, no pricing) → DemosGrid (live `DEMOS` from `lib/demos.ts`, graceful empty fallback) → ProcessSection (audit → quote → build → handover) → CTASection → Footer |
+| `/services` | 11 detailed service blocks (pain / what we build / tech / who it's for) |
 | `/demos` | Demo index: cards with title, tagline, market badges, metric callout, "Run the demo →" |
 | `/demos/[slug]` | Async params (`PageProps<"/demos/[slug]">`, `await props.params`), `generateStaticParams`, `generateMetadata`, tech chips, "How it works", free n8n JSON download (`data-json-downloaded`), CTA |
 | `/contact` | Audit form (name, business, contact, "which tasks eat your week") via mailto with honest success state; WhatsApp + email methods |
@@ -52,7 +52,7 @@ All demos: `data-demo-interacted` attribute, "SIMULATION"-style honesty badges, 
 5. **Spreadsheet Rescue** (`components/demos/SpreadsheetRescue.tsx`) - paste a messy CSV or use the embedded sample → simulated AI cleaning: schema suggestion, dedupe by email, date/amount standardization, validation warnings → clean rows table → "Export to CRM/Sheets" appends to a visible `customers_2026.csv` view. Metric: "A week of cleanup → one upload".
 6. **Email Triage** (`components/demos/EmailTriage.tsx`) - simulated Gmail inbox (3 prefilled emails) → AI classifies (lead / invoice / spam), ranks priority, drafts a reply → HITL approval card (Approve and send / Hold) → sends, logs to HubSpot timeline, files invoice, trashes spam. Metric: "Inbox zero, minus the stress".
 
-Blueprint spec sheets exist for 4 more services (AI support triage and ticketing, prospect list building and AI outbound, review management and reputation, e-commerce ops sync) in `blueprints/specs/` (07 to 10). Their interactive demos are NOT built yet and are deferred to Phase 2b.
+Blueprint spec sheets exist for 5 more services (AI support triage and ticketing, prospect list building and AI outbound, review management and reputation, e-commerce ops sync, automation debugging and optimization) in `blueprints/specs/` (07 to 11). Their interactive demos are NOT built yet and are deferred to Phase 2b.
 
 ## 6. Lead magnet
 
@@ -69,7 +69,7 @@ Six downloadable n8n workflow JSONs (`public/downloads/`): `whatsapp-order-bot.j
 ## 8. Conversion funnel + deferred Phase 2
 
 - **Funnel:** landing → demo interaction → JSON download → audit form → WhatsApp call.
-- **Deferred:** OG/social image (`public/opengraph-image.png` 1200×630) + `twitter: summary_large_image`; analytics collector for `data-demo-interacted`/`data-json-downloaded`; self-host tesseract worker/core/lang assets (first-upload CDN fetch ~10–15MB is accepted for v1); voice AI receptionist demo; demos for the four newest services (support triage, prospect outbound, review management, e-commerce ops); real case studies after first clients; domain + final brand.
+- **Deferred:** OG/social image (`public/opengraph-image.png` 1200×630) + `twitter: summary_large_image`; analytics collector for `data-demo-interacted`/`data-json-downloaded`; self-host tesseract worker/core/lang assets (first-upload CDN fetch ~10–15MB is accepted for v1); voice AI receptionist demo; demos for the five newest services (support triage, prospect outbound, review management, e-commerce ops, automation debugging); real case studies after first clients; domain + final brand.
 
 ## 9. Quality gates (all passing)
 

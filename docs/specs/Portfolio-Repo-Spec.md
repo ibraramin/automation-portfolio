@@ -13,7 +13,7 @@ Client-ready portfolio site for a Dhaka-based SMB automation collective selling 
 - Git repo initialized at scaffold.
 
 ## Site structure
-- `/` - Home: hero (outcome-first tagline, who we help, proof strip), services (10 lines, channel-neutral: omni-channel order/lead capture, AI document processing, lightning lead response, booking + no-show recovery, voice AI receptionist, reporting + ops automation, AI support triage and ticketing, prospect list building and AI outbound, review management and reputation, e-commerce ops sync - priced per-workflow menu, no public pricing), demos grid (6 live demos), case studies placeholder (2 slots), CTA strip (free automation audit call), footer (contact: WhatsApp + email, Dhaka → remote EU).
+- `/` - Home: hero (outcome-first tagline, who we help, proof strip), services (11 lines, channel-neutral: omni-channel order/lead capture, AI document processing, lightning lead response, booking + no-show recovery, voice AI receptionist, reporting + ops automation, AI support triage and ticketing, prospect list building and AI outbound, review management and reputation, e-commerce ops sync, automation debugging and optimization - priced per-workflow menu, no public pricing), demos grid (6 live demos), case studies placeholder (2 slots), CTA strip (free automation audit call), footer (contact: WhatsApp + email, Dhaka → remote EU).
 - `/demos` + `/demos/[slug]` - live interactive demos (6): whatsapp-order-bot, ai-invoice-reader, lightning-lead-response, meeting-minutes-bot, spreadsheet-rescue, email-triage.
 - `/services` - service detail pages or single page with anchors.
 - `/contact` - audit booking form: name, business, pain, WhatsApp/email; v1 = mailto fallback or Formspree placeholder.
@@ -28,7 +28,7 @@ Client-ready portfolio site for a Dhaka-based SMB automation collective selling 
 6. **Email Triage** - simulated Gmail inbox (3 sample emails) → AI classifies (lead/invoice/spam), prioritizes, drafts a reply → human approves (HITL) → sends + logs to CRM timeline. Metric: "inbox zero without the stress". n8n JSON download.
 
 ## Blueprint spec-sheet library
-Each of the 10 services has a blueprint spec sheet in `blueprints/specs/` (01 to 10), written so a blueprint agent can build and stress-test a production n8n workflow from the sheet alone. The 4 newest services (AI support triage and ticketing, prospect list building and AI outbound, review management and reputation, e-commerce ops sync) have spec sheets but NO demos built yet; their interactive demos are deferred.
+Each of the 11 services has a blueprint spec sheet in `blueprints/specs/` (01 to 11), written so a blueprint agent can build and stress-test a production n8n workflow from the sheet alone. The 5 newest services (AI support triage and ticketing, prospect list building and AI outbound, review management and reputation, e-commerce ops sync, automation debugging and optimization) have spec sheets but NO demos built yet; their interactive demos are deferred.
 
 ## Copy guardrails
 - Zero em dashes repo-wide; re-punctuate with periods, colons or restructured sentences.
@@ -43,4 +43,4 @@ Each of the 10 services has a blueprint spec sheet in `blueprints/specs/` (01 to
 Demo interaction rate, JSON downloads, audit-call bookings, first paid trial ($200) conversion.
 
 ## Deferred (Phase 2b+)
-Real case studies (need 2-3 delivered projects), branding/domain, analytics, real form backend, voice agent demo, BD section in Bangla with bKash pricing in BDT, demos for the four newest services (AI support triage and ticketing, prospect list building and AI outbound, review management and reputation, e-commerce ops sync).
+Real case studies (need 2-3 delivered projects), branding/domain, analytics, real form backend, voice agent demo, BD section in Bangla with bKash pricing in BDT, demos for the five newest services (AI support triage and ticketing, prospect list building and AI outbound, review management and reputation, e-commerce ops sync, automation debugging and optimization).

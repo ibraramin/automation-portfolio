@@ -11,7 +11,7 @@ This folder is the engineering backbone of Nexus Automations. Every client autom
 
 ## Versioning convention (semver)
 
-- v0.2: draft spec, not yet built or tested. Sheets 01 to 06 are at v0.2 today; sheets 07 to 10 are at v0.1 today.
+- v0.2: draft spec, not yet built or tested. Sheets 01 to 06 are at v0.2 today; sheets 07 to 11 are at v0.1 today.
 - v1.0: first tested release. The blueprint passed the full stress-test matrix.
 - v1.1, v1.2, ...: client-tuned releases. Version bumps record behavior changes, never client data.
 
@@ -33,7 +33,7 @@ Every client-specific value lives in the "Per-client configuration block" sectio
 
 ## Index
 
-- TEMPLATE.md: the reusable spec-sheet template. All ten spec sheets follow it section for section, in the same order, with the same section names.
+- TEMPLATE.md: the reusable spec-sheet template. All eleven spec sheets follow it section for section, in the same order, with the same section names.
 - specs/01-omni-capture.md: order and lead capture across channels.
 - specs/02-doc-processing.md: AI document processing.
 - specs/03-lead-response.md: lightning lead response.
@@ -44,5 +44,6 @@ Every client-specific value lives in the "Per-client configuration block" sectio
 - specs/08-prospect-outbound.md: prospect list building and AI outbound.
 - specs/09-review-management.md: review management and reputation.
 - specs/10-ecommerce-ops.md: e-commerce ops sync.
+- specs/11-automation-debugging.md: automation debugging and optimization (audit and repair existing n8n, Zapier and Make setups; entry service that converts into bigger builds).
 
 Each sheet references the closest demo n8n workflow in public/downloads/ as the starting point for the blueprint agent, together with the demo node counts and the external API docs that matter for that service.
