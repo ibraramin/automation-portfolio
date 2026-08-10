@@ -1,0 +1,5 @@
+# Placeholder domain: update this file when the real domain lands.
+User-agent: *
+Allow: /
+
+Sitemap: https://nexusautomations.dev/sitemap.xml

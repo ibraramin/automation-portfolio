@@ -11,9 +11,9 @@ import CountUp from "@/components/site/CountUp";
 import Icon from "@/components/site/icons";
 
 const STATS = [
-  { to: 10, prefix: "", suffix: "+", label: "hours saved every week" },
-  { to: 5, prefix: "<", suffix: " min", label: "lead response, on autopilot" },
-  { to: 2, prefix: "", suffix: " wks", label: "from kickoff to live" },
+  { to: 10, prefix: "", suffix: "+", label: "typical hours saved per week" },
+  { to: 5, prefix: "<", suffix: " min", label: "typical lead response time" },
+  { to: 2, prefix: "", suffix: " wks", label: "typical time to go live" },
 ];
 
 function Hero() {
@@ -53,7 +53,7 @@ function Hero() {
             style={{ animationDelay: "240ms" }}
           >
             Custom WhatsApp, AI and workflow automations that answer every customer, capture every
-            order, and save your team 10+ hours a week, without the agency overhead.
+            order, and typically save your team 10+ hours a week, without the agency overhead.
           </p>
           <div
             className="animate-fade-up mt-9 flex flex-col gap-3 sm:flex-row sm:items-center"

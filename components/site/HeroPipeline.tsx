@@ -28,16 +28,16 @@ const STAGES: { icon: IconName; title: string; note: string }[] = [
 ];
 
 const ROTATING_METRICS = [
-  "avg reply 3.2 s",
-  "invoices filed 17 this week",
-  "leads answered under 5 min",
-  "no-shows cut in half",
+  "Reply in under 5 seconds",
+  "Save 10+ hours a week",
+  "Launch in under 5 minutes",
+  "Typical results shown",
 ];
 
 const STAGE_MS = 2000; // time per stage, including the "all done" beat
 const FILL_MS = STAGE_MS - 200; // connector + dot travel time, synced to the tick
 const METRIC_MS = 3600; // rotate the status line
-const START_ORDERS = 142;
+const START_ORDERS = 100;
 const STAGE_COUNT = STAGES.length;
 const DONE_POS = STAGE_COUNT; // pos value meaning "all stages complete"
 
@@ -223,7 +223,7 @@ export default function HeroPipeline() {
             Automation pipeline
           </p>
           <span className="rounded-md border border-edge bg-surface-soft px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-muted">
-            n8n · live
+            n8n · simulated preview
           </span>
         </div>
 
@@ -327,7 +327,7 @@ export default function HeroPipeline() {
 
         {/* Live metric strip, fixed height, no layout shift */}
         <div className="mt-3 flex h-11 items-center justify-between gap-3 rounded-xl border border-edge bg-surface-soft px-4">
-          <span className="min-w-0 truncate text-xs text-muted">Orders handled today</span>
+          <span className="min-w-0 truncate text-xs text-muted">Simulated orders</span>
           <span className="flex shrink-0 items-baseline gap-2 font-mono text-sm font-semibold text-ink">
             <span
               key={orders}

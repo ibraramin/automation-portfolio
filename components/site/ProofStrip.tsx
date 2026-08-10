@@ -2,9 +2,9 @@ import Icon, { type IconName } from "./icons";
 import Reveal from "./Reveal";
 
 const ITEMS: { icon: IconName; text: string; accent?: "wa" | "sky" }[] = [
-  { icon: "clock", text: "GMT+6, live during your business hours", accent: "wa" },
+  { icon: "clock", text: "GMT+6, replies within one business day", accent: "wa" },
   { icon: "card", text: "EUR / GBP / USD payments via Payoneer" },
-  { icon: "server", text: "GDPR-friendly, data-residency hosting", accent: "sky" },
+  { icon: "server", text: "EU-friendly data handling, minimal tracking", accent: "sky" },
   { icon: "zap", text: "n8n + AI specialists" },
 ];
 

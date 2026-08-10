@@ -263,7 +263,8 @@ export default function MeetingMinutesBot() {
               <div>
                 <p className="text-sm font-semibold text-white">{minutes.title}</p>
                 <p className="font-mono text-[11px] text-white/55">
-                  10 Aug 2026 · {minutes.actions.length} action items
+                  {new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} ·{" "}
+                  {minutes.actions.length} action items
                 </p>
               </div>
 

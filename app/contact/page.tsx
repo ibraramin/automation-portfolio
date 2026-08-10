@@ -99,7 +99,7 @@ export default function ContactPage() {
                 </div>
                 <p className="mt-4 flex items-center gap-2 text-xs leading-relaxed text-muted">
                   <Icon name="clock" className="h-3.5 w-3.5 shrink-0" />
-                  {SITE.timezone}, we&apos;re live during your business hours.
+                  {SITE.timezone}, typically replies within one business day.
                 </p>
               </div>
 

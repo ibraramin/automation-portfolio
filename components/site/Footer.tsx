@@ -6,6 +6,7 @@ const LINKS = [
   { label: "Services", href: "/services" },
   { label: "Live demos", href: "/demos" },
   { label: "Free audit", href: "/contact" },
+  { label: "Privacy", href: "/privacy" },
 ] as const;
 
 export default function Footer() {
@@ -20,7 +21,7 @@ export default function Footer() {
             </p>
             <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-edge bg-surface-soft px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
               <Icon name="clock" className="h-3.5 w-3.5 text-wa" />
-              {SITE.timezone} · always on
+              {SITE.timezone} · replies within a business day
             </p>
           </div>
 
@@ -69,7 +70,7 @@ export default function Footer() {
               </li>
               <li className="inline-flex items-center gap-2">
                 <Icon name="clock" className="h-4 w-4 text-muted" />
-                Live during your business hours
+                Typically replies within one business day
               </li>
             </ul>
           </div>

@@ -144,8 +144,6 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    scrollbar-width: thin;
-    scrollbar-color: var(--edge-strong) transparent;
   }
 
   body {
@@ -161,21 +159,31 @@
     color: var(--ink);
   }
 
-  /* Custom scrollbar, flips with the theme via tokens */
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+  /* Custom scrollbars, scoped by feature query so Firefox and WebKit
+     never both style the same element. Flips with the theme via tokens. */
+  @supports (scrollbar-color: auto) {
+    html {
+      scrollbar-width: thin;
+      scrollbar-color: var(--edge-strong) transparent;
+    }
   }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background-color: var(--edge-strong);
-    border-radius: 9999px;
-    border: 2px solid var(--bg);
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: var(--wa);
+
+  @supports selector(::-webkit-scrollbar) {
+    html::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    html::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    html::-webkit-scrollbar-thumb {
+      background-color: var(--edge-strong);
+      border-radius: 9999px;
+      border: 2px solid var(--bg);
+    }
+    html::-webkit-scrollbar-thumb:hover {
+      background-color: var(--wa);
+    }
   }
 
   /* Seamless theme switch: the toggle adds this class for ~300ms */

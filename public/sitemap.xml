@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Placeholder domain: update this file when the real domain lands. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://nexusautomations.dev/</loc>
+  </url>
+  <url>
+    <loc>https://nexusautomations.dev/services</loc>
+  </url>
+  <url>
+    <loc>https://nexusautomations.dev/demos</loc>
+  </url>
+  <url>
+    <loc>https://nexusautomations.dev/contact</loc>
+  </url>
+  <url>
+    <loc>https://nexusautomations.dev/privacy</loc>
+  </url>
+</urlset>

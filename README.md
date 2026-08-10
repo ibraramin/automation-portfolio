@@ -10,7 +10,7 @@ Client-facing showcase for **Nexus Automations** - an automation services compan
 - tesseract.js (client-side OCR for the invoice demo uploads, lazy-loaded)
 - Light/dark themes: manual toggle in header, system-preference default, persisted (demos intentionally stay dark)
 - Animated hero workflow pipeline (CSS/JS only, reduced-motion aware)
-- Zero backend: all demos run in the browser; contact form uses mailto
+- Zero backend: all demos run in the browser; contact form posts to Web3Forms with a mailto fallback until an access key is set
 
 ## Quick start
 
@@ -30,7 +30,7 @@ app/
   services/page.tsx     # 6 service lines (outcome-first, no pricing)
   demos/page.tsx        # Demo index
   demos/[slug]/page.tsx # Demo detail (async params, SSG, JSON download)
-  contact/page.tsx      # Audit form (mailto)
+  contact/page.tsx      # Audit form (Web3Forms + mailto fallback)
 components/
   site/                 # Header, Footer, CTASection, DemosGrid, ServicesGrid, ...
   demos/                # WhatsAppOrderBot, InvoiceReader, LeadResponse, MeetingMinutesBot,
@@ -51,14 +51,20 @@ docs/plans + docs/specs # Plan + repo/feature specs
 
 Everything (brand name, WhatsApp, email, CTA) lives in `components/site/config.ts`. Contact currently: WhatsApp `wa.me/8801333095960`, email `ibrarshafin2002@gmail.com`.
 
-## Deploy (Cloudflare Pages)
+## Deploy (Cloudflare Workers static assets)
 
-Repo is pushed to GitHub. In Cloudflare dashboard: **Workers & Pages → Create → Pages → Connect to Git → pick `ibraramin/automation-portfolio`** → Framework preset **Next.js** (build `npm run build`, output `.next`) → Deploy. Free tier, no config needed.
+The site is a fully static export (`output: "export"` in `next.config.ts`): `next build` emits plain HTML/CSS/JS into `out/`. Cloudflare Workers serves those files directly through the `assets` setting in `wrangler.jsonc` (`assets.directory = "./out"`, with `not_found_handling: "404-page"`).
+
+```bash
+npm run deploy   # runs npm run build && wrangler deploy
+```
+
+Note: `npm run start` is **not available** with a static export. There is no Node server to start; the `out/` directory is the deployable artifact. For local preview of the export, serve the folder with any static server (for example `npx serve out`).
 
 ## Quality gates
 
-`eslint` clean · `tsc --noEmit` clean · `npm run build` OK (10 routes, 6 SSG demos). Council-reviewed (2 models); all findings resolved.
+`eslint` clean · `tsc --noEmit` clean · `npm run build` OK (14 routes, 6 SSG demos, /privacy). Council-reviewed; all findings resolved.
 
 ## Deferred (Phase 2)
 
-OG/social image, analytics on `data-demo-interacted`/`data-json-downloaded`, real form backend, voice AI demo, real case studies, final brand + domain.
+Analytics on `data-demo-interacted`/`data-json-downloaded`, voice AI demo, real case studies, final brand + domain, tesseract asset self-hosting, branded email alias.

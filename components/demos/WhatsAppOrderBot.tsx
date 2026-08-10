@@ -7,6 +7,7 @@ type ChatMessage = {
   from: "bot" | "user";
   text: string;
   time: string;
+  lang?: string;
 };
 
 type Product = { name: string; price: string; priceNum: number };
@@ -55,9 +56,9 @@ export default function WhatsAppOrderBot() {
 
   const markInteracted = useCallback(() => setInteracted(true), []);
 
-  const push = useCallback((from: ChatMessage["from"], text: string) => {
+  const push = useCallback((from: ChatMessage["from"], text: string, lang?: string) => {
     const id = ++idRef.current;
-    setMessages((prev) => [...prev, { id, from, text, time: nowTime() }]);
+    setMessages((prev) => [...prev, { id, from, text, time: nowTime(), lang }]);
   }, []);
 
   const botSay = useCallback(
@@ -78,7 +79,7 @@ export default function WhatsAppOrderBot() {
     await delay(800);
     if (runRef.current !== run) return;
     setTyping(false);
-    push("bot", "Welcome to ShopNest! ভাতিজা, ki kinte chan? 😊");
+    push("bot", "Welcome to ShopNest! Ki kinte chan? (What can I get you?) 😊", "bn");
     setChips(["Cotton Kurti ৳899", "Denim Jacket ৳1,499", "Saree ৳2,200"]);
   }, [push]);
 
@@ -240,6 +241,7 @@ export default function WhatsAppOrderBot() {
                   ? "rounded-br-sm bg-[#25D366] text-black"
                   : "rounded-bl-sm border border-white/10 bg-[#1a1a1a] text-white/90"
               }`}
+              lang={msg.lang}
             >
               {msg.text}
             </div>

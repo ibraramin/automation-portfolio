@@ -39,19 +39,21 @@ export default function ProcessSection() {
       />
       <ol className="mt-14 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {STEPS.map((step, index) => (
-          <Reveal key={step.num} delay={index * 90} className="h-full">
-            <li className="relative h-full rounded-2xl border border-edge bg-surface p-6 transition-colors duration-300 hover:border-edge-strong sm:p-7">
-              <span className="font-mono text-sm font-semibold text-wa">{step.num}</span>
-              <h3 className="mt-3 text-base font-semibold tracking-tight text-ink">{step.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">{step.text}</p>
-              {index < STEPS.length - 1 ? (
-                <span
-                  className="absolute -right-3 top-1/2 hidden h-px w-6 bg-linear-to-r from-wa/60 to-transparent xl:block"
-                  aria-hidden="true"
-                />
-              ) : null}
-            </li>
-          </Reveal>
+          <li key={step.num} className="relative h-full">
+            <Reveal delay={index * 90} className="h-full">
+              <div className="h-full rounded-2xl border border-edge bg-surface p-6 transition-colors duration-300 hover:border-edge-strong sm:p-7">
+                <span className="font-mono text-sm font-semibold text-wa">{step.num}</span>
+                <h3 className="mt-3 text-base font-semibold tracking-tight text-ink">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{step.text}</p>
+              </div>
+            </Reveal>
+            {index < STEPS.length - 1 ? (
+              <span
+                className="absolute -right-3 top-1/2 hidden h-px w-6 bg-linear-to-r from-wa/60 to-transparent xl:block"
+                aria-hidden="true"
+              />
+            ) : null}
+          </li>
         ))}
       </ol>
     </section>
