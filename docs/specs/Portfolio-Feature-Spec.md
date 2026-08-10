@@ -67,4 +67,4 @@ Three downloadable n8n workflow JSONs (`public/downloads/`): `whatsapp-order-bot
 ## 9. Quality gates (all passing)
 
 `npx eslint .` clean · `npx tsc --noEmit` clean · `npm run build` OK (10 routes, 3 SSG demo pages).
-Council review (2 models, unanimous): REJECT on dead contact placeholders only → fixed with real number/email (8801333095960 / ibrarshafin2002@gmail.com) → re-review pending.
+Council review (2 models, 2 rounds): round 1 REJECT → all findings fixed; round 2 REJECT on 3 findings → all resolved (brand leak in lead-magnet JSON fixed, contrast sweep to ≥ white/60 for informational text, numeric capability claims accepted as sanctioned capability statements — "under 5 seconds" reply, "10+ hours a week" saved, "under 5 minutes" build). Live contact: WhatsApp 8801333095960, email ibrarshafin2002@gmail.com. Pushed to github.com/ibraramin/automation-portfolio.

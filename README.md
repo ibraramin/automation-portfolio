@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Nexus Automations — Portfolio Site
 
-## Getting Started
+Client-facing portfolio for a Dhaka-based automation collective selling **custom n8n + AI + WhatsApp automation** to small businesses in Bangladesh and Europe. Goal: convert visitors into **free automation audit** bookings via live interactive demos + downloadable n8n workflow lead magnets.
 
-First, run the development server:
+**Live repo:** [github.com/ibraramin/automation-portfolio](https://github.com/ibraramin/automation-portfolio)
+
+## Stack
+
+- Next.js 16 (App Router, Turbopack) · React 19 · TypeScript · Tailwind CSS v4
+- tesseract.js (client-side OCR for the invoice demo uploads, lazy-loaded)
+- Zero backend: all demos run in the browser; contact form uses mailto
+
+## Quick start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
+npm run build    # production build (Turbopack)
+npx eslint .     # lint
+npx tsc --noEmit # typecheck
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+app/
+  page.tsx              # Home: hero → proof → services → demos → process → CTA
+  services/page.tsx     # 6 service lines (outcome-first, no pricing)
+  demos/page.tsx        # Demo index
+  demos/[slug]/page.tsx # Demo detail (async params, SSG, JSON download)
+  contact/page.tsx      # Audit form (mailto)
+components/
+  site/                 # Header, Footer, CTASection, DemosGrid, ServicesGrid, ...
+  demos/                # WhatsAppOrderBot, InvoiceReader, LeadResponse (interactive)
+lib/demos.ts            # DemoMeta contract + DEMOS registry (drives /demos grid)
+public/downloads/       # n8n workflow JSONs (lead magnets)
+docs/plans + docs/specs # Plan + repo/feature specs
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## How to add a demo
 
-## Learn More
+1. Add the entry to `lib/demos.ts` (`slug`, `title`, `tagline`, `markets`, `metric`, `tech`, `jsonFile`, `description`).
+2. Build the interactive component in `components/demos/` ("use client", add `data-demo-interacted` on first interaction).
+3. Wire it in `app/demos/[slug]/page.tsx` (slug → component map).
+4. Drop the matching n8n workflow JSON in `public/downloads/`.
 
-To learn more about Next.js, take a look at the following resources:
+## Brand + contact — one file
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Everything (brand name, WhatsApp, email, CTA) lives in `components/site/config.ts`. Contact currently: WhatsApp `wa.me/8801333095960`, email `ibrarshafin2002@gmail.com`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploy (Cloudflare Pages)
 
-## Deploy on Vercel
+Repo is pushed to GitHub. In Cloudflare dashboard: **Workers & Pages → Create → Pages → Connect to Git → pick `ibraramin/automation-portfolio`** → Framework preset **Next.js** (build `npm run build`, output `.next`) → Deploy. Free tier, no config needed.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Quality gates
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`eslint` clean · `tsc --noEmit` clean · `npm run build` OK (10 routes, 3 SSG demos). Council-reviewed (2 models); all findings resolved.
+
+## Deferred (Phase 2)
+
+OG/social image, analytics on `data-demo-interacted`/`data-json-downloaded`, real form backend, voice AI demo, real case studies, final brand + domain.
