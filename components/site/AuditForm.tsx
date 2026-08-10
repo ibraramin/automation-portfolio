@@ -6,7 +6,7 @@ import Icon from "./icons";
 import { SITE } from "./config";
 
 // Public by design (docs.web3forms.com). Sign up, create a form, copy the access key, paste above.
-const WEB3FORMS_ACCESS_KEY = "PASTE_KEY_HERE";
+const WEB3FORMS_ACCESS_KEY: string = "b9453e95-f372-4bfa-a7b7-74c5e6141323";
 const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
 
 // No key configured yet: keep the mailto fallback so the site never breaks.
