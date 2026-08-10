@@ -193,7 +193,7 @@ export default function LeadResponse() {
                   <div className="pb-1">
                     <p className="font-mono text-[11px] text-[#25D366]">{step.time}</p>
                     <p className="text-sm font-medium text-white">{step.title}</p>
-                    <p className="mt-0.5 text-xs text-white/45">{step.detail}</p>
+                    <p className="mt-0.5 text-xs text-white/60">{step.detail}</p>
                   </div>
                 </li>
               ))}
