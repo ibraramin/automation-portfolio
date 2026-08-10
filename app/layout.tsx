@@ -13,13 +13,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nexus Automations — Custom automation for small businesses (Dhaka to Europe)",
+  title: "Nexus Automations — Automation Solutions for Small Businesses",
   description:
-    "Custom WhatsApp, AI and workflow automation for small businesses. Built in Dhaka, delivered in your timezone. Free automation audit.",
+    "Custom automation for small businesses: WhatsApp flows, AI document processing, lead response, booking and CRM sync — built around your workflow. Free automation audit.",
   openGraph: {
-    title: "Nexus Automations — Custom automation for small businesses",
+    title: "Nexus Automations — Automation Solutions for Small Businesses",
     description:
-      "Custom WhatsApp, AI and workflow automation for small businesses. Built in Dhaka, delivered in your timezone. Free automation audit.",
+      "Custom automation for small businesses: WhatsApp flows, AI document processing, lead response, booking and CRM sync — built around your workflow. Free automation audit.",
     type: "website",
     locale: "en_GB",
   },
@@ -29,8 +29,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var s=localStorage.getItem('nexus-theme');var l=s==='light'||(!s&&matchMedia('(prefers-color-scheme: light)').matches);if(l)document.documentElement.classList.add('light')}catch(e){}`,
+          }}
+        />
+      </head>
       <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );

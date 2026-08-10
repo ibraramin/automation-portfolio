@@ -8,7 +8,7 @@ function ServiceCard({ service }: { service: Service }) {
   return (
     <Link
       href="/contact"
-      className="group relative flex flex-col gap-4 rounded-2xl border border-white/10 bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-[0_20px_60px_-24px_rgba(0,0,0,0.8)]"
+      className="group relative flex flex-col gap-4 rounded-2xl border border-edge bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-edge-strong hover:shadow-[0_20px_60px_-24px_rgba(0,0,0,0.8)] sm:p-7"
     >
       <div className="flex items-start justify-between">
         <span
@@ -31,7 +31,7 @@ function ServiceCard({ service }: { service: Service }) {
         {service.tech.slice(0, 3).map((tech) => (
           <span
             key={tech}
-            className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 font-mono text-[10.5px] uppercase tracking-wide text-muted"
+            className="rounded-full border border-edge bg-surface-soft px-2.5 py-1 font-mono text-[10.5px] uppercase tracking-wide text-muted"
           >
             {tech}
           </span>
@@ -43,7 +43,7 @@ function ServiceCard({ service }: { service: Service }) {
 
 export default function ServicesGrid() {
   return (
-    <section id="services" className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
+    <section id="services" className="container-site py-20 sm:py-28">
       <SectionHeading
         eyebrow="What we automate"
         title={
@@ -54,7 +54,7 @@ export default function ServicesGrid() {
         }
         subtitle="Every workflow is custom-built, delivered in 1–2 weeks, and priced as one fixed quote per workflow."
       />
-      <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {SERVICES.map((service) => (
           <ServiceCard key={service.id} service={service} />
         ))}

@@ -25,7 +25,7 @@ const STEPS = [
 
 export default function ProcessSection() {
   return (
-    <section className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
+    <section className="container-site py-20 sm:py-28">
       <SectionHeading
         eyebrow="How it works"
         title={
@@ -36,15 +36,15 @@ export default function ProcessSection() {
         }
         subtitle="No workshops. No 40-page proposals. Just a straight path from audit to automation."
       />
-      <ol className="mt-14 grid gap-4 md:grid-cols-4">
+      <ol className="mt-14 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {STEPS.map((step, index) => (
-          <li key={step.num} className="relative rounded-2xl border border-white/10 bg-surface p-6">
+          <li key={step.num} className="relative rounded-2xl border border-edge bg-surface p-6 sm:p-7">
             <span className="font-mono text-sm font-semibold text-wa">{step.num}</span>
             <h3 className="mt-3 text-base font-semibold tracking-tight text-ink">{step.title}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted">{step.text}</p>
             {index < STEPS.length - 1 ? (
               <span
-                className="absolute -right-3 top-1/2 hidden h-px w-6 bg-linear-to-r from-wa/60 to-transparent md:block"
+                className="absolute -right-3 top-1/2 hidden h-px w-6 bg-linear-to-r from-wa/60 to-transparent xl:block"
                 aria-hidden="true"
               />
             ) : null}

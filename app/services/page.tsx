@@ -18,7 +18,7 @@ function ServiceBlock({ service, index }: { service: Service; index: number }) {
   return (
     <article
       id={service.id}
-      className="grid gap-8 border-t border-white/10 py-14 first:border-t-0 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-14"
+      className="grid gap-8 border-t border-edge py-14 first:border-t-0 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-14"
     >
       <div>
         <p className="font-mono text-xs font-medium uppercase tracking-[0.22em] text-muted">
@@ -55,7 +55,7 @@ function ServiceBlock({ service, index }: { service: Service; index: number }) {
             {service.tech.map((tech) => (
               <span
                 key={tech}
-                className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 font-mono text-xs text-muted"
+                className="rounded-full border border-edge bg-surface-soft px-3 py-1.5 font-mono text-xs text-muted"
               >
                 {tech}
               </span>
@@ -85,12 +85,12 @@ export default function ServicesPage() {
             className="pointer-events-none absolute inset-0 bg-grid opacity-50 mask-fade-b"
             aria-hidden="true"
           />
-          <div className="relative mx-auto w-full max-w-6xl px-5 pt-20 pb-14 sm:px-8 md:pt-28 md:pb-20">
+          <div className="relative container-site pt-20 pb-14 md:pt-28 md:pb-20">
             <p className="flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-wa">
               <span className="h-1 w-1 rounded-full bg-wa" aria-hidden="true" />
               Services
             </p>
-            <h1 className="mt-4 max-w-2xl text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-5xl">
+            <h1 className="mt-4 max-w-2xl text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-5xl xl:text-6xl">
               Automations that pay for themselves.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
@@ -100,13 +100,13 @@ export default function ServicesPage() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button href="/contact">Free automation audit</Button>
               <Button href="/demos" variant="secondary">
-                Try a demo
+                Try a live demo
               </Button>
             </div>
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8 sm:pb-28">
+        <section className="container-site pb-20 sm:pb-28">
           {SERVICES.map((service, index) => (
             <ServiceBlock key={service.id} service={service} index={index} />
           ))}

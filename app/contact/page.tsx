@@ -32,29 +32,29 @@ export default function ContactPage() {
             className="pointer-events-none absolute -top-24 right-0 h-80 w-80 rounded-full bg-wa/10 blur-[120px]"
             aria-hidden="true"
           />
-          <div className="relative mx-auto w-full max-w-6xl px-5 pt-20 pb-16 sm:px-8 md:pt-28">
+          <div className="relative container-site pt-20 pb-16 md:pt-28">
             <p className="flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-wa">
               <span className="h-1 w-1 rounded-full bg-wa" aria-hidden="true" />
               Free audit
             </p>
-            <h1 className="mt-4 max-w-2xl text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-5xl">
+            <h1 className="mt-4 max-w-2xl text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-5xl xl:text-6xl">
               Book your free automation audit.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
               Tell us the tasks that eat most of your week. We&apos;ll show you exactly how to automate
-              them — before you spend a taka or a pound.
+              them — before you spend a dime on manual work.
             </p>
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8 sm:pb-28">
+        <section className="container-site pb-20 sm:pb-28">
           <div className="grid gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-14">
-            <div className="rounded-2xl border border-white/10 bg-surface p-6 sm:p-8">
+            <div className="rounded-2xl border border-edge bg-surface p-6 sm:p-8">
               <AuditForm />
             </div>
 
             <aside className="space-y-6">
-              <div className="rounded-2xl border border-white/10 bg-surface p-6">
+              <div className="rounded-2xl border border-edge bg-surface p-6">
                 <h2 className="font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-muted">
                   What you get
                 </h2>
@@ -73,7 +73,7 @@ export default function ContactPage() {
                 </ul>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-surface p-6">
+              <div className="rounded-2xl border border-edge bg-surface p-6">
                 <h2 className="font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-muted">
                   Prefer to talk?
                 </h2>
@@ -95,7 +95,7 @@ export default function ContactPage() {
                 </div>
                 <p className="mt-4 flex items-center gap-2 text-xs leading-relaxed text-muted">
                   <Icon name="clock" className="h-3.5 w-3.5 shrink-0" />
-                  GMT+6 — we&apos;re live during European business hours.
+                  {SITE.timezone} — we&apos;re live during your business hours.
                 </p>
               </div>
 

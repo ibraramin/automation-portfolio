@@ -19,7 +19,7 @@ export const DEMOS: DemoMeta[] = [
     title: "WhatsApp Order Bot",
     tagline:
       "Turn WhatsApp chats into paid orders — product, size, bKash payment and courier dispatch without a human in the loop.",
-    markets: ["Bangladesh"],
+    markets: ["E-commerce", "Retail"],
     metric: "15 min per order → 2 min",
     tech: ["n8n", "WhatsApp Cloud API", "OpenAI", "bKash", "Google Sheets", "Pathao"],
     jsonFile: "/downloads/whatsapp-order-bot.json",
@@ -31,7 +31,7 @@ export const DEMOS: DemoMeta[] = [
     title: "AI Invoice Reader",
     tagline:
       "Drop in a supplier invoice and get vendor, VAT and line items extracted — ready to post to your books.",
-    markets: ["Europe"],
+    markets: ["Accounting", "Professional services"],
     metric: "4 hrs → 15 min per week",
     tech: ["n8n", "OpenAI Vision", "tesseract.js", "Gmail", "Google Sheets"],
     jsonFile: "/downloads/ai-invoice-reader.json",
@@ -43,7 +43,7 @@ export const DEMOS: DemoMeta[] = [
     title: "Lightning Lead Response",
     tagline:
       "Reply to inbound leads in under five minutes — scored, personalized and logged before your competitor opens their inbox.",
-    markets: ["Bangladesh", "Europe"],
+    markets: ["Agencies", "B2B sales"],
     metric: "6 hrs → <5 min response",
     tech: ["n8n", "OpenAI", "HubSpot", "Airtable", "Slack"],
     jsonFile: "/downloads/lightning-lead-response.json",

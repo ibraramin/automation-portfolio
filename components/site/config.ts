@@ -10,7 +10,6 @@ export const SITE = {
   email: "ibrarshafin2002@gmail.com",
   whatsappUrl: "https://wa.me/8801333095960",
   whatsappLabel: "WhatsApp us",
-  location: "Dhaka, Bangladesh",
   timezone: "GMT+6",
-  tagline: "Built in Dhaka, delivered in your timezone.",
+  tagline: "Built around your workflow, delivered in your timezone.",
 } as const;

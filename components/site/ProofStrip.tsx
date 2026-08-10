@@ -1,16 +1,16 @@
 import Icon, { type IconName } from "./icons";
 
 const ITEMS: { icon: IconName; text: string; accent?: "wa" | "sky" }[] = [
-  { icon: "clock", text: "GMT+6 — live during European business hours", accent: "wa" },
+  { icon: "clock", text: "GMT+6 — live during your business hours", accent: "wa" },
   { icon: "card", text: "EUR / GBP / USD payments via Payoneer" },
-  { icon: "server", text: "EU-hosted servers — GDPR-friendly", accent: "sky" },
+  { icon: "server", text: "GDPR-friendly, data-residency hosting", accent: "sky" },
   { icon: "zap", text: "n8n + AI specialists" },
 ];
 
 export default function ProofStrip() {
   return (
-    <section className="border-y border-white/10 bg-white/[0.02]">
-      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-x-8 gap-y-4 px-5 py-6 sm:grid-cols-2 sm:px-8 lg:grid-cols-4">
+    <section className="border-y border-edge bg-surface-soft/60">
+      <div className="container-site grid grid-cols-1 gap-x-10 gap-y-5 py-6 sm:grid-cols-2 lg:grid-cols-4">
         {ITEMS.map((item) => {
           const isSky = item.accent === "sky";
           return (

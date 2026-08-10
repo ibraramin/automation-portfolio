@@ -1,6 +1,6 @@
-# Nexus Automations — Portfolio Site
+# Nexus Automations — Showcase Site
 
-Client-facing portfolio for a Dhaka-based automation collective selling **custom n8n + AI + WhatsApp automation** to small businesses in Bangladesh and Europe. Goal: convert visitors into **free automation audit** bookings via live interactive demos + downloadable n8n workflow lead magnets.
+Client-facing showcase for **Nexus Automations** — an automation services company selling **custom n8n + AI + WhatsApp automation** to small businesses. Goal: convert visitors into **free automation audit** bookings via live interactive demos + downloadable n8n workflow lead magnets.
 
 **Live repo:** [github.com/ibraramin/automation-portfolio](https://github.com/ibraramin/automation-portfolio)
 
@@ -8,6 +8,8 @@ Client-facing portfolio for a Dhaka-based automation collective selling **custom
 
 - Next.js 16 (App Router, Turbopack) · React 19 · TypeScript · Tailwind CSS v4
 - tesseract.js (client-side OCR for the invoice demo uploads, lazy-loaded)
+- Light/dark themes: manual toggle in header, system-preference default, persisted (demos intentionally stay dark)
+- Animated hero workflow pipeline (CSS/JS only, reduced-motion aware)
 - Zero backend: all demos run in the browser; contact form uses mailto
 
 ## Quick start

@@ -54,10 +54,10 @@
         "interactiveType": "button",
         "interactiveHeader": {
           "type": "text",
-          "text": "Welcome to ShopNest BD! ভাতিজা, ki kinte chan? 😊"
+          "text": "Welcome to ShopNest! What can I get you today? 😊"
         },
         "interactiveBody": { "text": "Pick a product and I'll arrange delivery + payment." },
-        "interactiveFooter": { "text": "ShopNest BD • Dhaka" },
+        "interactiveFooter": { "text": "ShopNest" },
         "interactiveButtons": [
           { "type": "reply", "title": "Cotton Kurti ৳899", "id": "p-kurti" },
           { "type": "reply", "title": "Denim Jacket ৳1,499", "id": "p-jacket" },
@@ -168,7 +168,7 @@
         "messagingProduct": "whatsapp",
         "from": "={{ $json.from }}",
         "messageType": "text",
-        "text": "Please Send Money to 01711-223344 (ShopNest BD) — amount ৳{{ $('Remember: Product Choice').item.json.productPrice }}.\n\nThen reply with your bKash Transaction ID (10-12 digits) to confirm. ✅"
+        "text": "Please Send Money to 01711-223344 (ShopNest) — amount ৳{{ $('Remember: Product Choice').item.json.productPrice }}.\n\nThen reply with your bKash Transaction ID (10-12 digits) to confirm. ✅"
       },
       "id": "wf-wab-011",
       "name": "Send bKash Instructions",
@@ -392,7 +392,7 @@
         "messagingProduct": "whatsapp",
         "from": "={{ $json.from }}",
         "messageType": "text",
-        "text": "🛵 Your order is out for delivery — expected 6–9 PM. Thank you for shopping with ShopNest BD! 💚"
+        "text": "🛵 Your order is out for delivery — expected 6–9 PM. Thank you for shopping with ShopNest! 💚"
       },
       "id": "wf-wab-025",
       "name": "Out for Delivery",

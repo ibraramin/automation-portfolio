@@ -78,7 +78,7 @@ export default function WhatsAppOrderBot() {
     await delay(800);
     if (runRef.current !== run) return;
     setTyping(false);
-    push("bot", "Welcome to ShopNest BD! ভাতিজা, ki kinte chan? 😊");
+    push("bot", "Welcome to ShopNest! ভাতিজা, ki kinte chan? 😊");
     setChips(["Cotton Kurti ৳899", "Denim Jacket ৳1,499", "Saree ৳2,200"]);
   }, [push]);
 
@@ -166,7 +166,7 @@ export default function WhatsAppOrderBot() {
     } else {
       await botSay(
         run,
-        "🛵 Your order is out for delivery! The rider is on the way — keep an eye on WhatsApp. Thank you for shopping with ShopNest BD! 💚",
+        "🛵 Your order is out for delivery! The rider is on the way — keep an eye on WhatsApp. Thank you for shopping with ShopNest! 💚",
         900
       );
       if (runRef.current !== run) return;
@@ -216,7 +216,7 @@ export default function WhatsAppOrderBot() {
             S
           </div>
           <div>
-            <p className="text-sm font-semibold text-white">ShopNest BD</p>
+            <p className="text-sm font-semibold text-white">ShopNest</p>
             <p className="flex items-center gap-1 text-xs text-white/50">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#25D366]" /> online
             </p>
@@ -285,7 +285,7 @@ export default function WhatsAppOrderBot() {
               >
                 {BKASH_NUMBER}
               </button>{" "}
-              (ShopNest BD), amount{" "}
+              (ShopNest), amount{" "}
               <span className="font-semibold text-white">
                 {selected ? selected.price : "৳899"}
               </span>
@@ -351,7 +351,7 @@ export default function WhatsAppOrderBot() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") void submitAddress();
               }}
-              placeholder="e.g. House 12, Road 5, Dhanmondi, Dhaka"
+              placeholder="e.g. 12 Market Street"
               className="flex-1 rounded-full border border-white/10 bg-[#0a0a0a] px-4 py-2.5 text-sm text-white placeholder-white/30 outline-none focus:border-[#25D366]/60"
             />
             <button

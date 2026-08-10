@@ -18,7 +18,7 @@ export default function SectionHeading({
   const centered = align === "center";
   return (
     <div
-      className={`${centered ? "mx-auto max-w-2xl text-center" : "max-w-2xl"} ${className}`}
+      className={`${centered ? "mx-auto max-w-3xl text-center" : "max-w-3xl"} ${className}`}
     >
       <p
         className={`flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-wa ${
@@ -28,13 +28,11 @@ export default function SectionHeading({
         <span className="h-1 w-1 rounded-full bg-wa" aria-hidden="true" />
         {eyebrow}
       </p>
-      <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-ink sm:text-4xl md:text-[2.75rem] md:leading-[1.1]">
+      <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-ink sm:text-4xl md:text-[2.75rem] md:leading-[1.1] xl:text-[3.25rem]">
         {title}
       </h2>
       {subtitle ? (
-        <p className="mt-4 text-base leading-relaxed text-muted sm:text-lg">
-          {subtitle}
-        </p>
+        <p className="mt-4 text-base leading-relaxed text-muted sm:text-lg">{subtitle}</p>
       ) : null}
     </div>
   );

@@ -1,7 +1,7 @@
 ---
 plan name: Automation-Portfolio
 plan description: Client-ready demo site build
-plan status: active
+plan status: done
 ---
 
 ## Idea

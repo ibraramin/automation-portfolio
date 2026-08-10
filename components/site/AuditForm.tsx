@@ -6,7 +6,7 @@ import Icon from "./icons";
 import { SITE } from "./config";
 
 const inputCls =
-  "w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-ink placeholder:text-muted/60 transition-colors focus:border-wa/50 focus:outline-none focus:ring-2 focus:ring-wa/20";
+  "w-full rounded-xl border border-edge bg-surface-soft px-4 py-3 text-sm text-ink placeholder:text-muted/60 transition-colors focus:border-wa/50 focus:outline-none focus:ring-2 focus:ring-wa/20";
 
 function Field({
   label,
@@ -49,16 +49,16 @@ export default function AuditForm() {
     // Opens the visitor's mail app with everything pre-filled. Swap for a form
     // backend (Formspree etc.) later — no server needed for now.
     window.location.href = `mailto:${SITE.email}?subject=${subject}&body=${body}`;
-    setTimeout(() => setStatus("sent"), 600);
+    window.setTimeout(() => setStatus("sent"), 600);
   }
 
   if (status === "sent") {
     return (
       <div className="flex flex-col items-start justify-center gap-4 rounded-2xl border border-wa/25 bg-wa/[0.06] p-8">
-        <span className="grid h-12 w-12 place-items-center rounded-full bg-wa text-[#04150b]">
+        <span className="grid h-12 w-12 place-items-center rounded-full bg-wa text-wa-ink">
           <Icon name="check" className="h-6 w-6" />
         </span>
-        <h3 className="text-2xl font-semibold tracking-tight text-ink">Almost there — check your email app.</h3>
+        <h3 className="text-2xl font-semibold tracking-tight text-ink">Almost there.</h3>
         <p className="text-sm leading-relaxed text-muted">
           Your email app should have opened with everything pre-filled — just hit send. We reply
           within one business day, usually faster.
@@ -79,7 +79,7 @@ export default function AuditForm() {
             name="name"
             type="text"
             required
-            placeholder="Ayesha Rahman"
+            placeholder="Jordan Smith"
             className={inputCls}
           />
         </Field>
@@ -99,7 +99,7 @@ export default function AuditForm() {
           name="contact"
           type="text"
           required
-          placeholder="you@business.com or +880 1X XX XX XX XX"
+          placeholder="you@business.com or +1 (555) 000-0000"
           className={inputCls}
         />
       </Field>

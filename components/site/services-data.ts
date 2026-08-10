@@ -32,7 +32,7 @@ export const SERVICES: Service[] = [
     pain: "Your team retypes invoices, receipts and PDFs into spreadsheets by hand.",
     build: "AI that reads invoices and documents, then files the data into your accounting tools — with a human check when needed.",
     tech: ["n8n", "OpenAI Vision", "Accounting tools"],
-    audience: "Accountants, agencies and import / export businesses.",
+    audience: "Accounting firms, agencies and professional services.",
     accent: "sky",
   },
   {

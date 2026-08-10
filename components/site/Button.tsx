@@ -5,13 +5,13 @@ type Variant = "primary" | "secondary" | "ghost";
 type Size = "sm" | "md" | "lg";
 
 const base =
-  "group inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-tight transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wa/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+  "group inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-tight transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wa/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg";
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-wa text-[#04150b] shadow-[0_0_0_1px_rgba(37,211,102,0.25),0_8px_32px_-10px_rgba(37,211,102,0.55)] hover:bg-[#2fdb74] hover:shadow-[0_0_0_1px_rgba(37,211,102,0.45),0_12px_48px_-8px_rgba(37,211,102,0.7)] hover:-translate-y-px active:translate-y-0",
+    "bg-wa text-wa-ink shadow-[0_0_0_1px_rgba(37,211,102,0.25),0_8px_32px_-10px_rgba(37,211,102,0.55)] hover:bg-wa-strong hover:shadow-[0_0_0_1px_rgba(37,211,102,0.45),0_12px_48px_-8px_rgba(37,211,102,0.7)] hover:-translate-y-px active:translate-y-0",
   secondary:
-    "border border-white/10 bg-white/[0.03] text-ink hover:border-white/25 hover:bg-white/[0.07] hover:-translate-y-px active:translate-y-0",
+    "border border-edge bg-surface-soft text-ink hover:border-edge-strong hover:bg-surface-soft-2 hover:-translate-y-px active:translate-y-0",
   ghost: "text-muted hover:text-ink",
 };
 
