@@ -33,5 +33,13 @@ anything that cost time or taught a lesson.
 
 ## Entries
 
-_No entries yet. This log starts empty on purpose: the first mistakes are
-waiting to be made and learned from._
+### #1: Spec filename typo in the blueprint prompt input block
+
+- Date: 2026-08-11
+- Service / sheet: 04-booking-reminders / specs/04-booking-reminders.md
+- Context: BLUEPRINT-PROMPT.md input block, SPEC_SHEET field
+- Symptom: SPEC_SHEET pointed to `specs/04-booking-reimnders.md`, a file that does not exist; the actual sheet is `specs/04-booking-reminders.md`
+- Root cause: typo in the input block ("reimnders" instead of "reminders")
+- Fix / workaround: resolved by trusting the SHEET_TITLE field and the on-disk filename, which both agreed; built the blueprint from the correct sheet
+- Lesson: before starting, verify every spec path in an input block against the filesystem; when path fields disagree, the sheet title and the existing file win
+- Related nodes / integrations: none (process-level quirk, no n8n nodes involved)

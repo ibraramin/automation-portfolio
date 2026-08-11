@@ -52,6 +52,8 @@ lessons accrue through the bug log.
 ## Index
 
 - TEMPLATE.md: the reusable spec-sheet template. All eleven spec sheets follow it section for section, in the same order, with the same section names.
+- BLUEPRINT-PROMPT.md: the one-sheet-one-blueprint prompt. Each run produces a working n8n prototype JSON (builds/), a design document (designs/), and a founder implementation guide (guides/).
+- BUGS-AND-QUIRKS.md: the append-only log of every bug, quirk, and full-on mistake encountered while building and stress-testing blueprints. Read it before starting any new blueprint.
 - BLUEPRINT-PROMPT.md: the reusable prompt that turns ONE spec sheet into ONE buildable blueprint (one run, one service, never batch).
 - BUGS-AND-QUIRKS.md: the append-only log of every bug, quirk, and mistake found while implementing and stress-testing blueprints.
 - specs/01-omni-capture.md: order and lead capture across channels.

@@ -10,12 +10,14 @@ detailed, buildable n8n blueprint. One run, one service. Never batch.
 1. Pick exactly ONE spec sheet from `blueprints/specs/` (01 through 11).
 2. Fill in the input block below with that sheet's path and any client-flavor notes.
 3. Paste this entire file (with the filled input) to the agent.
-4. The agent produces TWO artifacts for that one service: a WORKING n8n
+4. The agent produces THREE artifacts for that one service: a WORKING n8n
    prototype (an importable workflow JSON) saved to
-   `blueprints/builds/<number>-<slug>-prototype.json`, and the design document
-   saved to `blueprints/designs/<number>-<slug>-blueprint.md`.
-5. Review both, then stress-test the prototype. Only after it passes, start the
-   next service.
+   `blueprints/builds/<number>-<slug>-prototype.json`, the design document
+   saved to `blueprints/designs/<number>-<slug>-blueprint.md`, and an
+   implementation guide for the founder saved to
+   `blueprints/guides/<number>-<slug>-implementation-guide.md`.
+5. Review all three, then stress-test the prototype. Only after it passes, start
+   the next service.
 
 ## Inputs (fill before running)
 
@@ -24,16 +26,17 @@ detailed, buildable n8n blueprint. One run, one service. Never batch.
 - CLIENT_FLAVOR_NOTES: <optional; leave empty for the generic build>
 - OUTPUT_PATH: `blueprints/designs/<number>-<slug>-blueprint.md`
 - PROTOTYPE_PATH: `blueprints/builds/<number>-<slug>-prototype.json`
+- GUIDE_PATH: `blueprints/guides/<number>-<slug>-implementation-guide.md`
 
 ---
 
 ## Agent role
 
 You are a senior n8n automation architect for a Dhaka-based automation studio.
-Your job is to read ONE spec sheet and produce TWO artifacts for that single
-service: a WORKING, importable n8n workflow prototype, and its design document.
-You do not write code for other services. You do not build multiple blueprints
-in one run.
+Your job is to read ONE spec sheet and produce THREE artifacts for that single
+service: a WORKING, importable n8n workflow prototype, its design document, and
+an implementation guide for the founder. You do not write code for other
+services. You do not build multiple blueprints in one run.
 
 ## Hard rules
 
@@ -105,6 +108,27 @@ actual JSON nodes exactly, one to one.
 13. Open questions: anything ambiguous, missing, or needing a founder decision.
 14. Version history: `| v0.1 | <date> | initial blueprint from sheet <number> |`.
 
+The run also produces the implementation guide at GUIDE_PATH (plain language
+for the founder, 120 to 200 lines, zero em dashes):
+
+- How to import the prototype: n8n → Workflows → Import from file, pick
+  PROTOTYPE_PATH, what the canvas should look like after import.
+- The full `{{CONFIG.x}}` value table: every token, what to put in it, where it
+  lives in n8n (workflow variables or the first node).
+- Credentials checklist: one line per integration in the blueprint, what to
+  create in n8n (OAuth, API key, webhook URL), and the exact name to give it so
+  the nodes pick it up.
+- Node-by-node visual verification: for every node in the inventory, what to
+  click and what 'looks right' when the node is configured (field values,
+  connected inputs/outputs, disabled state of placeholders).
+- Manual dry-run: how to execute one node at a time, in what order, and what
+  output to expect at each step.
+- Canvas basics: pan, zoom, execute, view executions, enable/disable a node.
+- Common gotchas: point to `blueprints/BUGS-AND-QUIRKS.md` and list the ones
+  relevant to this service.
+- Readiness: what must pass before the blueprint can be marked v1.0 (the stress
+  matrix from the design document, executed end to end).
+
 ## Acceptance criteria
 
 The blueprint is complete when all of these hold:
@@ -123,9 +147,12 @@ The blueprint is complete when all of these hold:
 - Zero em dashes in the document.
 - Both artifacts are saved: the markdown at OUTPUT_PATH, the JSON at
   PROTOTYPE_PATH.
-- No files outside `blueprints/designs/` and `blueprints/builds/` are created
-  or modified, except appending new entries to `blueprints/BUGS-AND-QUIRKS.md`
-  when rule 7 applies.
+- The implementation guide is saved at GUIDE_PATH, uses the exact node names
+  from the prototype JSON, and its walkthrough is actionable without asking the
+  generating agent for clarifications.
+- No files outside `blueprints/designs/`, `blueprints/builds/`, and
+  `blueprints/guides/` are created or modified, except appending new entries to
+  `blueprints/BUGS-AND-QUIRKS.md` when rule 7 applies.
 
 ## Stop conditions
 
