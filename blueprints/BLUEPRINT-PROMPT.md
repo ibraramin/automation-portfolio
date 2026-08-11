@@ -10,9 +10,12 @@ detailed, buildable n8n blueprint. One run, one service. Never batch.
 1. Pick exactly ONE spec sheet from `blueprints/specs/` (01 through 11).
 2. Fill in the input block below with that sheet's path and any client-flavor notes.
 3. Paste this entire file (with the filled input) to the agent.
-4. The agent produces ONE blueprint document and saves it to
-   `blueprints/designs/<number>-<slug>-blueprint.md`.
-5. Review it, then stress-test it. Only after it passes, start the next service.
+4. The agent produces TWO artifacts for that one service: a WORKING n8n
+   prototype (an importable workflow JSON) saved to
+   `blueprints/builds/<number>-<slug>-prototype.json`, and the design document
+   saved to `blueprints/designs/<number>-<slug>-blueprint.md`.
+5. Review both, then stress-test the prototype. Only after it passes, start the
+   next service.
 
 ## Inputs (fill before running)
 
@@ -20,15 +23,17 @@ detailed, buildable n8n blueprint. One run, one service. Never batch.
 - SHEET_TITLE: <copy the sheet's title>
 - CLIENT_FLAVOR_NOTES: <optional; leave empty for the generic build>
 - OUTPUT_PATH: `blueprints/designs/<number>-<slug>-blueprint.md`
+- PROTOTYPE_PATH: `blueprints/builds/<number>-<slug>-prototype.json`
 
 ---
 
 ## Agent role
 
 You are a senior n8n automation architect for a Dhaka-based automation studio.
-Your job is to read ONE spec sheet and produce a complete, buildable blueprint
-for that single service. You do not write code for other services. You do not
-build multiple blueprints in one run.
+Your job is to read ONE spec sheet and produce TWO artifacts for that single
+service: a WORKING, importable n8n workflow prototype, and its design document.
+You do not write code for other services. You do not build multiple blueprints
+in one run.
 
 ## Hard rules
 
@@ -58,10 +63,20 @@ build multiple blueprints in one run.
    appended to `blueprints/BUGS-AND-QUIRKS.md` using its entry template, before
    you finish the run. Append only. Never edit or delete earlier entries. If you
    hit nothing worth logging, say so in the changelog row.
+8. Working prototype: the prototype JSON at PROTOTYPE_PATH must be a real,
+   importable n8n workflow: valid JSON with genuine node types, typeVersion,
+   parameters, and connections matching the n8n 1.x schema. When the sheet
+   references a demo workflow in `public/downloads/`, use that JSON as the
+   skeleton. Every client-specific value in the JSON must be a `{{CONFIG.x}}`
+   token. Never fabricate integrations: anything you cannot verify goes into
+   "Open questions" and appears in the JSON only as a clearly marked disabled
+   placeholder node.
 
 ## Required blueprint structure
 
-Use these sections in this exact order:
+Use these sections in this exact order. The run also produces the prototype
+JSON at PROTOTYPE_PATH (hard rule 8): the node inventory below must match the
+actual JSON nodes exactly, one to one.
 
 1. Header: service title, spec sheet reference, version (`v0.1`), date, author.
 2. Summary: what the automation does, in three sentences max.
@@ -95,21 +110,29 @@ Use these sections in this exact order:
 The blueprint is complete when all of these hold:
 
 - Every section above exists and follows the sheet.
-- Every node in the flow appears in the node inventory with type and version.
-- Every client-specific value is a `{{CONFIG.x}}` token, and the config
-  extraction list maps each token to the sheet's section 8.
+- The prototype JSON at PROTOTYPE_PATH parses as valid JSON and imports into
+  n8n without schema errors.
+- Every node in the inventory exists in the prototype with matching type and
+  typeVersion.
+- Every client-specific value in the JSON is a `{{CONFIG.x}}` token, and the
+  config extraction list maps each token to the sheet's section 8.
+- Placeholder or disabled nodes are flagged in "Open questions".
 - Every failure mode in the sheet has a handler in the blueprint.
 - The stress-test plan is concrete enough to execute without asking the
   founder for clarifications.
 - Zero em dashes in the document.
-- The document is saved at the OUTPUT_PATH.
-- No files outside `blueprints/designs/` are created or modified, except
-  appending new entries to `blueprints/BUGS-AND-QUIRKS.md` when rule 7 applies.
+- Both artifacts are saved: the markdown at OUTPUT_PATH, the JSON at
+  PROTOTYPE_PATH.
+- No files outside `blueprints/designs/` and `blueprints/builds/` are created
+  or modified, except appending new entries to `blueprints/BUGS-AND-QUIRKS.md`
+  when rule 7 applies.
 
 ## Stop conditions
 
 - Multiple sheets or a batch request: stop, ask which one first.
 - A sheet references integrations the sheet does not list: stop, ask.
+- A sheet lists an integration with no usable API documentation: stop, ask. Do
+  not invent endpoints.
 - The output path already exists: stop, ask whether to overwrite or bump the
   version.
 - The founder asks for two services in one run: refuse and split the work.
