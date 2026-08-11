@@ -52,6 +52,12 @@ build multiple blueprints in one run.
 6. No scope creep: if the sheet's cost model or failure modes change as you
    design, update your blueprint's numbers to match the sheet, and flag the
    change in the changelog row.
+7. Bug and quirk log: every bug, quirk, or full-on mistake you encounter while
+   designing, building, or stress-testing (misconfigurations, wrong assumptions,
+   design errors, surprising API behavior, anything that cost you time) MUST be
+   appended to `blueprints/BUGS-AND-QUIRKS.md` using its entry template, before
+   you finish the run. Append only. Never edit or delete earlier entries. If you
+   hit nothing worth logging, say so in the changelog row.
 
 ## Required blueprint structure
 
@@ -97,7 +103,8 @@ The blueprint is complete when all of these hold:
   founder for clarifications.
 - Zero em dashes in the document.
 - The document is saved at the OUTPUT_PATH.
-- No files outside `blueprints/designs/` are created or modified.
+- No files outside `blueprints/designs/` are created or modified, except
+  appending new entries to `blueprints/BUGS-AND-QUIRKS.md` when rule 7 applies.
 
 ## Stop conditions
 

@@ -7,7 +7,8 @@ This folder is the engineering backbone of Nexus Automations. Every client autom
 1. Spec: a blueprint agent reads the spec sheet and produces a production-grade n8n workflow. Each sheet is self-contained: triggers, payload shapes, node types, branches, error handling, idempotency, data model, cost and stress tests are all specified up front.
 2. Blueprint: the built workflow lives as an n8n export JSON, stored per service under blueprints/builds/ (created by the blueprint agent, not this folder).
 3. Stress-test: the blueprint is executed against the stress-test matrix in each spec sheet (happy path, 10x volume, malformed inputs, duplicate events, simulated outages, quota exhaustion, concurrent runs, data consistency checks).
-4. Client delivery: a paid delivery is a copy of a v1.0+ tested blueprint plus a filled per-client configuration block. No core-logic changes per client.
+4. Learn: every bug, quirk, or full-on mistake encountered during design, build, or stress-test is appended to BUGS-AND-QUIRKS.md (append only, never delete). Read it before starting any new blueprint.
+5. Client delivery: a paid delivery is a copy of a v1.0+ tested blueprint plus a filled per-client configuration block. No core-logic changes per client.
 
 ## Versioning convention (semver)
 
@@ -31,9 +32,28 @@ Every client-specific value lives in the "Per-client configuration block" sectio
 - Large orders: LC (letter of credit) or bank transfer. The workflow supports a manual bank or LC confirmation step with a proof upload before the order is confirmed.
 - Each client picks one channel in the per-client configuration block: bKash-manual | LC/bank.
 
+## Suggested build order (easy to hard)
+
+Start with the cheapest wins to build confidence and the bug log, then climb.
+Sheet 11 (debugging) has no design blueprint: it is runbook-style and its
+lessons accrue through the bug log.
+
+1. specs/09-review-management.md (Low-Med difficulty)
+2. specs/04-booking-reminders.md (template-able)
+3. specs/06-reporting-ops.md (idempotent week keys)
+4. specs/01-omni-capture.md (flagship, well-understood components)
+5. specs/03-lead-response.md (reuses 01's funnel)
+6. specs/02-doc-processing.md (Medium-High, OCR and vision variance)
+7. specs/08-prospect-outbound.md (Medium-High, deliverability rules)
+8. specs/10-ecommerce-ops.md (Medium-High, BD courier APIs)
+9. specs/07-support-triage.md (HIGH, most underestimated)
+10. specs/05-voice-receptionist.md (HIGHEST, realtime audio)
+
 ## Index
 
 - TEMPLATE.md: the reusable spec-sheet template. All eleven spec sheets follow it section for section, in the same order, with the same section names.
+- BLUEPRINT-PROMPT.md: the reusable prompt that turns ONE spec sheet into ONE buildable blueprint (one run, one service, never batch).
+- BUGS-AND-QUIRKS.md: the append-only log of every bug, quirk, and mistake found while implementing and stress-testing blueprints.
 - specs/01-omni-capture.md: order and lead capture across channels.
 - specs/02-doc-processing.md: AI document processing.
 - specs/03-lead-response.md: lightning lead response.
