@@ -8,7 +8,8 @@
     "parity fixes 79d396d: httpRequest 4.5 outbound (not whatsApp node), meta_verify_token placeholder {{CONFIG.meta_verify_token}}, unquoted whatsapp_phone_number_id, hi->guided bridal->RAG expectation (bracket notation hub.verify_token), sandbox gitignore critical",
     "docs/plans/Automation-Portfolio.md, docs/specs/Portfolio-Feature-Spec.md, docs/specs/Portfolio-Repo-Spec.md prepended pivot banners (2026-08-27) — original content retained for traceability",
     "blueprints/README.md + BUGS-AND-QUIRKS.md #10 updated to point to 00 as main (§4a/§4b httpRequest parity)",
-    "pre-pivot history preserved append-only: site scaffold Next.js 16 + 6 demos + 11 spec sheets remain for traceability"
+    "pre-pivot history preserved append-only: site scaffold Next.js 16 + 6 demos + 11 spec sheets remain for traceability",
+    "2026-08-27 todo: EOL pivot complete — updated next_actions to 4 deploy tasks in convenience order (named tunnel → re-persist 00 → human tokens → full stress) — see 2856084; 79d396d parity prior"
   ],
   "open_risks": [
     "M3/M4 Sheets OAuth blocked — Google Sheets per-client prefix (clientname_orders/contacts/bookings) and reporting ops (06) cannot be E2E-verified until OAuth re-authorized; Sheets 429 backoff path untested live",
@@ -22,11 +23,10 @@
     "named tunnel — requires cloudflared tunnel create sandbox + DNS route"
   ],
   "next_actions": [
-    "Issue Page/IG tokens and verify Messenger/IG webhook intake in 00 (channel & stage routing)",
-    "Create named tunnel sandbox (cloudflared tunnel create sandbox) and swap ephemeral constitutes-cats-wheels-app URL; update SETUP-GUIDE.md §4 + Omni-Unified-Spec.md tunnel field",
-    "Re-persist 00 artifacts when ephemeral branch available: blueprints/builds/00-omni-chat-core-prototype.json (71 nodes), designs/00, sandbox/REBUILD-RUNBOOK.md, import-manifest.json",
-    "Re-run full stress + E2E against 00 on named tunnel: tunnel handshake 3x correct/3x wrong, hi->guided + bridal->[kb:services], 10x volume (100 POSTs/5min p95<20s), dupe wamid, outage, 429 quota, concurrent",
-    "Dispatch @reviewer (9 categories) + @requirements-reviewer (verbatim pivot) and commit unified pivot"
+    "1. Create named tunnel sandbox (cloudflared tunnel create sandbox + route dns + WEBHOOK_URL) and swap ephemeral constitutes-cats-wheels-app URL; update SETUP-GUIDE.md §4 + Omni-Unified-Spec.md tunnel field — 15 min, mechanical",
+    "2. Re-persist 00 artifacts when ephemeral branch available: blueprints/builds/00-omni-chat-core-prototype.json (71 nodes v0.1.13 eeO8Jl1VeK2f2Z9d), designs/00 §15.5, sandbox/REBUILD-RUNBOOK.md, import-manifest.json (golive_prep_2026_08_25) — 10 min, needs 1",
+    "3. Issue human tokens (Sheets OAuth re-consent for M3/M4 clientname_orders/contacts/bookings + reporting 06, Slack xoxb for #bookings/#alerts, Page token + IG professional + instagram_manage_messages) and verify Messenger/IG intake branches in 00 — 15 min, you-blocked, parallelizable",
+    "4. Full stress + E2E on named tunnel: handshake 3x correct/3x wrong, hi->guided + bridal->RAG [kb:services], 10x volume 100 POSTs/5min p95<20s, dupe wamid, outage, 429 quota, concurrent → @reviewer (9 cats) + @requirements-reviewer → deploy-ready"
   ],
   "artifacts": [
     "docs/specs/Omni-Unified-Spec.md — single source of truth for unified build (main spec, feature scope)",
@@ -39,5 +39,5 @@
     "docs/plans/Automation-Portfolio.md — original site plan with pivot banner (traceability)",
     "blueprints/README.md + BUGS-AND-QUIRKS.md #10 — parity notes (httpRequest vs whatsAppApi)"
   ],
-  "last_updated": "2026-08-27T19:25:00Z"
+  "last_updated": "2026-08-27T13:37:58Z"
 }

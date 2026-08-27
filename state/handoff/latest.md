@@ -21,13 +21,12 @@ One unified n8n blueprint (`00-omni-chat-core`, 71 nodes, `eeO8Jl1VeK2f2Z9d`, v0
 - **Page/IG tokens pending** — Messenger/IG intake branches untested until Page + Instagram tokens issued.
 - **00 artifacts gap** — `REBUILD-RUNBOOK.md` / `import-manifest.json` (`golive_prep_2026_08_25`) need re-persist when ephemeral branch available.
 
-## Next Actions
+## Next Actions (4 — convenience order)
 
-1. Issue Page/IG tokens → verify Messenger/IG intake in 00.
-2. Create named tunnel `sandbox` → swap ephemeral URL, update `Omni-Unified-Spec.md` + `SETUP-GUIDE.md §4`.
-3. Re-persist 00 artifacts: `builds/00-omni-chat-core-prototype.json` (71 nodes), `designs/00`, `REBUILD-RUNBOOK.md`, `import-manifest.json`.
-4. Re-run full stress + E2E on named tunnel: handshake 3x correct/3x wrong, hi→guided + bridal→RAG, 10x volume (100 POSTs/5min p95<20s), dupe wamid, outage, quota, concurrent.
-5. Dispatch `@reviewer` (9 categories) + `@requirements-reviewer` (verbatim pivot) → commit unified pivot.
+1. Create named tunnel `sandbox` → swap ephemeral `constitutes-cats-wheels-app` URL, update `Omni-Unified-Spec.md` + `SETUP-GUIDE.md §4` — 15 min
+2. Re-persist 00 artifacts: `builds/00-omni-chat-core-prototype.json` (71 nodes v0.1.13 `eeO8Jl1VeK2f2Z9d`), `designs/00`, `REBUILD-RUNBOOK.md`, `import-manifest.json` (`golive_prep_2026_08_25`) — 10 min
+3. Issue human tokens → verify Messenger/IG intake + M3/M4 Sheets per-client prefix (Sheets OAuth/Slack/ Page/IG) — 15 min, you-blocked
+4. Full stress + E2E on named tunnel: handshake 3×/3×, `hi→guided` + `bridal→RAG`, 10× volume 100 POSTs/5min p95<20s, dupe `wamid`, outage, quota 429, concurrent → `@reviewer` + `@requirements-reviewer` → deploy-ready
 
 ## Artifacts (unified)
 
@@ -44,4 +43,4 @@ One unified n8n blueprint (`00-omni-chat-core`, 71 nodes, `eeO8Jl1VeK2f2Z9d`, v0
 Read `state/session-state.json` + this handoff + `docs/activeContext.md` first on session start. Plan: `docs/plans/Omni-Unified.md` (active).
 
 ---
-*Generated: 2026-08-27 — go-live-prep-phase1-verified — tunnel constitutes-cats-wheels-app ephemeral — 71 nodes v0.1.13 — 79d396d parity.*
+*Generated: 2026-08-27 EOL — go-live-prep-phase1-verified — tunnel constitutes-cats-wheels-app ephemeral → sandbox named next — 71 nodes v0.1.13 — 79d396d + 2856084 pivot — next_actions 4 deploy tasks*

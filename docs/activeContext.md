@@ -2,7 +2,7 @@
 
 # Active Context — Ideas2
 
-**Current task:** unified pivot docs update — edit (not erase) agent memory/context to reflect omni-core pivot; create/update `state/` + `docs/activeContext.md` + banners in `README.md`/`AGENTS.md`/`CLAUDE.md` so new agent reads unified context first.
+**Current task:** EOL — deploy omni-chat-core (4 tasks) — todo saved to `state/session-state.json` next_actions; ready for `/new`
 
 **Recent decisions:**
 - 2026-08-27 pivot: 00-omni-chat-core is main build, subsumes 01–10 (04 superseded slice), 11 separate — `Omni-Unified-Spec.md` single source of truth.
@@ -11,11 +11,13 @@
 - Banners prepended to `Portfolio-Repo-Spec`, `Portfolio-Feature-Spec`, `Automation-Portfolio` plan (history preserved).
 
 **In progress:**
-- Go-live-prep-phase1-verified — WhatsApp E2E verified (hi→guided, bridal→RAG [kb:services]); quick-tunnel handshake 3x correct/3x wrong PASS.
+- `go-live-prep-phase1-verified` — WhatsApp E2E `hi→guided` + `bridal→RAG` PASS on quick tunnel `constitutes-cats-wheels-app` (ephemeral); parity `79d396d` + pivot `2856084` verified
 
-**Next:**
-- Page/IG tokens (Messenger/IG intake) + create named tunnel `sandbox` + re-persist 00 artifacts (`builds/00-prototype.json`, `REBUILD-RUNBOOK.md`, `import-manifest.json` `golive_prep_2026_08_25`) when branch available.
-- Re-run full stress matrix on named tunnel (10x volume p95<20s, dupe wamid, outage, quota 429, concurrent) → `@reviewer` + `@requirements-reviewer` → commit.
+**Next (4 deploy tasks — convenience order):**
+1. Create named tunnel `sandbox` (cloudflared tunnel create sandbox + route dns + WEBHOOK_URL) and swap ephemeral `constitutes-cats-wheels-app` URL; update `SETUP-GUIDE.md §4` + `Omni-Unified-Spec.md` tunnel field — 15 min, mechanical
+2. Re-persist 00 artifacts when ephemeral branch available: `builds/00-omni-chat-core-prototype.json` (71 nodes v0.1.13 `eeO8Jl1VeK2f2Z9d`), `designs/00 §15.5`, `REBUILD-RUNBOOK.md`, `import-manifest.json` (`golive_prep_2026_08_25`) — 10 min, needs 1
+3. Issue human tokens (Sheets OAuth for M3/M4 `clientname_orders/contacts/bookings` + reporting 06, Slack `xoxb` for `#bookings/#alerts`, Page token + IG professional + `instagram_manage_messages`) and verify Messenger/IG intake branches — 15 min, you-blocked, parallelizable
+4. Full stress + E2E on named tunnel: handshake 3× correct/3× wrong, `hi→guided` + `bridal→RAG [kb:services]`, 10× volume 100 POSTs/5min p95<20s, dupe `wamid`, outage, 429 quota, concurrent → `@reviewer` (9 cats) + `@requirements-reviewer` → deploy-ready
 
 **Blockers:**
 - M3/M4 Sheets OAuth blocked (Sheets 429/backoff untested live).
