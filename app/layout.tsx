@@ -61,7 +61,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           }}
         />
       </head>
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body suppressHydrationWarning className="flex min-h-full flex-col">{children}</body>
     </html>
   );
 }

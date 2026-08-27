@@ -330,14 +330,14 @@ export default function HeroPipeline() {
           <span className="min-w-0 truncate text-xs text-muted">Simulated orders</span>
           <span className="flex shrink-0 items-baseline gap-2 font-mono text-sm font-semibold text-ink">
             <span
-              key={orders}
+              key={`orders-${orders}`}
               className={`inline-block tabular-nums ${reduced ? "" : "animate-pop"}`}
               aria-hidden="true"
             >
               {orders}
             </span>
             <span
-              key={metricIdx}
+              key={`metric-${metricIdx}`}
               className="animate-fade-in max-w-40 truncate text-[10px] font-normal text-muted"
             >
               {ROTATING_METRICS[metricIdx % ROTATING_METRICS.length]}
