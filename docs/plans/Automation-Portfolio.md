@@ -1,3 +1,5 @@
+> **Pivot note (2026-08-27): Unified omni-core (00) is now the main build — specs 01–10 subsumed, 04 is a slice superseded, 11 separate.** See `docs/specs/Omni-Unified-Spec.md` and `blueprints/README.md`. Original plan retained below for traceability.
+
 ---
 plan name: Automation-Portfolio
 plan description: Client-ready demo site build

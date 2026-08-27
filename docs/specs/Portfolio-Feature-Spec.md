@@ -1,3 +1,5 @@
+> **Pivot note (2026-08-27): Unified omni-core (00) is now the main build — specs 01–10 subsumed, 04 is a slice superseded, 11 separate.** See `docs/specs/Omni-Unified-Spec.md` and `blueprints/README.md`. Original content retained below for traceability.
+
 # Portfolio Feature Spec - Nexus Automations
 
 **Scope:** feature · **Status:** implemented v3 (Aug 2026) · **Repo:** /home/ibrar/Businesss/Ideas2

@@ -1,3 +1,5 @@
+> **Pivot 2026-08-27: 00-omni-chat-core is now the main build (71 nodes v0.1.13, subsumes 01-10 except 11). 01-10 are historical/subsumed; new builds use 00. See docs/specs/Omni-Unified-Spec.md and blueprints/README.md. Original prompt retained below.**
+
 # Blueprint Generation Prompt
 
 Use this file as the system prompt for the agent that turns a spec sheet into a

@@ -1,3 +1,5 @@
+> **Pivot note (2026-08-27): Unified omni-core (00) is now the main build — specs 01–10 subsumed, 04 is a slice superseded, 11 separate.** See `docs/specs/Omni-Unified-Spec.md` and `blueprints/README.md`. Original content retained below for traceability.
+
 # Spec: Portfolio-Repo-Spec
 
 Scope: repo

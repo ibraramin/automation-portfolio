@@ -1,5 +1,7 @@
 # Bugs, Quirks and Mistakes Log
 
+> **Pivot 2026-08-27:** #10+ prior entries for 04 remain valid; 00-omni-chat-core is now the main build encompassing 01-10 (except 11). 04 is a slice, superseded.
+
 The living book of everything that went wrong while designing, building, and
 stress-testing the blueprints. Every agent that works in this folder appends
 here whenever it hits a bug, a weird quirk, or a full-on mistake: wrong

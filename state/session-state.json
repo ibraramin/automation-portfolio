@@ -1,0 +1,43 @@
+{
+  "goal": "unified 00-omni-chat-core is main build — single 71-node n8n blueprint subsumes 01-10 (except 11); client deploys one workflow (experience compression), 11-automation-debugging remains separate runbook",
+  "current_phase": "go-live-prep-phase1-verified (WhatsApp E2E hi->guided bridal->RAG, quick-tunnel verified 2026-08-27)",
+  "decisions": [
+    "2026-08-27 pivot: 00-omni-chat-core declared main build, subsumes 01-10; 04-booking-reminders is superseded slice (patterns folded into 00), 11 retained separate — see docs/specs/Omni-Unified-Spec.md",
+    "tunnel constitutes-cats-wheels-app.trycloudflare.com is ephemeral quick tunnel (cloudflared quick tunnel); prod path is named tunnel sandbox (cloudflared tunnel create sandbox)",
+    "71 nodes v0.1.13 — verify + httpRequest parity landed; blueprint id eeO8Jl1VeK2f2Z9d at blueprints/builds/00-omni-chat-core-prototype.json",
+    "parity fixes 79d396d: httpRequest 4.5 outbound (not whatsApp node), meta_verify_token placeholder {{CONFIG.meta_verify_token}}, unquoted whatsapp_phone_number_id, hi->guided bridal->RAG expectation (bracket notation hub.verify_token), sandbox gitignore critical",
+    "docs/plans/Automation-Portfolio.md, docs/specs/Portfolio-Feature-Spec.md, docs/specs/Portfolio-Repo-Spec.md prepended pivot banners (2026-08-27) — original content retained for traceability",
+    "blueprints/README.md + BUGS-AND-QUIRKS.md #10 updated to point to 00 as main (§4a/§4b httpRequest parity)",
+    "pre-pivot history preserved append-only: site scaffold Next.js 16 + 6 demos + 11 spec sheets remain for traceability"
+  ],
+  "open_risks": [
+    "M3/M4 Sheets OAuth blocked — Google Sheets per-client prefix (clientname_orders/contacts/bookings) and reporting ops (06) cannot be E2E-verified until OAuth re-authorized; Sheets 429 backoff path untested live",
+    "tunnel ephemeral — constitutes-cats-wheels-app URL rotates per cloudflared session; named tunnel sandbox not yet created/persisted — re-persist 00 artifacts after named tunnel cutover",
+    "Page/IG tokens pending — Meta Page + Instagram tokens not yet issued; Messenger/IG intake branches in 00 untested until tokens available",
+    "00 artifacts ephemeral-branch gap — REBUILD-RUNBOOK.md / import-manifest.json (golive_prep_2026_08_25) need re-persist on available branch"
+  ],
+  "blocked_by": [
+    "M3/M4 Sheets OAuth — requires Google Cloud OAuth re-consent",
+    "Page/IG tokens — requires Meta app Page + IG token issuance",
+    "named tunnel — requires cloudflared tunnel create sandbox + DNS route"
+  ],
+  "next_actions": [
+    "Issue Page/IG tokens and verify Messenger/IG webhook intake in 00 (channel & stage routing)",
+    "Create named tunnel sandbox (cloudflared tunnel create sandbox) and swap ephemeral constitutes-cats-wheels-app URL; update SETUP-GUIDE.md §4 + Omni-Unified-Spec.md tunnel field",
+    "Re-persist 00 artifacts when ephemeral branch available: blueprints/builds/00-omni-chat-core-prototype.json (71 nodes), designs/00, sandbox/REBUILD-RUNBOOK.md, import-manifest.json",
+    "Re-run full stress + E2E against 00 on named tunnel: tunnel handshake 3x correct/3x wrong, hi->guided + bridal->[kb:services], 10x volume (100 POSTs/5min p95<20s), dupe wamid, outage, 429 quota, concurrent",
+    "Dispatch @reviewer (9 categories) + @requirements-reviewer (verbatim pivot) and commit unified pivot"
+  ],
+  "artifacts": [
+    "docs/specs/Omni-Unified-Spec.md — single source of truth for unified build (main spec, feature scope)",
+    "docs/plans/Omni-Unified.md — unified pivot plan (active, subsumes 01-10 except 11)",
+    "blueprints/builds/00-omni-chat-core-prototype.json — 71 nodes v0.1.13 (id eeO8Jl1VeK2f2Z9d) — ephemeral, needs re-persist",
+    "blueprints/designs/00-omni-chat-core-blueprint.md §15.5 — design doc outbound + version history",
+    "blueprints/sandbox/REBUILD-RUNBOOK.md + SETUP-GUIDE.md §§4/4a/4b + import-manifest.json (golive_prep_2026_08_25)",
+    "blueprints/sandbox/config-template.json — {{CONFIG.meta_verify_token}} placeholder",
+    "docs/specs/Portfolio-Repo-Spec.md + Portfolio-Feature-Spec.md — repo/feature specs with pivot banners (traceability)",
+    "docs/plans/Automation-Portfolio.md — original site plan with pivot banner (traceability)",
+    "blueprints/README.md + BUGS-AND-QUIRKS.md #10 — parity notes (httpRequest vs whatsAppApi)"
+  ],
+  "last_updated": "2026-08-27T19:25:00Z"
+}

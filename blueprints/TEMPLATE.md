@@ -1,3 +1,6 @@
+<!-- Pivot 2026-08-27: template now applies to unified builds; single-service templates 01-10 are historical and subsumed by 00-omni-chat-core. -->
+> **Pivot 2026-08-27:** This template now applies to unified builds; single-service templates 01-10 are historical and subsumed by 00-omni-chat-core.
+
 # [Service name] - Blueprint Spec Sheet
 
 > Fill every section below. Do not remove sections. Do not reorder them. A blueprint agent will build the workflow from this sheet alone, so every claim must be concrete: real node names, real parameter names, real column names, real numbers. If a value is client-specific, put it in section 8, never in the flow logic.

@@ -1,3 +1,6 @@
+> **Pivot (2026-08-27): unified 00-omni-chat-core is the main build — specs 01–10 subsumed for traceability (04 is a superseded slice), 11 remains separate.**
+> See `docs/specs/Omni-Unified-Spec.md` · `docs/plans/Omni-Unified.md` · `blueprints/README.md`.
+
 # Nexus Automations - Showcase Site
 
 Client-facing showcase for **Nexus Automations** - an automation services company selling **custom n8n + AI automation across WhatsApp, web, email and phone** to small businesses. Goal: convert visitors into **free automation audit** bookings via live interactive demos + downloadable n8n workflow lead magnets.

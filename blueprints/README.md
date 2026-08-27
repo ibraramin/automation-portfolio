@@ -1,3 +1,5 @@
+# Unified pivot (2026-08-27): 00-omni-chat-core is the main build (71 nodes, v0.1.13, tunnel constitutes-cats-wheels-app ephemeral). Specs 01-10 are subsumed for traceability, 04 is a superseded slice, 11 remains separate. See docs/specs/Omni-Unified-Spec.md and docs/plans/Omni-Unified.md
+
 # Blueprint Spec-Sheet Library
 
 This folder is the engineering backbone of Nexus Automations. Every client automation starts as a spec sheet in specs/, gets built into a tested n8n blueprint, and only then becomes a paid client delivery. The sheets are written so that an agent with zero other context can design the full workflow from the sheet alone.
@@ -11,6 +13,8 @@ This folder is the engineering backbone of Nexus Automations. Every client autom
 5. Client delivery: a paid delivery is a copy of a v1.0+ tested blueprint plus a filled per-client configuration block. No core-logic changes per client.
 
 ## Versioning convention (semver)
+
+> **Pivot 2026-08-27:** 01-10 versioned via 00 v0.1.13 (subsumed), 11 separate runbook. Pre-pivot versions retained for traceability.
 
 - v0.2: draft spec, not yet built or tested. Sheets 01 to 06 are at v0.2 today; sheets 07 to 11 are at v0.1 today.
 - v1.0: first tested release. The blueprint passed the full stress-test matrix.
@@ -34,6 +38,8 @@ Every client-specific value lives in the "Per-client configuration block" sectio
 
 ## Suggested build order (easy to hard)
 
+> **Unified 00 is the primary build (2026-08-27 pivot):** The order below is historical reference, now superseded. 00-omni-chat-core is the active build encompassing 01-10 (except 11); see docs/specs/Omni-Unified-Spec.md and docs/plans/Omni-Unified.md.
+
 Start with the cheapest wins to build confidence and the bug log, then climb.
 Sheet 11 (debugging) has no design blueprint: it is runbook-style and its
 lessons accrue through the bug log.
@@ -56,16 +62,16 @@ lessons accrue through the bug log.
 - BUGS-AND-QUIRKS.md: the append-only log of every bug, quirk, and full-on mistake encountered while building and stress-testing blueprints. Read it before starting any new blueprint.
 - BLUEPRINT-PROMPT.md: the reusable prompt that turns ONE spec sheet into ONE buildable blueprint (one run, one service, never batch).
 - BUGS-AND-QUIRKS.md: the append-only log of every bug, quirk, and mistake found while implementing and stress-testing blueprints.
-- specs/01-omni-capture.md: order and lead capture across channels.
-- specs/02-doc-processing.md: AI document processing.
-- specs/03-lead-response.md: lightning lead response.
-- specs/04-booking-reminders.md: bookings and no-show recovery.
-- specs/05-voice-receptionist.md: voice AI receptionist.
-- specs/06-reporting-ops.md: reporting and ops automation.
-- specs/07-support-triage.md: AI support triage and ticketing.
-- specs/08-prospect-outbound.md: prospect list building and AI outbound.
-- specs/09-review-management.md: review management and reputation.
-- specs/10-ecommerce-ops.md: e-commerce ops sync.
-- specs/11-automation-debugging.md: automation debugging and optimization (audit and repair existing n8n, Zapier and Make setups; entry service that converts into bigger builds).
+- specs/01-omni-capture.md: order and lead capture across channels. (subsumed by 00)
+- specs/02-doc-processing.md: AI document processing. (subsumed by 00)
+- specs/03-lead-response.md: lightning lead response. (subsumed by 00)
+- specs/04-booking-reminders.md: bookings and no-show recovery. (subsumed by 00)
+- specs/05-voice-receptionist.md: voice AI receptionist. (subsumed by 00)
+- specs/06-reporting-ops.md: reporting and ops automation. (subsumed by 00)
+- specs/07-support-triage.md: AI support triage and ticketing. (subsumed by 00)
+- specs/08-prospect-outbound.md: prospect list building and AI outbound. (subsumed by 00)
+- specs/09-review-management.md: review management and reputation. (subsumed by 00)
+- specs/10-ecommerce-ops.md: e-commerce ops sync. (subsumed by 00)
+- specs/11-automation-debugging.md: automation debugging and optimization (audit and repair existing n8n, Zapier and Make setups; entry service that converts into bigger builds). (retained, not subsumed)
 
 Each sheet references the closest demo n8n workflow in public/downloads/ as the starting point for the blueprint agent, together with the demo node counts and the external API docs that matter for that service.

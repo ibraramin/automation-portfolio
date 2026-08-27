@@ -1,3 +1,5 @@
+> **Note (2026-08-27 pivot):** Retained as separate runbook — not subsumed by `00-omni-chat-core`. See `blueprints/README.md` and `docs/specs/Omni-Unified-Spec.md`.
+
 # Automation Debugging and Optimization - Blueprint Spec Sheet
 
 ## 1. Header

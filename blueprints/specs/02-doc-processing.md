@@ -1,3 +1,5 @@
+> **Note (2026-08-27 pivot):** This spec is now subsumed by `00-omni-chat-core` unified build. Retained for traceability; see `blueprints/README.md` and `docs/specs/Omni-Unified-Spec.md`.
+
 # AI Document Processing - Blueprint Spec Sheet
 
 ## 1. Header
