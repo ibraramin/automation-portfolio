@@ -1,0 +1,1 @@
+booking_id,event_id,customer_name,phone,service,start_at,end_at,status,source,created_at,reminder_attempts,pending_offer

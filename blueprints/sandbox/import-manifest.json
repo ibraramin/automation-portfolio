@@ -1,0 +1,10 @@
+{
+  "build": "00-omni-chat-core",
+  "version": "v0.1.13",
+  "id": "eeO8Jl1VeK2f2Z9d",
+  "tunnel": "constitutes-cats-wheels-app.trycloudflare.com",
+  "named_tunnel": "nexusautomations-sandbox",
+  "status": "ephemeral-pending-re-persist",
+  "golive_prep": "2026_08_25",
+  "parity": ["httpRequest 4.5", "unquoted phone_number_id", "meta_verify_token placeholder", "hi->guided"]
+}

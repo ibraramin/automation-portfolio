@@ -1,0 +1,31 @@
+# n8n sandbox for blueprint stress-testing (test environment, never production)
+# Usage: docker compose up -d   (n8n on http://localhost:5678)
+# Tunnel: cloudflared tunnel --url http://localhost:5678  (quick tunnel, random URL)
+#         For a STABLE URL (required for the Meta webhook), use a named tunnel:
+#         cloudflared tunnel login && cloudflared tunnel create nexusautomations-sandbox \
+#         && cloudflared tunnel route dns nexusautomations-sandbox nexusautomations-sandbox.nexusautomations.dev \
+#         (alt if naming not allowed: cloudflared tunnel create sandbox && cloudflared tunnel route dns sandbox sandbox.nexusautomations.dev) \
+#         and uncomment WEBHOOK_URL below with that hostname (keep commented until DNS route done).
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: n8n-sandbox
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - N8N_SECURE_COOKIE=false
+      # Public base URL for webhook production URLs (set when a stable tunnel exists)
+      # prod: nexusautomations.dev — named tunnel nexusautomations-sandbox (alt sandbox if naming not allowed)
+      # - WEBHOOK_URL=https://nexusautomations-sandbox.nexusautomations.dev  # alt: https://sandbox.nexusautomations.dev — keep commented until DNS route done
+      # legacy placeholder yourdomain.com replaced by nexusautomations.dev (see SETUP-GUIDE §4)
+      - GENERIC_TIMEZONE=Asia/Dhaka
+      - TZ=Asia/Dhaka
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  n8n_data:

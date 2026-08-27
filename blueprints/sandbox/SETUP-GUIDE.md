@@ -1,4 +1,4 @@
-# Sandbox setup guide (04-booking-reminders)
+# Sandbox setup guide (00-omni-chat-core)
 
 Browser-only steps for the test resources. Everything else is scripted from this repo.
 
@@ -55,12 +55,12 @@ owner alert params are filled by nodes n25b/n45b/n61b/n73b in that exact order.
 
 ## 4. Meta webhook (after named tunnel exists)
 
-1. Upgrade tunnel: `cloudflared tunnel login && cloudflared tunnel create sandbox &&
-   cloudflared tunnel route dns sandbox sandbox.yourdomain.com` and set
-   WEBHOOK_URL=https://sandbox.yourdomain.com in docker-compose.yml, `docker compose up -d`.
-2. Import + activate workflow 04, then in Meta dashboard: WhatsApp > Configuration > Webhook:
-   Callback URL `https://sandbox.yourdomain.com/webhook/whatsapp-intake`, Verify token = whatever is set in
-   n8n t01 webhook settings, subscribe to field `messages`.
+1. Upgrade tunnel: `cloudflared tunnel login && cloudflared tunnel create nexusautomations-sandbox &&
+    cloudflared tunnel route dns nexusautomations-sandbox nexusautomations-sandbox.nexusautomations.dev` (alt if naming not allowed: `cloudflared tunnel create sandbox && cloudflared tunnel route dns sandbox sandbox.nexusautomations.dev`) and set
+    WEBHOOK_URL=https://nexusautomations-sandbox.nexusautomations.dev (alt https://sandbox.nexusautomations.dev) in docker-compose.yml, `docker compose up -d`.
+2. Import + activate workflow 00-omni-chat-core (see §5), then in Meta dashboard: WhatsApp > Configuration > Webhook:
+    Callback URL `https://nexusautomations-sandbox.nexusautomations.dev/webhook/whatsapp-intake` (alt `https://sandbox.nexusautomations.dev/webhook/whatsapp-intake`), Verify token = whatever is set in
+    n8n t01 webhook settings, subscribe to field `messages`.
 3. Confirm the handshake (Meta GET challenge must return the token; n8n does this automatically). Verify layer is byte-identical between repo and live (GET verify).
 
 ### 4a. Outbound WhatsApp send: httpRequest vs whatsApp node (repo/live parity fix)
@@ -76,13 +76,15 @@ Live was patched by manifest `send_fix`: the outbound Send WhatsApp node (histor
 
 Prior `@reviewer` flagged manifest `probes_e2e[0]` marked `PASS (guided fallback)` with `expect: "M1 rules or guided fallback"` — widening to "or" without rule audit masked the routing gap (prior GOLIVE-GUIDE.md Phase 3 expected `hi -> M1 rules CSV` reply; live steered `hi` off rules via n14 channel filtering to guided prompt). Correction: E2E probe hi -> guided prompt is PASS; M1 rules CSV greeting expectation is NOT required. Documented divergence: hi routes to guided prompt fallback (n14 filtering), bridal -> RAG [kb:services] still required. If greeting rule exists in glamour-rules.csv, attach priority/channel diagnostic; otherwise keep guided expectation. Repo has no `blueprints/sandbox/GOLIVE-GUIDE.md` or `REBUILD-RUNBOOK.md` to edit — this §4b is the correction so a future reviewer does not re-flag as major.
 
-## 5. Import 04 into n8n
+## 5. Import 00-omni-chat-core into n8n
 
-1. n8n > Workflows > ... > Import from File: builds/04-booking-reminders-prototype.json.
+1. n8n > Workflows > ... > Import from File: builds/00-omni-chat-core-prototype.json (71 nodes, id `eeO8Jl1VeK2f2Z9d` — for a fresh sandbox see `REBUILD-RUNBOOK.md` §3 8-workflow import order).
 2. Workflow settings: timezone Asia/Dhaka (schedule triggers use the instance/workflow timezone).
 3. Register the error workflow: import the same JSON a second time, delete all nodes except
-   `Error trigger` and `Alert`, save as "04-error-handler", activate it.
-4. Fill every CONFIG token (sandbox/config-template.json -> n8n expressions) and activate.
+   `Error trigger` and `Alert`, save as "00-error-handler" (or reuse existing), activate it.
+4. Fill every CONFIG token (sandbox/config-template.json -> n8n expressions — include `{{CONFIG.freellmapi_token}}` for n15/n18 and `{{CONFIG.page_token}}` pending for n07/n08 per `config-template.json` comments) and activate.
+
+> **Superseded slice note:** `builds/04-booking-reminders-prototype.json` is a **superseded slice** — its verify/outbound patterns were folded into 00 (see `Omni-Unified-Spec.md` §3, §9 and Blueprint §8). Do **not** build standalone 04; use 00-omni-chat-core as the main build. The 04 file is retained for traceability only.
 
 ## Checklist per blueprint (for the other ten specs)
 

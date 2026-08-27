@@ -1,0 +1,4069 @@
+{
+  "name": "Bookings and No-Show Recovery",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "{{CONFIG.webhook_path_whatsapp}}",
+        "responseMode": "onReceived",
+        "options": {},
+        "authentication": "none"
+      },
+      "id": "t01",
+      "name": "WhatsApp intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "wfh-wab-intake-04"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "{{CONFIG.webhook_path_form}}",
+        "responseMode": "onReceived",
+        "options": {},
+        "authentication": "none"
+      },
+      "id": "t02",
+      "name": "Web form intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        180,
+        0
+      ],
+      "webhookId": "wfh-web-form-04"
+    },
+    {
+      "parameters": {
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "folder": "{{CONFIG.email_intake_folder}}",
+        "postProcess": "after",
+        "downloadAttachments": false,
+        "format": "simple"
+      },
+      "id": "t03",
+      "name": "Email intake (placeholder)",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2.2,
+      "position": [
+        360,
+        0
+      ],
+      "disabled": true,
+      "credentials": {
+        "imap": {
+          "id": "1",
+          "name": "{{CONFIG.email_imap_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 * * * *"
+            }
+          ]
+        }
+      },
+      "id": "t04",
+      "name": "Reminder sweep",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        540,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 * * * *"
+            },
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "id": "t05",
+      "name": "No-show sweep",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        720,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "t06",
+      "name": "Error trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        900,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "function normalizePhone(o, cc) {\n  if (!o.phone) return o;\n  let p = String(o.phone);\n  if (p.startsWith('0')) p = cc + p.slice(1);\n  else if (!p.startsWith(cc) && p.length <= 10) p = cc + p;\n  o.phone = p;\n  return o;\n}\nconst item = $input.first().json;\nconst body = (item.body && typeof item.body === 'object') ? item.body : item;\nconst countryCode = '{{CONFIG.phone_country_code}}';\nlet out = {\n  action: 'new_booking', reply_kind: null, name: item.name || '', phone: '',\n  service: item.service || '', requested_date: item.requested_date || '',\n  requested_time: item.requested_time || '', notes: item.notes || '',\n  raw_text: item.raw_text || item.text || '', source: 'whatsapp',\n  button_reply_id: '', slot_index: null, booking_id: ''\n};\nif (body.name || body.phone) {\n  out.source = body.source || 'web';\n  out.name = body.name || '';\n  out.phone = String(body.phone || '').replace(/[^0-9]/g, '');\n  out.service = body.service || '';\n  out.requested_date = body.date || '';\n  out.requested_time = body.time || '';\n  out.notes = body.notes || '';\n  out.raw_text = '';\n  return [{ json: normalizePhone(out, countryCode) }];\n}\nconst value = body.entry && body.entry[0] && body.entry[0].changes &&\n  body.entry[0].changes[0] && body.entry[0].changes[0].value;\nif (value && value.messages && value.messages[0]) {\n  const msg = value.messages[0];\n  out.phone = String(msg.from || '').replace(/[^0-9]/g, '');\n  const contacts = value.contacts || [];\n  if (contacts[0] && contacts[0].profile) out.name = contacts[0].profile.name || '';\n  const rawText = (msg.text && msg.text.body) ? msg.text.body : '';\n  const button = (msg.interactive && msg.interactive.button_reply) ? msg.interactive.button_reply : null;\n  if (button) {\n    out.button_reply_id = button.id || '';\n    const title = String(button.title || '').toLowerCase();\n    const bid = button.id || '';\n    if (bid.startsWith('SLOT_')) { out.action = 'slot_choice'; out.reply_kind = 'button'; }\n    else if (bid === 'CANCEL' || title.indexOf('cancel') !== -1) { out.action = 'cancel'; }\n    else if (bid === 'RESCHED' || title.indexOf('resched') !== -1) { out.action = 'reschedule'; }\n  } else if (/^[1-9]$/.test(rawText.trim())) {\n    out.action = 'slot_choice'; out.reply_kind = 'digit';\n    out.slot_index = parseInt(rawText.trim(), 10) - 1;\n    out.raw_text = rawText;\n  } else {\n    out.raw_text = rawText;\n  }\n  return [{ json: normalizePhone(out, countryCode) }];\n}\nout.source = 'email';\nout.name = item.fromName || item.from || '';\nout.raw_text = item.text || '';\nreturn [{ json: normalizePhone(out, countryCode) }];"
+      },
+      "id": "n01",
+      "name": "Normalize intake",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "dataType": "string",
+        "value1": "={{ $json.action + (($json.reply_kind && $json.action === 'slot_choice') ? '_' + $json.reply_kind : '') }}",
+        "rules": {
+          "rules": [
+            {
+              "operation": "equals",
+              "value2": "new_booking",
+              "outputKey": "new_booking"
+            },
+            {
+              "operation": "equals",
+              "value2": "slot_choice_button",
+              "outputKey": "slot_choice_button"
+            },
+            {
+              "operation": "equals",
+              "value2": "slot_choice_digit",
+              "outputKey": "slot_choice_digit"
+            },
+            {
+              "operation": "equals",
+              "value2": "cancel",
+              "outputKey": "cancel"
+            },
+            {
+              "operation": "equals",
+              "value2": "reschedule",
+              "outputKey": "reschedule"
+            }
+          ]
+        }
+      },
+      "id": "n02",
+      "name": "Route reply type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [
+        180,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const item = $input.first().json;\nif (item.requested_date && item.requested_time && item.service) {\n  return [{ json: { ...item, parseable: true } }];\n}\nconst services = {{CONFIG.services}};\nconst tz = '{{CONFIG.timezone}}';\nconst raw = String(item.raw_text || '').toLowerCase();\nlet service = '';\nfor (const s of Object.keys(services)) {\n  if (raw.includes(s.toLowerCase())) { service = s; break; }\n}\nlet dayOffset = null;\nif (raw.includes('today')) dayOffset = 0;\nelse if (raw.includes('tomorrow')) dayOffset = 1;\nelse {\n  const weekdayMap = { sunday: 7, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6 };\n  for (const wd of Object.keys(weekdayMap)) {\n    if (raw.includes(wd)) {\n      const now = DateTime.now().setZone(tz);\n      let delta = weekdayMap[wd] - now.weekday;\n      if (delta <= 0) delta += 7;\n      dayOffset = delta;\n      break;\n    }\n  }\n}\nconst timeMatch = raw.match(/([0-9]{1,2})(?::([0-9]{2}))?[ ]*(am|pm)?/);\nlet requested_time = '';\nif (timeMatch) {\n  let h = parseInt(timeMatch[1], 10);\n  const m = timeMatch[2] ? parseInt(timeMatch[2], 10) : 0;\n  const mer = timeMatch[3] ? timeMatch[3].toLowerCase() : '';\n  if (mer === 'pm' && h !== 12) h += 12;\n  if (mer === 'am' && h === 12) h = 0;\n  requested_time = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');\n}\nconst parseable = dayOffset !== null && !!timeMatch && service !== '';\nconst now = DateTime.now().setZone(tz);\nreturn [{ json: {\n  ...item, service, requested_time,\n  requested_date: parseable ? now.plus({ days: dayOffset }).toFormat('yyyy-MM-dd') : '',\n  parseable\n} }];"
+      },
+      "id": "n03",
+      "name": "Parse request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        360,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.parseable }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "n04",
+      "name": "Request parseable?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        540,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "={{ $json.phone }}",
+        "messageType": "text",
+        "textBody": "Which service, which day, what time? Example: Book a haircut tomorrow at 4 PM.",
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n05",
+      "name": "Guided prompt",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        540,
+        240
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "n06",
+      "name": "Done guided",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        720,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const item = $input.first().json;\nconst tz = '{{CONFIG.timezone}}';\nconst services = {{CONFIG.services}};\nconst businessHours = {{CONFIG.business_hours}};\nconst bookingIdPrefix = '{{CONFIG.booking_id_prefix}}';\nconst start = DateTime.fromISO(item.requested_date + 'T' + item.requested_time, { zone: tz });\nconst duration = (services[item.service] && services[item.service].duration_minutes) || 60;\nconst end = start.plus({ minutes: duration });\nconst open = String(businessHours.open || '09:00').split(':').map(Number);\nconst close = String(businessHours.close || '18:00').split(':').map(Number);\nconst days = businessHours.days || [1, 2, 3, 4, 5, 6, 7];\nconst startMinutes = start.hour * 60 + start.minute;\nconst dayOk = days.includes(start.weekday);\nconst valid = dayOk &&\n  startMinutes >= open[0] * 60 + (open[1] || 0) &&\n  startMinutes + duration <= close[0] * 60 + (close[1] || 0) &&\n  start > DateTime.now().setZone(tz);\nconst phone = String(item.phone || '');\nconst booking_id = bookingIdPrefix + '-' + phone.slice(-4) + '-' + Math.floor(start.toMillis() / 1000);\nreturn [{ json: {\n  ...item,\n  customer_name: item.name || '',\n  booking_id,\n  start_at: start.toISO(),\n  end_at: end.toISO(),\n  duration_minutes: duration,\n  status: 'confirmed',\n  context: 'new_booking',\n  valid\n} }];"
+      },
+      "id": "n07",
+      "name": "Resolve slot",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "n08",
+      "name": "Slot in business hours?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        900,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "={{ $json.phone }}",
+        "messageType": "text",
+        "textBody": "That time is outside our opening hours or already in the past. We are open {{CONFIG.business_hours}}. Pick another time, for example tomorrow at 4 PM.",
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n09",
+      "name": "Guided prompt 2",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        240
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "n10",
+      "name": "Done guided 2",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oauth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.sheets_spreadsheet_id}}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.bookings_sheet_name}}"
+        },
+        "filtersUI": {
+          "values": []
+        },
+        "combineFilters": "AND",
+        "options": {}
+      },
+      "id": "n11",
+      "name": "Read bookings sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1080,
+        120
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const candidate = $('Resolve slot').first().json;\nconst rows = $input.all();\nconst windowMs = {{CONFIG.dedupe_window_minutes}} * 60000;\nconst dupes = rows.filter(r => {\n  const j = r.json;\n  if (j.booking_id === candidate.booking_id) return false;\n  return j.phone === candidate.phone &&\n    j.service === candidate.service &&\n    Math.abs(Date.parse(j.start_at) - Date.parse(candidate.start_at)) < windowMs;\n});\nreturn [{ json: { ...candidate, duplicateCount: dupes.length } }];"
+      },
+      "id": "n12",
+      "name": "Dedupe filter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1260,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.duplicateCount }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "n13",
+      "name": "Duplicate intake?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "={{ $json.phone }}",
+        "messageType": "text",
+        "textBody": "You already have this booking. Reply Cancel to change it.",
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n14",
+      "name": "Already booked",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1620,
+        240
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "n15",
+      "name": "Done duplicate",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "calendar",
+        "operation": "availability",
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.calendar_ids}}"
+        },
+        "timeMin": "={{ $json.start_at }}",
+        "timeMax": "={{ $json.end_at }}",
+        "options": {
+          "timezone": "{{CONFIG.timezone}}",
+          "outputFormat": "availability"
+        }
+      },
+      "id": "n16",
+      "name": "Check availability",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1800,
+        120
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.busy?.length ?? 0 }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "n17",
+      "name": "Slot available?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "calendar",
+        "operation": "availability",
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.calendar_ids}}"
+        },
+        "timeMin": "={{ $('Merge intake paths').first().json.start_at }}",
+        "timeMax": "={{ DateTime.fromISO($('Merge intake paths').first().json.start_at).plus({ minutes: {{CONFIG.slot_step_minutes}} * {{CONFIG.recovery_slot_count}} * 2 }).toISO() }}",
+        "options": {
+          "timezone": "{{CONFIG.timezone}}",
+          "outputFormat": "availability"
+        }
+      },
+      "id": "n18",
+      "name": "Next free slots",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        2160,
+        240
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "none",
+        "method": "POST",
+        "url": "https://graph.facebook.com/{{CONFIG.whatsapp_api_version}}/{{CONFIG.whatsapp_phone_number_id}}/messages",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{CONFIG.whatsapp_token}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ messaging_product: 'whatsapp', recipient_type: 'individual', to: $('Merge intake paths').first().json.phone, type: 'interactive', interactive: { type: 'button', body: { text: 'That time is booked. Pick one of these:' }, action: { buttons: (() => { const busy = ($json.busy || []).map(b => ({ s: Date.parse(b.start), e: Date.parse(b.end) })); const step = {{CONFIG.slot_step_minutes}} * 60000; const count = {{CONFIG.recovery_slot_count}}; const base = Date.parse($('Merge intake paths').first().json.start_at); const pad = n => String(n).padStart(2, '0'); const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; const out = []; let t = base; const limit = base + step * count * 2; while (out.length < count && t < limit) { if (!busy.some(b => t >= b.s && t < b.e)) { const d = new Date(t); out.push({ type: 'reply', reply: { id: 'SLOT_alt_' + d.toISOString() + '_' + $('Merge intake paths').first().json.booking_id, title: days[d.getDay()] + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) } }); } t += step; } return out; })() } } } }) }}",
+        "options": {}
+      },
+      "id": "n19",
+      "name": "Slot buttons",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2340,
+        240
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "={{ $('Merge intake paths').first().json.phone }}",
+        "messageType": "text",
+        "textBody": "That time is not available. Reply 1, 2 or 3 for the slots below.",
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n19f",
+      "name": "Alternatives fallback text",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        2520,
+        360
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oauth2",
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.sheets_spreadsheet_id}}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.bookings_sheet_name}}"
+        },
+        "columns": {
+          "mappingMode": "update",
+          "value": {
+            "booking_id": "={{ $('Merge intake paths').first().json.booking_id }}",
+            "pending_offer": "alt"
+          },
+          "matchingColumns": [
+            "booking_id"
+          ],
+          "schema": []
+        }
+      },
+      "id": "n19p",
+      "name": "Mark alt offer pending",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2700,
+        360
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "n20",
+      "name": "Done alternatives",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2880,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "event",
+        "operation": "create",
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.calendar_id}}"
+        },
+        "start": "={{ $('Merge intake paths').first().json.start_at }}",
+        "end": "={{ $('Merge intake paths').first().json.end_at }}",
+        "additionalFields": {
+          "summary": "{{CONFIG.client_name}} - {{ $('Merge intake paths').first().json.service }}",
+          "description": "={{ 'Phone: ' + $('Merge intake paths').first().json.phone + '\nNotes: ' + ($('Merge intake paths').first().json.notes || '') + '\nMark attendance by appending ' + '{{CONFIG.attendance_marker}}' + ' to this description' }}"
+        }
+      },
+      "id": "n21",
+      "name": "Create event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        2160,
+        120
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oauth2",
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.sheets_spreadsheet_id}}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.bookings_sheet_name}}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "booking_id": "={{ $('Merge intake paths').first().json.booking_id }}",
+            "event_id": "={{ $json.id }}",
+            "customer_name": "={{ $('Merge intake paths').first().json.customer_name }}",
+            "phone": "={{ $('Merge intake paths').first().json.phone }}",
+            "service": "={{ $('Merge intake paths').first().json.service }}",
+            "start_at": "={{ $('Merge intake paths').first().json.start_at }}",
+            "end_at": "={{ $('Merge intake paths').first().json.end_at }}",
+            "status": "confirmed",
+            "source": "={{ $('Merge intake paths').first().json.source }}",
+            "reminder_attempts": 0,
+            "pending_offer": "",
+            "created_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "booking_id",
+              "displayName": "booking_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "event_id",
+              "displayName": "event_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "customer_name",
+              "displayName": "customer_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "service",
+              "displayName": "service",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "start_at",
+              "displayName": "start_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "end_at",
+              "displayName": "end_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reminder_attempts",
+              "displayName": "reminder_attempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pending_offer",
+              "displayName": "pending_offer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        }
+      },
+      "id": "n22",
+      "name": "Log booking",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2340,
+        120
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendTemplate",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "={{ $('Merge intake paths').first().json.phone }}",
+        "template": "{{CONFIG.whatsapp_template_confirm}}|{{CONFIG.whatsapp_template_language}}",
+        "components": {
+          "component": [
+            {
+              "type": "body",
+              "bodyParameters": {
+                "parameter": [
+                  {
+                    "type": "text",
+                    "text": "={{ $('Merge intake paths').first().json.service }}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "={{ $('Merge intake paths').first().json.start_at }}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "{{CONFIG.location_text}}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n23",
+      "name": "Confirm",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        2520,
+        120
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "={{ $('Merge intake paths').first().json.phone }}",
+        "messageType": "text",
+        "textBody": "Booking confirmed for {{ $('Merge intake paths').first().json.service }} at {{ $('Merge intake paths').first().json.start_at }}. {{CONFIG.location_text}}.",
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n24",
+      "name": "Confirm fallback text",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        2700,
+        240
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.slack_bookings_channel}}"
+        },
+        "messageType": "text",
+        "text": "={{ 'New booking: ' + $('Merge intake paths').first().json.customer_name + ' - ' + $('Merge intake paths').first().json.service + ' at ' + $('Merge intake paths').first().json.start_at + ' (' + $('Merge intake paths').first().json.source + ')' }}",
+        "options": {}
+      },
+      "id": "n25",
+      "name": "Slack notify new booking",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        3060,
+        120
+      ],
+      "credentials": {
+        "slackApi": {
+          "id": "1",
+          "name": "{{CONFIG.slack_credential}}"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "id": "n26",
+      "name": "Done booking",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        3240,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const item = $input.first().json;\nconst services = {{CONFIG.services}};\nconst id = String(item.button_reply_id || '');\nconst parts = id.split('_');\nconst ctx = parts[1] || 'alt';\nconst startAt = parts.slice(2, -1).join('_');\nconst bookingId = parts.slice(-1)[0] || '';\nconst contextMap = { alt: 'alternative', rec: 'recovery', res: 'reschedule' };\nconst context = contextMap[ctx] || 'alternative';\nconst service = item.service || '';\nconst duration = (services[service] && services[service].duration_minutes) || 60;\nconst end_at = DateTime.fromISO(startAt).plus({ minutes: duration }).toISO();\nreturn [{ json: {\n  ...item,\n  context,\n  start_at: startAt,\n  end_at,\n  booking_id: bookingId,\n  customer_name: item.name || '',\n  status: 'confirmed',\n  source: item.source || 'whatsapp'\n} }];"
+      },
+      "id": "n27",
+      "name": "Parse slot choice",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        360,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oauth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.sheets_spreadsheet_id}}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.bookings_sheet_name}}"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "phone",
+              "lookupValue": "={{ $json.phone }}"
+            }
+          ]
+        },
+        "combineFilters": "AND",
+        "options": {}
+      },
+      "id": "n27a",
+      "name": "Read customer rows",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        540,
+        480
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const item = $input.first().json;\nconst rows = $input.all();\nconst live = ['confirmed', 'reminded_24h', 'reminded', 'reminder_failed', 'no_show'];\nconst offers = rows\n  .filter(r => r.json.phone === item.phone && r.json.pending_offer && live.includes(r.json.status))\n  .sort((a, b) => Date.parse(b.json.created_at || 0) - Date.parse(a.json.created_at || 0));\nif (!offers.length) {\n  return [{ json: { ...item, resolved: false } }];\n}\nconst row = offers[0].json;\nconst contextMap = { alt: 'alternative', rec: 'recovery', res: 'reschedule' };\nreturn [{ json: {\n  ...item,\n  resolved: true,\n  context: contextMap[row.pending_offer] || 'alternative',\n  booking_id: row.booking_id,\n  service: row.service,\n  customer_name: row.customer_name,\n  start_at: row.start_at,\n  slot_index: item.slot_index\n} }];"
+      },
+      "id": "n27b",
+      "name": "Resolve digit context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.resolved }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "n27b2",
+      "name": "Digit context found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        900,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "calendar",
+        "operation": "availability",
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.calendar_ids}}"
+        },
+        "timeMin": "={{ $json.start_at || $now.toISO() }}",
+        "timeMax": "={{ DateTime.fromISO($json.start_at || $now.toISO()).plus({ minutes: {{CONFIG.slot_step_minutes}} * {{CONFIG.recovery_slot_count}} * 2 }).toISO() }}",
+        "options": {
+          "timezone": "{{CONFIG.timezone}}",
+          "outputFormat": "availability"
+        }
+      },
+      "id": "n27c",
+      "name": "Recompute slots",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1080,
+        600
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const ctx = $('Resolve digit context').first().json;\nconst services = {{CONFIG.services}};\nconst busy = ($json.busy || []).map(b => ({ s: Date.parse(b.start), e: Date.parse(b.end) }));\nconst step = {{CONFIG.slot_step_minutes}} * 60000;\nconst count = {{CONFIG.recovery_slot_count}};\nconst index = Number(ctx.slot_index || 0);\nconst base = Date.parse(ctx.start_at || new Date().toISOString());\nconst slots = [];\nlet t = base;\nconst limit = base + step * count * 2;\nwhile (slots.length < count && t < limit) {\n  if (!busy.some(b => t >= b.s && t < b.e)) slots.push(t);\n  t += step;\n}\nconst chosen = slots[index] || slots[0] || base;\nconst service = ctx.service || '';\nconst duration = (services[service] && services[service].duration_minutes) || 60;\nreturn [{ json: {\n  ...ctx,\n  start_at: new Date(chosen).toISOString(),\n  end_at: new Date(chosen + duration * 60000).toISOString(),\n  booking_id: ctx.booking_id || '',\n  slot_index: index\n} }];"
+      },
+      "id": "n27d",
+      "name": "Pick digit slot",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1260,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "append"
+      },
+      "id": "n28",
+      "name": "Merge intake paths",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        360
+      ],
+      "inputs": [
+        "Main",
+        "Main"
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oauth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.sheets_spreadsheet_id}}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.bookings_sheet_name}}"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "phone",
+              "lookupValue": "={{ $json.phone }}"
+            }
+          ]
+        },
+        "combineFilters": "AND",
+        "options": {}
+      },
+      "id": "n29",
+      "name": "Read booking row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        540,
+        720
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const item = $input.first().json;\nconst rows = $input.all();\nconst live = ['confirmed', 'reminded_24h', 'reminded', 'reminder_failed'];\nconst ordered = rows\n  .filter(r => live.includes(r.json.status))\n  .sort((a, b) => {\n    const oa = live.indexOf(a.json.status);\n    const ob = live.indexOf(b.json.status);\n    if (oa !== ob) return oa - ob;\n    return Date.parse(b.json.created_at || 0) - Date.parse(a.json.created_at || 0);\n  });\nif (!ordered.length) return [{ json: { ...item, active: false } }];\nreturn [{ json: { ...ordered[0].json, active: true, phone: item.phone } }];"
+      },
+      "id": "n29b",
+      "name": "Select active booking",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "dataType": "string",
+        "value1": "={{ $('Normalize intake').first().json.action }}",
+        "rules": {
+          "rules": [
+            {
+              "operation": "equals",
+              "value2": "cancel",
+              "outputKey": "cancel"
+            },
+            {
+              "operation": "equals",
+              "value2": "reschedule",
+              "outputKey": "reschedule"
+            }
+          ]
+        }
+      },
+      "id": "n29c",
+      "name": "Route after select",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [
+        900,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "confirmed",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "c2",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "reminded",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "c3",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "reminded_24h",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "c4",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "reminder_failed",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        }
+      },
+      "id": "n30",
+      "name": "Cancellable?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "event",
+        "operation": "delete",
+        "eventId": "={{ $json.event_id }}",
+        "options": {}
+      },
+      "id": "n31",
+      "name": "Cancel event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1260,
+        840
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oauth2",
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.sheets_spreadsheet_id}}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.bookings_sheet_name}}"
+        },
+        "columns": {
+          "mappingMode": "update",
+          "value": {
+            "booking_id": "={{ $('Select active booking').first().json.booking_id }}",
+            "status": "cancelled"
+          },
+          "matchingColumns": [
+            "booking_id"
+          ],
+          "schema": []
+        }
+      },
+      "id": "n32",
+      "name": "Mark cancelled",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1440,
+        840
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "={{ $('Select active booking').first().json.phone }}",
+        "messageType": "text",
+        "textBody": "Booking cancelled. Book again anytime.",
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n33",
+      "name": "Cancelled reply",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1620,
+        840
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "n34",
+      "name": "Done cancel",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        840
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "={{ $json.phone }}",
+        "messageType": "text",
+        "textBody": "This booking was already changed. Reply or call us to fix it.",
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n35",
+      "name": "Not cancellable reply",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1260,
+        960
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "n36",
+      "name": "Done cancel 2",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "calendar",
+        "operation": "availability",
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.calendar_ids}}"
+        },
+        "timeMin": "={{ $now.toISO() }}",
+        "timeMax": "={{ $now.plus({ minutes: {{CONFIG.slot_step_minutes}} * {{CONFIG.recovery_slot_count}} * 2 }).toISO() }}",
+        "options": {
+          "timezone": "{{CONFIG.timezone}}",
+          "outputFormat": "availability"
+        }
+      },
+      "id": "n37",
+      "name": "Reschedule slots",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1080,
+        1080
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "none",
+        "method": "POST",
+        "url": "https://graph.facebook.com/{{CONFIG.whatsapp_api_version}}/{{CONFIG.whatsapp_phone_number_id}}/messages",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{CONFIG.whatsapp_token}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ messaging_product: 'whatsapp', recipient_type: 'individual', to: $('Select active booking').first().json.phone, type: 'interactive', interactive: { type: 'button', body: { text: 'Pick a new time:' }, action: { buttons: (() => { const busy = ($json.busy || []).map(b => ({ s: Date.parse(b.start), e: Date.parse(b.end) })); const step = {{CONFIG.slot_step_minutes}} * 60000; const count = {{CONFIG.recovery_slot_count}}; const base = Date.now(); const pad = n => String(n).padStart(2, '0'); const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; const out = []; let t = base - (base % step) + step; const limit = base + step * count * 2; while (out.length < count && t < limit) { if (!busy.some(b => t >= b.s && t < b.e)) { const d = new Date(t); out.push({ type: 'reply', reply: { id: 'SLOT_res_' + d.toISOString() + '_' + $('Select active booking').first().json.booking_id, title: days[d.getDay()] + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) } }); } t += step; } return out; })() } } } }) }}",
+        "options": {}
+      },
+      "id": "n38",
+      "name": "Reschedule buttons",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1260,
+        1080
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "={{ $('Select active booking').first().json.phone }}",
+        "messageType": "text",
+        "textBody": "Pick a new time. Reply 1, 2 or 3 for the slots below.",
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n38f",
+      "name": "Reschedule fallback text",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1440,
+        1200
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oauth2",
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.sheets_spreadsheet_id}}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.bookings_sheet_name}}"
+        },
+        "columns": {
+          "mappingMode": "update",
+          "value": {
+            "booking_id": "={{ $('Select active booking').first().json.booking_id }}",
+            "pending_offer": "res"
+          },
+          "matchingColumns": [
+            "booking_id"
+          ],
+          "schema": []
+        }
+      },
+      "id": "n38p",
+      "name": "Mark res offer pending",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1620,
+        1200
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "n39",
+      "name": "Done reschedule offer",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        1080
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oauth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.sheets_spreadsheet_id}}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.bookings_sheet_name}}"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "booking_id",
+              "lookupValue": "={{ $('Merge intake paths').first().json.booking_id }}"
+            }
+          ]
+        },
+        "combineFilters": "AND",
+        "options": {}
+      },
+      "id": "n40",
+      "name": "Read old row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1080,
+        1320
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const rows = $input.all();\nconst newStart = $('Merge intake paths').first().json.start_at;\nconst live = ['confirmed', 'reminded_24h', 'reminded', 'reminder_failed'];\nconst old = rows\n  .filter(r => r.json.start_at !== newStart && live.includes(r.json.status))\n  .sort((a, b) => Date.parse(a.json.start_at) - Date.parse(b.json.start_at));\nif (!old.length) return [];\nreturn [{ json: old[0].json }];"
+      },
+      "id": "n41",
+      "name": "Select old row",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1260,
+        1320
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "event",
+        "operation": "delete",
+        "eventId": "={{ $json.event_id }}",
+        "options": {}
+      },
+      "id": "n42",
+      "name": "Cancel old event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1440,
+        1320
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oauth2",
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.sheets_spreadsheet_id}}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.bookings_sheet_name}}"
+        },
+        "columns": {
+          "mappingMode": "update",
+          "value": {
+            "booking_id": "={{ $('Select old row').first().json.booking_id }}",
+            "start_at": "={{ $('Select old row').first().json.start_at }}",
+            "status": "cancelled"
+          },
+          "matchingColumns": [
+            "booking_id",
+            "start_at"
+          ],
+          "schema": []
+        }
+      },
+      "id": "n43",
+      "name": "Mark old row cancelled",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1620,
+        1320
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "n44",
+      "name": "Done reschedule",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        1320
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.slack_bookings_channel}}"
+        },
+        "messageType": "text",
+        "text": "={{ 'Recovery rebooking ' + $('Merge intake paths').first().json.booking_id + ' to ' + $('Merge intake paths').first().json.start_at }}",
+        "options": {}
+      },
+      "id": "n45",
+      "name": "Slack notify recovery rebook",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        1980,
+        1320
+      ],
+      "credentials": {
+        "slackApi": {
+          "id": "1",
+          "name": "{{CONFIG.slack_credential}}"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "id": "n46",
+      "name": "Done recovery",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        1320
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "n47",
+      "name": "Done alternative pick",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "dataType": "string",
+        "value1": "={{ $('Merge intake paths').first().json.context }}",
+        "rules": {
+          "rules": [
+            {
+              "operation": "equals",
+              "value2": "new_booking",
+              "outputKey": "new_booking"
+            },
+            {
+              "operation": "equals",
+              "value2": "reschedule",
+              "outputKey": "reschedule"
+            },
+            {
+              "operation": "equals",
+              "value2": "recovery",
+              "outputKey": "recovery"
+            },
+            {
+              "operation": "equals",
+              "value2": "alternative",
+              "outputKey": "alternative"
+            }
+          ]
+        }
+      },
+      "id": "n48",
+      "name": "Post-slot router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [
+        2880,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oauth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.sheets_spreadsheet_id}}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.bookings_sheet_name}}"
+        },
+        "filtersUI": {
+          "values": []
+        },
+        "combineFilters": "AND",
+        "options": {}
+      },
+      "id": "n49",
+      "name": "Read bookings for reminders",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        0,
+        480
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const lead24 = {{CONFIG.reminder_lead_24h}};\nconst lead2 = {{CONFIG.reminder_lead_2h}};\nconst maxAttempts = {{CONFIG.max_reminder_attempts}};\nconst now = Date.now();\nconst out = [];\nfor (const item of $input.all()) {\n  const j = item.json;\n  const hours = (Date.parse(j.start_at) - now) / 3600000;\n  if (hours <= 0 || hours > lead24) continue;\n  const attempts = Number(j.reminder_attempts || 0);\n  if (hours <= lead2) {\n    if (['confirmed', 'reminded_24h', 'reminder_failed'].includes(j.status) && attempts < maxAttempts) {\n      out.push({ json: { ...j, reminder_type: '2h' } });\n    }\n  } else {\n    if (['confirmed', 'reminder_failed'].includes(j.status) && attempts < maxAttempts) {\n      out.push({ json: { ...j, reminder_type: '24h' } });\n    }\n  }\n}\nreturn out;"
+      },
+      "id": "n50",
+      "name": "Find due bookings",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        180,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.reminder_type }}",
+              "rightValue": "24h",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "n51",
+      "name": "Reminder type?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        360,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendTemplate",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "={{ $json.phone }}",
+        "template": "{{CONFIG.whatsapp_template_reminder}}|{{CONFIG.whatsapp_template_language}}",
+        "components": {
+          "component": [
+            {
+              "type": "body",
+              "bodyParameters": {
+                "parameter": [
+                  {
+                    "type": "text",
+                    "text": "={{ $json.start_at }}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n52",
+      "name": "Send reminder 24h",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        540,
+        600
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "={{ $json.phone }}",
+        "messageType": "text",
+        "textBody": "Reminder: {{ $json.service }} at {{ $json.start_at }} at {{CONFIG.location_text}}.",
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n53",
+      "name": "Reminder 24h fallback",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        540,
+        720
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendTemplate",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "={{ $json.phone }}",
+        "template": "{{CONFIG.whatsapp_template_reminder}}|{{CONFIG.whatsapp_template_language}}",
+        "components": {
+          "component": [
+            {
+              "type": "body",
+              "bodyParameters": {
+                "parameter": [
+                  {
+                    "type": "text",
+                    "text": "={{ $json.start_at }}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n54",
+      "name": "Send reminder 2h",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        600
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "={{ $json.phone }}",
+        "messageType": "text",
+        "textBody": "Reminder: {{ $json.service }} starts in 2 hours at {{ $json.start_at }}.",
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n55",
+      "name": "Reminder 2h fallback",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        600
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "oauth2",
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.sheets_spreadsheet_id}}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.bookings_sheet_name}}"
+        },
+        "columns": {
+          "mappingMode": "update",
+          "value": {
+            "event_id": "={{ $('Find due bookings').first().json.event_id }}",
+            "status": "reminded_24h"
+          },
+          "matchingColumns": [
+            "event_id"
+          ],
+          "schema": []
+        }
+      },
+      "id": "n56",
+      "name": "Mark 24h sent",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1080,
+        600
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oauth2",
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.sheets_spreadsheet_id}}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.bookings_sheet_name}}"
+        },
+        "columns": {
+          "mappingMode": "update",
+          "value": {
+            "event_id": "={{ $('Find due bookings').first().json.event_id }}",
+            "status": "reminded"
+          },
+          "matchingColumns": [
+            "event_id"
+          ],
+          "schema": []
+        }
+      },
+      "id": "n57",
+      "name": "Mark 2h sent",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1080,
+        720
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oauth2",
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.sheets_spreadsheet_id}}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.bookings_sheet_name}}"
+        },
+        "columns": {
+          "mappingMode": "update",
+          "value": {
+            "event_id": "={{ $('Find due bookings').first().json.event_id }}",
+            "status": "reminder_failed",
+            "reminder_attempts": "={{ ($('Find due bookings').first().json.reminder_attempts || 0) + 1 }}"
+          },
+          "matchingColumns": [
+            "event_id"
+          ],
+          "schema": []
+        }
+      },
+      "id": "n58",
+      "name": "Mark reminder failed",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1080,
+        840
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ (($('Find due bookings').first().json.reminder_attempts || 0) + 1) < {{CONFIG.max_reminder_attempts}} }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "n59",
+      "name": "Retries left?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1260,
+        840
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "n60",
+      "name": "Done retry next sweep",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        840
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.slack_alerts_channel}}"
+        },
+        "messageType": "text",
+        "text": "={{ 'Reminder failed for booking ' + $('Find due bookings').first().json.booking_id + ' (event ' + $('Find due bookings').first().json.event_id + ') after ' + (($('Find due bookings').first().json.reminder_attempts || 0) + 1) + ' attempts' }}",
+        "options": {}
+      },
+      "id": "n61",
+      "name": "Slack reminder alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        1440,
+        960
+      ],
+      "credentials": {
+        "slackApi": {
+          "id": "1",
+          "name": "{{CONFIG.slack_credential}}"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "id": "n62",
+      "name": "Done alert",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1620,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oauth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.sheets_spreadsheet_id}}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.bookings_sheet_name}}"
+        },
+        "filtersUI": {
+          "values": []
+        },
+        "combineFilters": "AND",
+        "options": {}
+      },
+      "id": "n63",
+      "name": "Read bookings for no-show",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        0,
+        600
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const grace = {{CONFIG.no_show_grace_minutes}};\nconst now = Date.now();\nconst out = [];\nfor (const item of $input.all()) {\n  const j = item.json;\n  if (Date.parse(j.start_at) + grace * 60000 <= now && ['confirmed', 'reminded_24h', 'reminded', 'reminder_failed'].includes(j.status)) {\n    out.push(item);\n  }\n}\nreturn out;"
+      },
+      "id": "n64",
+      "name": "Find passed events",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        180,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "event",
+        "operation": "get",
+        "eventId": "={{ $json.event_id }}",
+        "options": {}
+      },
+      "id": "n65",
+      "name": "Check attendance",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        360,
+        600
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.description }}",
+              "rightValue": "{{CONFIG.attendance_marker}}",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "n66",
+      "name": "Attended?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        540,
+        600
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "n67",
+      "name": "Close event",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        720,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oauth2",
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.sheets_spreadsheet_id}}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.bookings_sheet_name}}"
+        },
+        "columns": {
+          "mappingMode": "update",
+          "value": {
+            "booking_id": "={{ $('Find passed events').first().json.booking_id }}",
+            "status": "no_show"
+          },
+          "matchingColumns": [
+            "booking_id"
+          ],
+          "schema": []
+        }
+      },
+      "id": "n68",
+      "name": "Mark no_show",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        720,
+        720
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "calendar",
+        "operation": "availability",
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.calendar_ids}}"
+        },
+        "timeMin": "={{ $('Find passed events').first().json.start_at }}",
+        "timeMax": "={{ DateTime.fromISO($('Find passed events').first().json.start_at).plus({ minutes: {{CONFIG.slot_step_minutes}} * {{CONFIG.recovery_slot_count}} * 2 }).toISO() }}",
+        "options": {
+          "timezone": "{{CONFIG.timezone}}",
+          "outputFormat": "availability"
+        }
+      },
+      "id": "n69",
+      "name": "Next recovery slots",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        900,
+        720
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendTemplate",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "={{ $('Mark no_show').first().json.phone }}",
+        "template": "{{CONFIG.whatsapp_template_recovery}}|{{CONFIG.whatsapp_template_language}}",
+        "components": {
+          "component": [
+            {
+              "type": "body",
+              "bodyParameters": {
+                "parameter": [
+                  {
+                    "type": "text",
+                    "text": "={{ $('Mark no_show').first().json.start_at }}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n70",
+      "name": "Recovery",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1080,
+        720
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "none",
+        "method": "POST",
+        "url": "https://graph.facebook.com/{{CONFIG.whatsapp_api_version}}/{{CONFIG.whatsapp_phone_number_id}}/messages",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{CONFIG.whatsapp_token}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ messaging_product: 'whatsapp', recipient_type: 'individual', to: $('Mark no_show').first().json.phone, type: 'interactive', interactive: { type: 'button', body: { text: 'We missed you today. Pick one of these:' }, action: { buttons: (() => { const busy = ($json.busy || []).map(b => ({ s: Date.parse(b.start), e: Date.parse(b.end) })); const step = {{CONFIG.slot_step_minutes}} * 60000; const count = {{CONFIG.recovery_slot_count}}; const base = Date.now(); const pad = n => String(n).padStart(2, '0'); const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; const out = []; let t = base - (base % step) + step; const limit = base + step * count * 2; while (out.length < count && t < limit) { if (!busy.some(b => t >= b.s && t < b.e)) { const d = new Date(t); out.push({ type: 'reply', reply: { id: 'SLOT_rec_' + d.toISOString() + '_' + $('Mark no_show').first().json.booking_id, title: days[d.getDay()] + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) } }); } t += step; } return out; })() } } } }) }}",
+        "options": {}
+      },
+      "id": "n70s",
+      "name": "Send recovery slots",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1260,
+        720
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "={{ $('Mark no_show').first().json.phone }}",
+        "messageType": "text",
+        "textBody": "We missed you today. Reply 1, 2 or 3 to rebook now.",
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n70f",
+      "name": "Recovery slots fallback text",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1440,
+        840
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oauth2",
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "{{CONFIG.sheets_spreadsheet_id}}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.bookings_sheet_name}}"
+        },
+        "columns": {
+          "mappingMode": "update",
+          "value": {
+            "booking_id": "={{ $('Mark no_show').first().json.booking_id }}",
+            "pending_offer": "rec"
+          },
+          "matchingColumns": [
+            "booking_id"
+          ],
+          "schema": []
+        }
+      },
+      "id": "n70p",
+      "name": "Mark rec offer pending",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1620,
+        840
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "={{ $('Mark no_show').first().json.phone }}",
+        "messageType": "text",
+        "textBody": "We missed you today. Want to rebook? Reply or call us.",
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n71",
+      "name": "Recovery fallback text",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1440,
+        960
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "n72",
+      "name": "Done no-show",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.slack_alerts_channel}}"
+        },
+        "messageType": "text",
+        "text": "={{ 'Workflow error: ' + ($json.error && $json.error.message || 'unknown') + ' in node ' + ($json.error && $json.error.node && $json.error.node.name || 'unknown') + ' (workflow ' + ($json.workflow && $json.workflow.name || 'unknown') + ')' }}",
+        "options": {}
+      },
+      "id": "n73",
+      "name": "Slack alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        1080,
+        960
+      ],
+      "credentials": {
+        "slackApi": {
+          "id": "1",
+          "name": "{{CONFIG.slack_credential}}"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "{{CONFIG.slack_enabled}}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "n25a",
+      "name": "Notify new booking?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2880,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendTemplate",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "{{CONFIG.owner_whatsapp_number}}",
+        "template": "{{CONFIG.whatsapp_template_owner}}|{{CONFIG.whatsapp_template_language}}",
+        "components": {
+          "component": [
+            {
+              "type": "body",
+              "bodyParameters": {
+                "parameter": [
+                  {
+                    "type": "text",
+                    "text": "New booking"
+                  },
+                  {
+                    "type": "text",
+                    "text": "={{ $('Merge intake paths').first().json.service }}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "={{ $('Merge intake paths').first().json.start_at }}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "={{ $('Merge intake paths').first().json.booking_id }}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "={{ $('Merge intake paths').first().json.phone }}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n25b",
+      "name": "Owner notify new booking",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        2700,
+        120
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "{{CONFIG.slack_enabled}}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "n45a",
+      "name": "Notify recovery rebook?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1800,
+        1320
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendTemplate",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "{{CONFIG.owner_whatsapp_number}}",
+        "template": "{{CONFIG.whatsapp_template_owner}}|{{CONFIG.whatsapp_template_language}}",
+        "components": {
+          "component": [
+            {
+              "type": "body",
+              "bodyParameters": {
+                "parameter": [
+                  {
+                    "type": "text",
+                    "text": "Recovery rebooking"
+                  },
+                  {
+                    "type": "text",
+                    "text": "={{ $('Merge intake paths').first().json.service }}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "={{ $('Merge intake paths').first().json.start_at }}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "={{ $('Merge intake paths').first().json.booking_id }}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "={{ $('Merge intake paths').first().json.phone }}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n45b",
+      "name": "Owner notify recovery rebook",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1620,
+        1320
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "{{CONFIG.slack_enabled}}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "n61a",
+      "name": "Reminder alert?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1260,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendTemplate",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "{{CONFIG.owner_whatsapp_number}}",
+        "template": "{{CONFIG.whatsapp_template_owner}}|{{CONFIG.whatsapp_template_language}}",
+        "components": {
+          "component": [
+            {
+              "type": "body",
+              "bodyParameters": {
+                "parameter": [
+                  {
+                    "type": "text",
+                    "text": "Reminder failed"
+                  },
+                  {
+                    "type": "text",
+                    "text": "={{ $('Find due bookings').first().json.service }}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "={{ $('Find due bookings').first().json.start_at }}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "={{ $('Find due bookings').first().json.booking_id }}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "={{ $('Find due bookings').first().json.phone }}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n61b",
+      "name": "Owner reminder alert",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1080,
+        960
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "{{CONFIG.slack_enabled}}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "n73a",
+      "name": "Alert?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        900,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendTemplate",
+        "phoneNumberId": "{{CONFIG.whatsapp_phone_number_id}}",
+        "recipientPhoneNumber": "{{CONFIG.owner_whatsapp_number}}",
+        "template": "{{CONFIG.whatsapp_template_owner}}|{{CONFIG.whatsapp_template_language}}",
+        "components": {
+          "component": [
+            {
+              "type": "body",
+              "bodyParameters": {
+                "parameter": [
+                  {
+                    "type": "text",
+                    "text": "Workflow error"
+                  },
+                  {
+                    "type": "text",
+                    "text": "={{ $json.error.node.name }}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "={{ $json.error.message }}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "={{ $json.workflow.name }}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "n/a"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "messagingProduct": "whatsapp"
+      },
+      "id": "n73b",
+      "name": "Owner alert",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        960
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1",
+          "name": "{{CONFIG.whatsapp_credential}}"
+        }
+      },
+      "onError": "continueErrorOutput"
+    }
+  ],
+  "connections": {
+    "WhatsApp intake": {
+      "main": [
+        [
+          {
+            "node": "Normalize intake",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Web form intake": {
+      "main": [
+        [
+          {
+            "node": "Normalize intake",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email intake (placeholder)": {
+      "main": [
+        [
+          {
+            "node": "Normalize intake",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reminder sweep": {
+      "main": [
+        [
+          {
+            "node": "Read bookings for reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No-show sweep": {
+      "main": [
+        [
+          {
+            "node": "Read bookings for no-show",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error trigger": {
+      "main": [
+        [
+          {
+            "node": "Alert?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize intake": {
+      "main": [
+        [
+          {
+            "node": "Route reply type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route reply type": {
+      "main": [
+        [
+          {
+            "node": "Parse request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse slot choice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Read customer rows",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Read booking row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Read booking row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse request": {
+      "main": [
+        [
+          {
+            "node": "Request parseable?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request parseable?": {
+      "main": [
+        [
+          {
+            "node": "Resolve slot",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Guided prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guided prompt": {
+      "main": [
+        [
+          {
+            "node": "Done guided",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve slot": {
+      "main": [
+        [
+          {
+            "node": "Slot in business hours?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slot in business hours?": {
+      "main": [
+        [
+          {
+            "node": "Read bookings sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Guided prompt 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guided prompt 2": {
+      "main": [
+        [
+          {
+            "node": "Done guided 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read bookings sheet": {
+      "main": [
+        [
+          {
+            "node": "Dedupe filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedupe filter": {
+      "main": [
+        [
+          {
+            "node": "Duplicate intake?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Duplicate intake?": {
+      "main": [
+        [
+          {
+            "node": "Already booked",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge intake paths",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Already booked": {
+      "main": [
+        [
+          {
+            "node": "Done duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse slot choice": {
+      "main": [
+        [
+          {
+            "node": "Merge intake paths",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Read customer rows": {
+      "main": [
+        [
+          {
+            "node": "Resolve digit context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve digit context": {
+      "main": [
+        [
+          {
+            "node": "Digit context found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Digit context found?": {
+      "main": [
+        [
+          {
+            "node": "Recompute slots",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Guided prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recompute slots": {
+      "main": [
+        [
+          {
+            "node": "Pick digit slot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick digit slot": {
+      "main": [
+        [
+          {
+            "node": "Merge intake paths",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge intake paths": {
+      "main": [
+        [
+          {
+            "node": "Check availability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check availability": {
+      "main": [
+        [
+          {
+            "node": "Slot available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slot available?": {
+      "main": [
+        [
+          {
+            "node": "Create event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Next free slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Next free slots": {
+      "main": [
+        [
+          {
+            "node": "Slot buttons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slot buttons": {
+      "main": [
+        [
+          {
+            "node": "Done alternatives",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alternatives fallback text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alternatives fallback text": {
+      "main": [
+        [
+          {
+            "node": "Mark alt offer pending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark alt offer pending": {
+      "main": [
+        [
+          {
+            "node": "Done alternatives",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create event": {
+      "main": [
+        [
+          {
+            "node": "Log booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log booking": {
+      "main": [
+        [
+          {
+            "node": "Confirm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirm": {
+      "main": [
+        [
+          {
+            "node": "Post-slot router",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Confirm fallback text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirm fallback text": {
+      "main": [
+        [
+          {
+            "node": "Post-slot router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post-slot router": {
+      "main": [
+        [
+          {
+            "node": "Notify new booking?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Read old row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify recovery rebook?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Done alternative pick",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack notify new booking": {
+      "main": [
+        [
+          {
+            "node": "Done booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read booking row": {
+      "main": [
+        [
+          {
+            "node": "Select active booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select active booking": {
+      "main": [
+        [
+          {
+            "node": "Route after select",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route after select": {
+      "main": [
+        [
+          {
+            "node": "Cancellable?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reschedule slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancellable?": {
+      "main": [
+        [
+          {
+            "node": "Cancel event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Not cancellable reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel event": {
+      "main": [
+        [
+          {
+            "node": "Mark cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark cancelled": {
+      "main": [
+        [
+          {
+            "node": "Cancelled reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancelled reply": {
+      "main": [
+        [
+          {
+            "node": "Done cancel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Not cancellable reply": {
+      "main": [
+        [
+          {
+            "node": "Done cancel 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reschedule slots": {
+      "main": [
+        [
+          {
+            "node": "Reschedule buttons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reschedule buttons": {
+      "main": [
+        [
+          {
+            "node": "Done reschedule offer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reschedule fallback text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reschedule fallback text": {
+      "main": [
+        [
+          {
+            "node": "Mark res offer pending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark res offer pending": {
+      "main": [
+        [
+          {
+            "node": "Done reschedule offer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read old row": {
+      "main": [
+        [
+          {
+            "node": "Select old row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select old row": {
+      "main": [
+        [
+          {
+            "node": "Cancel old event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel old event": {
+      "main": [
+        [
+          {
+            "node": "Mark old row cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark old row cancelled": {
+      "main": [
+        [
+          {
+            "node": "Done reschedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack notify recovery rebook": {
+      "main": [
+        [
+          {
+            "node": "Done recovery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read bookings for reminders": {
+      "main": [
+        [
+          {
+            "node": "Find due bookings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find due bookings": {
+      "main": [
+        [
+          {
+            "node": "Reminder type?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reminder type?": {
+      "main": [
+        [
+          {
+            "node": "Send reminder 24h",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send reminder 2h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send reminder 24h": {
+      "main": [
+        [
+          {
+            "node": "Mark 24h sent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reminder 24h fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reminder 24h fallback": {
+      "main": [
+        [
+          {
+            "node": "Mark 24h sent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark reminder failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send reminder 2h": {
+      "main": [
+        [
+          {
+            "node": "Mark 2h sent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reminder 2h fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reminder 2h fallback": {
+      "main": [
+        [
+          {
+            "node": "Mark 2h sent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark reminder failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark reminder failed": {
+      "main": [
+        [
+          {
+            "node": "Retries left?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retries left?": {
+      "main": [
+        [
+          {
+            "node": "Done retry next sweep",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reminder alert?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack reminder alert": {
+      "main": [
+        [
+          {
+            "node": "Done alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read bookings for no-show": {
+      "main": [
+        [
+          {
+            "node": "Find passed events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find passed events": {
+      "main": [
+        [
+          {
+            "node": "Check attendance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check attendance": {
+      "main": [
+        [
+          {
+            "node": "Attended?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attended?": {
+      "main": [
+        [
+          {
+            "node": "Close event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark no_show",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark no_show": {
+      "main": [
+        [
+          {
+            "node": "Next recovery slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Next recovery slots": {
+      "main": [
+        [
+          {
+            "node": "Recovery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recovery": {
+      "main": [
+        [
+          {
+            "node": "Send recovery slots",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Recovery fallback text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send recovery slots": {
+      "main": [
+        [
+          {
+            "node": "Done no-show",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Recovery slots fallback text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recovery slots fallback text": {
+      "main": [
+        [
+          {
+            "node": "Mark rec offer pending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark rec offer pending": {
+      "main": [
+        [
+          {
+            "node": "Done no-show",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recovery fallback text": {
+      "main": [
+        [
+          {
+            "node": "Done no-show",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify new booking?": {
+      "main": [
+        [
+          {
+            "node": "Slack notify new booking",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Owner notify new booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify recovery rebook?": {
+      "main": [
+        [
+          {
+            "node": "Slack notify recovery rebook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Owner notify recovery rebook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reminder alert?": {
+      "main": [
+        [
+          {
+            "node": "Slack reminder alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Owner reminder alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert?": {
+      "main": [
+        [
+          {
+            "node": "Slack alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Owner alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Owner notify new booking": {
+      "main": [
+        [
+          {
+            "node": "Done booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Owner notify recovery rebook": {
+      "main": [
+        [
+          {
+            "node": "Done recovery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Owner reminder alert": {
+      "main": [
+        [
+          {
+            "node": "Done alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "tags": [],
+  "meta": {}
+}

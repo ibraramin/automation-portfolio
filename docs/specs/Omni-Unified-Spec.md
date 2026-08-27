@@ -20,7 +20,7 @@ One unified n8n blueprint (`00-omni-chat-core`, 71 nodes) that compresses ten se
 | Service id | omni-chat-core |
 | Blueprint | `blueprints/builds/00-omni-chat-core-prototype.json` (71 nodes, id `eeO8Jl1VeK2f2Z9d`) |
 | Version | v0.1.13 (verify + httpRequest parity landed; quick-tunnel verified) |
-| Tunnel | `constitutes-cats-wheels-app.trycloudflare.com` — `cloudflared quick tunnel` (ephemeral per session, verified E2E); prod path is named tunnel `sandbox` (`cloudflared tunnel create sandbox`) |
+| Tunnel | `constitutes-cats-wheels-app.trycloudflare.com` — `cloudflared quick tunnel` (ephemeral, verified E2E); prod → named tunnel `nexusautomations-sandbox` (`cloudflared tunnel create nexusautomations-sandbox`) |
 | Design doc | `blueprints/designs/00-omni-chat-core-blueprint.md` §15.5 (outbound) + version history |
 | Rebuild | `blueprints/sandbox/REBUILD-RUNBOOK.md` (when restored) + `blueprints/sandbox/SETUP-GUIDE.md` §§4/4a/4b |
 | Manifest | `blueprints/sandbox/import-manifest.json` (`golive_prep_2026_08_25`) |

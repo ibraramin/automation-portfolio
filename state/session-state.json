@@ -1,43 +1,45 @@
 {
-  "goal": "unified 00-omni-chat-core is main build — single 71-node n8n blueprint subsumes 01-10 (except 11); client deploys one workflow (experience compression), 11-automation-debugging remains separate runbook",
-  "current_phase": "go-live-prep-phase1-verified (WhatsApp E2E hi->guided bridal->RAG, quick-tunnel verified 2026-08-27)",
+  "goal": "unified 00-omni-chat-core is main build \u2014 single 71-node n8n blueprint subsumes 01-10 (except 11); client deploys one workflow (experience compression), 11-automation-debugging remains separate runbook",
+  "current_phase": "go-live-prep-phase2-quick-verified (quick tunnel 6/6 PASS, 00 re-persist APPROVED pending git persist, token checklist done, named tunnel pending domain)",
   "decisions": [
-    "2026-08-27 pivot: 00-omni-chat-core declared main build, subsumes 01-10; 04-booking-reminders is superseded slice (patterns folded into 00), 11 retained separate — see docs/specs/Omni-Unified-Spec.md",
+    "2026-08-27 pivot: 00-omni-chat-core declared main build, subsumes 01-10; 04-booking-reminders is superseded slice (patterns folded into 00), 11 retained separate \u2014 see docs/specs/Omni-Unified-Spec.md",
     "tunnel constitutes-cats-wheels-app.trycloudflare.com is ephemeral quick tunnel (cloudflared quick tunnel); prod path is named tunnel sandbox (cloudflared tunnel create sandbox)",
-    "71 nodes v0.1.13 — verify + httpRequest parity landed; blueprint id eeO8Jl1VeK2f2Z9d at blueprints/builds/00-omni-chat-core-prototype.json",
+    "71 nodes v0.1.13 \u2014 verify + httpRequest parity landed; blueprint id eeO8Jl1VeK2f2Z9d at blueprints/builds/00-omni-chat-core-prototype.json",
     "parity fixes 79d396d: httpRequest 4.5 outbound (not whatsApp node), meta_verify_token placeholder {{CONFIG.meta_verify_token}}, unquoted whatsapp_phone_number_id, hi->guided bridal->RAG expectation (bracket notation hub.verify_token), sandbox gitignore critical",
-    "docs/plans/Automation-Portfolio.md, docs/specs/Portfolio-Feature-Spec.md, docs/specs/Portfolio-Repo-Spec.md prepended pivot banners (2026-08-27) — original content retained for traceability",
-    "blueprints/README.md + BUGS-AND-QUIRKS.md #10 updated to point to 00 as main (§4a/§4b httpRequest parity)",
+    "docs/plans/Automation-Portfolio.md, docs/specs/Portfolio-Feature-Spec.md, docs/specs/Portfolio-Repo-Spec.md prepended pivot banners (2026-08-27) \u2014 original content retained for traceability",
+    "blueprints/README.md + BUGS-AND-QUIRKS.md #10 updated to point to 00 as main (\u00a74a/\u00a74b httpRequest parity)",
     "pre-pivot history preserved append-only: site scaffold Next.js 16 + 6 demos + 11 spec sheets remain for traceability",
-    "2026-08-27 todo: EOL pivot complete — updated next_actions to 4 deploy tasks in convenience order (named tunnel → re-persist 00 → human tokens → full stress) — see 2856084; 79d396d parity prior"
+    "2026-08-27 todo: EOL pivot complete \u2014 updated next_actions to 4 deploy tasks in convenience order (named tunnel \u2192 re-persist 00 \u2192 human tokens \u2192 full stress) \u2014 see 2856084; 79d396d parity prior",
+    "2026-08-27 task2: re-persist 00-omni-chat-core 71 nodes eeO8Jl1VeK2f2Z9d with proper docs \u2014 httpRequest 4.5 unquoted, {{CONFIG.meta_verify_token}} bracket, hi->guided, freellmapi_token placeholder + dedupe sanitized \u2014 @reviewer APPROVED (rev-2), @requirements BLOCKED pending named tunnel git persist \u2014 see blueprints/builds/00-omni-chat-core-prototype.json + designs/00 \u00a715.5 + REBUILD-RUNBOOK + import-manifest golive_prep_2026_08_25",
+    "2026-08-27 tunnel docs: constitute-cats-wheels-app ephemeral \u2192 nexusautomations-sandbox (alt sandbox) pending nexusautomations.dev \u2014 updated Omni-Unified-Spec.md:23, SETUP-GUIDE.md \u00a74, docker-compose.yml WEBHOOK_URL nexusautomations-sandbox.nexusautomations.dev, activeContext.md, config-template freellmapi_token/page_token",
+    "2026-08-27 task3: TOKEN-CHECKLIST.md created 158 lines \u2014 Sheets OAuth / Slack xoxb / Page+IG instagram_manage_messages you-blocked parallelizable \u2014 pending human issuance",
+    "2026-08-27 task4-quick: STRESS-REPORT-quick-2026-08-27.md 12KB \u2014 quick tunnel constitutes-cats-wheels-app 6/6 handshake PASS (3\u00d7 correct 123 /3\u00d7 wrong empty), hi/bridal intake PASS, 10 concurrent p95 1.12s PARTIAL, full 100/5min + 429/outage DEFERRED to named tunnel"
   ],
   "open_risks": [
-    "M3/M4 Sheets OAuth blocked — Google Sheets per-client prefix (clientname_orders/contacts/bookings) and reporting ops (06) cannot be E2E-verified until OAuth re-authorized; Sheets 429 backoff path untested live",
-    "tunnel ephemeral — constitutes-cats-wheels-app URL rotates per cloudflared session; named tunnel sandbox not yet created/persisted — re-persist 00 artifacts after named tunnel cutover",
-    "Page/IG tokens pending — Meta Page + Instagram tokens not yet issued; Messenger/IG intake branches in 00 untested until tokens available",
-    "00 artifacts ephemeral-branch gap — REBUILD-RUNBOOK.md / import-manifest.json (golive_prep_2026_08_25) need re-persist on available branch"
+    "M3/M4 Sheets OAuth blocked \u2014 per-client prefix (clientname_orders/contacts/bookings) and reporting ops (06) cannot be E2E-verified until OAuth re-authorized; checklist ready in TOKEN-CHECKLIST.md; Sheets 429 backoff untested live",
+    "tunnel ephemeral \u2014 constitutes-cats-wheels-app URL still UP (verified 2026-08-27 6/6), named tunnel nexusautomations-sandbox not yet created (pending nexusautomations.dev domain buy); WEBHOOK_URL stays commented until route dns",
+    "Page/IG tokens pending \u2014 Meta Page + Instagram tokens not yet issued; Messenger/IG intake branches in 00 untested until tokens available; TOKEN-CHECKLIST.md \u00a73 ready",
+    "00 artifacts git-pending \u2014 files exist on disk (71 nodes, REBUILD, manifest) but BLOCKED pending named tunnel branch for git persist (status ephemeral-pending-re-persist); quick stress DEFERRED full matrix to named tunnel"
   ],
   "blocked_by": [
-    "M3/M4 Sheets OAuth — requires Google Cloud OAuth re-consent",
-    "Page/IG tokens — requires Meta app Page + IG token issuance",
-    "named tunnel — requires cloudflared tunnel create sandbox + DNS route"
+    "named tunnel + domain nexusautomations.dev \u2014 requires cloudflared tunnel create nexusautomations-sandbox + route dns + WEBHOOK_URL (buy domain)",
+    "M3/M4 Sheets OAuth \u2014 requires Google Cloud OAuth re-consent (TOKEN-CHECKLIST \u00a71)",
+    "Page/IG tokens \u2014 requires Meta app Page + IG token issuance (TOKEN-CHECKLIST \u00a73)"
   ],
   "next_actions": [
-    "1. Create named tunnel sandbox (cloudflared tunnel create sandbox + route dns + WEBHOOK_URL) and swap ephemeral constitutes-cats-wheels-app URL; update SETUP-GUIDE.md §4 + Omni-Unified-Spec.md tunnel field — 15 min, mechanical",
-    "2. Re-persist 00 artifacts when ephemeral branch available: blueprints/builds/00-omni-chat-core-prototype.json (71 nodes v0.1.13 eeO8Jl1VeK2f2Z9d), designs/00 §15.5, sandbox/REBUILD-RUNBOOK.md, import-manifest.json (golive_prep_2026_08_25) — 10 min, needs 1",
-    "3. Issue human tokens (Sheets OAuth re-consent for M3/M4 clientname_orders/contacts/bookings + reporting 06, Slack xoxb for #bookings/#alerts, Page token + IG professional + instagram_manage_messages) and verify Messenger/IG intake branches in 00 — 15 min, you-blocked, parallelizable",
-    "4. Full stress + E2E on named tunnel: handshake 3x correct/3x wrong, hi->guided + bridal->RAG [kb:services], 10x volume 100 POSTs/5min p95<20s, dupe wamid, outage, 429 quota, concurrent → @reviewer (9 cats) + @requirements-reviewer → deploy-ready"
+    "1. Buy nexusautomations.dev \u2192 cloudflared tunnel create nexusautomations-sandbox + route dns nexusautomations-sandbox.nexusautomations.dev + WEBHOOK_URL uncomment + docker compose up -d + git add 00\u00d74 + commit active \u2192 unblock re-persist",
+    "2. Issue human tokens via TOKEN-CHECKLIST.md (Sheets OAuth, Slack xoxb, Page+IG) and verify Messenger/IG intake branches in 00 \u2014 15 min, you-blocked",
+    "3. Full stress + E2E on named tunnel: handshake 3\u00d7/3\u00d7, hi->guided + bridal->RAG [kb:services], 100 POSTs/5min p95<20s, dupe wamid, outage, 429, concurrent \u2192 @reviewer + @requirements-reviewer \u2192 deploy-ready"
   ],
   "artifacts": [
-    "docs/specs/Omni-Unified-Spec.md — single source of truth for unified build (main spec, feature scope)",
-    "docs/plans/Omni-Unified.md — unified pivot plan (active, subsumes 01-10 except 11)",
-    "blueprints/builds/00-omni-chat-core-prototype.json — 71 nodes v0.1.13 (id eeO8Jl1VeK2f2Z9d) — ephemeral, needs re-persist",
-    "blueprints/designs/00-omni-chat-core-blueprint.md §15.5 — design doc outbound + version history",
-    "blueprints/sandbox/REBUILD-RUNBOOK.md + SETUP-GUIDE.md §§4/4a/4b + import-manifest.json (golive_prep_2026_08_25)",
-    "blueprints/sandbox/config-template.json — {{CONFIG.meta_verify_token}} placeholder",
-    "docs/specs/Portfolio-Repo-Spec.md + Portfolio-Feature-Spec.md — repo/feature specs with pivot banners (traceability)",
-    "docs/plans/Automation-Portfolio.md — original site plan with pivot banner (traceability)",
-    "blueprints/README.md + BUGS-AND-QUIRKS.md #10 — parity notes (httpRequest vs whatsAppApi)"
+    "docs/specs/Omni-Unified-Spec.md \u2014 single source of truth (nexusautomations-sandbox)",
+    "docs/plans/Omni-Unified.md \u2014 unified pivot plan",
+    "blueprints/builds/00-omni-chat-core-prototype.json \u2014 71 nodes v0.1.13 eeO8Jl1VeK2f2Z9d \u2014 on disk, sanitized, APPROVED, pending git persist",
+    "blueprints/designs/00-omni-chat-core-blueprint.md \u00a715.5 \u2014 design doc",
+    "blueprints/sandbox/REBUILD-RUNBOOK.md + SETUP-GUIDE.md \u00a7\u00a74/4a/4b + import-manifest.json (golive_prep_2026_08_25)",
+    "blueprints/sandbox/TOKEN-CHECKLIST.md \u2014 you-blocked token issuance guide",
+    "blueprints/sandbox/STRESS-REPORT-quick-2026-08-27.md \u2014 quick tunnel 6/6 PASS report (deferred full matrix)",
+    "blueprints/sandbox/config-template.json \u2014 {{CONFIG.meta_verify_token}} + freellmapi_token + page_token"
   ],
-  "last_updated": "2026-08-27T13:37:58Z"
+  "last_updated": "2026-08-27T16:24:08Z"
 }

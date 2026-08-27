@@ -1,0 +1,2926 @@
+{
+  "updatedAt": "2026-08-27T11:37:47.235Z",
+  "createdAt": "2026-08-27T10:37:06.806Z",
+  "id": "eeO8Jl1VeK2f2Z9d",
+  "name": "00-omni-chat-core-prototype",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-intake",
+        "responseMode": "onReceived",
+        "options": {},
+        "authentication": "none"
+      },
+      "id": "t01",
+      "name": "WhatsApp intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "8e3b990b-f539-4ca2-bf72-d2140bc58409"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "messenger-intake",
+        "responseMode": "onReceived",
+        "options": {},
+        "authentication": "none"
+      },
+      "id": "t02",
+      "name": "Messenger intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        180,
+        0
+      ],
+      "webhookId": "097e70d4-efec-4ec1-a3b6-e95211994bde"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "instagram-intake",
+        "responseMode": "onReceived",
+        "options": {},
+        "authentication": "none"
+      },
+      "id": "t03",
+      "name": "Instagram intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        360,
+        0
+      ],
+      "webhookId": "8320db5c-22b5-4fcd-b5ca-8dd5e3a579cd"
+    },
+    {
+      "parameters": {
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "folder": "{{CONFIG.email_intake_folder}}",
+        "postProcess": "after",
+        "downloadAttachments": false,
+        "format": "simple"
+      },
+      "id": "t04",
+      "name": "Email intake",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2.2,
+      "position": [
+        540,
+        0
+      ],
+      "disabled": true,
+      "credentials": {
+        "imap": {
+          "id": "1",
+          "name": "{{CONFIG.email_imap_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "web-widget-intake",
+        "responseMode": "onReceived",
+        "options": {},
+        "authentication": "none"
+      },
+      "id": "t05",
+      "name": "Web widget intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        720,
+        0
+      ],
+      "webhookId": "90c814e9-3d63-43b1-951a-ce43602d7487"
+    },
+    {
+      "parameters": {},
+      "id": "t06",
+      "name": "Error trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        900,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "return [{ json: { ...$json, channel: 'whatsapp' } }];"
+      },
+      "id": "t01p",
+      "name": "Tag WhatsApp",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "return [{ json: { ...$json, channel: 'messenger' } }];"
+      },
+      "id": "t02p",
+      "name": "Tag Messenger",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        180,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "return [{ json: { ...$json, channel: 'instagram' } }];"
+      },
+      "id": "t03p",
+      "name": "Tag Instagram",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        360,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Module registry for this client (blueprint section 7). Passed through to every\n// downstream node; modules receive it as context.client_config.\nconst registry = {\n  client: 'glamour-salon',\n  channels: { whatsapp: true, messenger: true, instagram: true, email: false, web: true },\n  sheets: { conversations: 'glamour_conversations', leads: 'glamour_leads', bookings: 'glamour_bookings' },\n  modules: {\n    rules: { enabled: true, workflow_id: 'E4OMq15MVN02rvMM', rules_file: 'glamour_rules.csv' },\n    rag: { enabled: true, workflow_id: 'ZJ6BeDNECT4bYFFC', qdrant_collection: 'glamour_kb', threshold: 0.55, top_k: 3 },\n    booking: {\n      enabled: true, workflow_id: 'XIdIZ2lnp7ZZKQxW', calendar_id: 'primary',\n      services: { Haircut: { duration_minutes: 60, price: 500 } },\n      business_hours: { open: '10:00', close: '20:00', days: [1, 2, 3, 4, 5, 6], timezone: 'Asia/Dhaka' },\n      templates: { confirm: 'booking_confirm', reminder: 'booking_reminder', recovery: 'booking_recovery', language: 'en_US' },\n      slack_channel: 'bookings', reminder_lead_24h: 24, reminder_lead_2h: 2, no_show_grace_minutes: 30,\n      max_reminder_attempts: 3, recovery_slot_count: 3, slot_step_minutes: 30, attendance_marker: '[ATTENDED]',\n      dedupe_window_minutes: 10, booking_id_prefix: 'BK', location_text: 'Glamour Salon, Gulshan 2, Dhaka',\n      client_name: 'Glamour Salon', phone_country_code: '880'\n    },\n    lead_capture: { enabled: true, workflow_id: 'G95nOwNXvstqOFoP' },\n    support_triage: { enabled: false, workflow_id: 'ayDgfI4zsTn80Erq', slack_channel: 'support', sla_minutes: 60 },\n    handoff: { enabled: true, workflow_id: 'bLSYgRzPGzwGju6i', team_phone: '+8801XXXXXXXXX' }\n  },\n  routing: { fallback: 'guided_prompt' },\n  brand: { name: 'Glamour Salon', voice: 'Friendly, concise, Bangla or English matching the customer.', languages: ['bn', 'en'] },\n  business_hours: { open: '10:00', close: '20:00', days: [1, 2, 3, 4, 5, 6], timezone: 'Asia/Dhaka' }\n};\nreturn [{ json: { ...$json, ...registry } }];"
+      },
+      "id": "n00",
+      "name": "Registry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        540,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Normalize every channel payload into the canonical message object (blueprint section 5).\nconst item = $input.first().json;\nconst body = (item.body && typeof item.body === 'object') ? item.body : item;\nconst registry = $('Registry').first().json;\nconst tz = registry.business_hours.timezone;\nconst channel = item.channel || '';\n// Messenger and Instagram timestamps are epoch milliseconds; WhatsApp uses seconds.\nconst toIso = (epoch) => {\n  if (!epoch) return DateTime.now().setZone(tz).toISO();\n  const n = Number(epoch);\n  return DateTime.fromMillis(n >= 1e12 ? n : n * 1000, { zone: tz }).toISO();\n};\nconst out = {\n  channel: 'web', thread_id: '', provider_message_id: '',\n  sender: { name: '', id: '', phone: '' }, text: '', attachments: [],\n  timestamp: DateTime.now().setZone(tz).toISO(), raw: body\n};\n// Meta trio (t01 to t03): entry[0].changes[0].value\nconst value = body.entry && body.entry[0] && body.entry[0].changes &&\n  body.entry[0].changes[0] && body.entry[0].changes[0].value;\n// Meta status updates (delivery receipts, read receipts) carry no customer message; ignore them.\nif (value && value.statuses && !(value.messages && value.messages.length)) {\n  return [];\n}\nif (value && value.messages && value.messages[0]) {\n  const msg = value.messages[0];\n  const contacts = value.contacts || [];\n  const profile = contacts[0] && contacts[0].profile ? contacts[0].profile : {};\n  out.channel = 'whatsapp';\n  out.thread_id = String(msg.from || '');\n  out.provider_message_id = String(msg.id || msg.wamid || '');\n  out.sender = { name: profile.name || '', id: String(msg.from || ''), phone: String(msg.from || '') };\n  // Interactive button replies carry no text.body; flatten the button id (or\n  // title) into text so downstream SLOT_ detection keeps working.\n  const buttonReply = msg.interactive && msg.interactive.button_reply ? msg.interactive.button_reply : null;\n  out.text = buttonReply ? String(buttonReply.id || buttonReply.title || '') : ((msg.text && msg.text.body) ? String(msg.text.body) : '');\n  out.timestamp = toIso(msg.timestamp);\n  return [{ json: out }];\n}\n// Messenger + Instagram (t02/t03): real envelopes deliver entry[].messaging[]\n// directly, discriminated by the webhook object field (#41; page -> messenger,\n// instagram -> instagram). Page-sent echoes and delivery/read receipts carry\n// no customer message and are dropped so they cannot self-loop the reply path.\nif (body.object && body.entry && body.entry[0] && body.entry[0].messaging && body.entry[0].messaging[0]) {\n  const m = body.entry[0].messaging[0];\n  if (!m.message || m.message.is_echo) {\n    return [];\n  }\n  const sender = m.sender || {};\n  out.channel = body.object === 'instagram' ? 'instagram' : 'messenger';\n  out.thread_id = String(sender.id || '');\n  out.provider_message_id = String(m.message.mid || '');\n  out.sender = { name: '', id: String(sender.id || ''), phone: '' };\n  out.text = m.message.text ? String(m.message.text) : '';\n  out.attachments = Array.isArray(m.message.attachments)\n    ? m.message.attachments.map(a => ({ type: String(a.type || ''), url: a.payload ? String(a.payload.url || '') : '' }))\n    : [];\n  out.timestamp = toIso(m.timestamp);\n  return [{ json: out }];\n}\n// Email (t04): IMAP item with subject, from, messageId, date\nif (item.subject !== undefined || item.from !== undefined) {\n  const from = String(item.from || '');\n  out.channel = 'email';\n  out.thread_id = from.toLowerCase() + ':' + String(item.messageId || '');\n  out.provider_message_id = String(item.messageId || '');\n  out.sender = { name: String(item.fromName || ''), id: from, phone: '' };\n  out.text = String(item.subject || '') + (item.text ? '\\n' + item.text : '');\n  out.timestamp = item.date ? DateTime.fromISO(new Date(item.date).toISOString(), { zone: tz }).toISO() : DateTime.now().setZone(tz).toISO();\n  return [{ json: out }];\n}\n// Web widget (t05): canonical JSON body { session_id, text, name, timestamp }\nif (body.session_id || body.text !== undefined) {\n  out.channel = 'web';\n  out.thread_id = String(body.session_id || '');\n  out.provider_message_id = String(body.session_id || '') + ':' + String(body.message_counter || 0);\n  out.sender = { name: String(body.name || ''), id: String(body.session_id || ''), phone: '' };\n  out.text = String(body.text || '');\n  out.attachments = body.attachments || [];\n  out.timestamp = body.timestamp || DateTime.now().setZone(tz).toISO();\n  return [{ json: out }];\n}\n// Unknown envelope (#41): drop it instead of emitting an empty web canonical\n// that masquerades as real traffic. Observable as an empty Normalize output.\nreturn [];"
+      },
+      "id": "n01",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Dedupe on provider_message_id using a rolling window in n8n static data (last 1000 ids).\n// Single output: emits _oc_dedupe = 'unique' | 'duplicate'; the \"Dedupe unique?\" IF node\n// does the branching (multi-output Code nodes are not supported on current n8n).\nconst msg = $input.first().json;\nconst key = String(msg.provider_message_id || '');\nconst windowKey = 'omni_dedupe_window';\nlet seen = $getWorkflowStaticData('global')[windowKey] || [];\nlet branch = 'unique';\nif (key && seen.includes(key)) {\n  branch = 'duplicate';\n} else if (key) {\n  seen.push(key);\n  if (seen.length > 1000) seen = seen.slice(-1000);\n  $getWorkflowStaticData('global')[windowKey] = seen;\n}\nreturn [{ json: { ...msg, _oc_dedupe: branch } }];"
+      },
+      "id": "n02",
+      "name": "Dedupe",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        240
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "n02x",
+      "name": "Dedupe exit",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Wrap the canonical message into the module input contract (blueprint section 6.1).\n// Internal _oc_* routing flags are stripped here so they never cross the module boundary.\nconst raw = $input.first().json;\nconst msg = {};\nfor (const k of Object.keys(raw)) {\n  if (!k.startsWith('_oc_')) msg[k] = raw[k];\n}\nconst registry = $('Registry').first().json;\nreturn [{\n  json: {\n    message: msg,\n    context: {\n      thread_state: {},\n      client_config: registry,\n      history_tail: [],\n      meta: { execution_id: $execution.id, attempt: 1 }\n    }\n  }\n}];"
+      },
+      "id": "n01p",
+      "name": "Wrap module input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1260,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Rules engine gate (blueprint section 11 step 1). Ports the M1 matcher semantics\n// verbatim onto the CSV rows read by Read rules CSV and Extract rules CSV. Single\n// output: emits _oc_rules_route = 'matched' | 'rag' | 'llm'; the \"Rules matched?\" and\n// \"RAG enabled?\" IF nodes do the branching (intent rules vs other, embedding skipped\n// entirely when RAG is disabled). Multi-output Code nodes are unsupported on current n8n.\nconst MAX_TEXT = 500;\nconst registry = $('Registry').first().json;\nconst rulesCfg = registry.modules.rules;\nconst wrapped = $('Wrap module input').first().json;\nconst message = wrapped.message;\n// File nodes replace items and failed file nodes emit error items; keep only\n// real rule rows.\nconst rows = $input.all().map(function (item) { return item.json; })\n  .filter(function (row) { return typeof row.pattern === 'string'; });\n\n// Normalize rules. Priority ascending, lower number wins; ties keep CSV order.\nfunction normalizeRules(rows) {\n  return rows.map(function (row) {\n    const rawPriority = String(row.priority ?? '').trim();\n    return {\n      pattern: String(row.pattern ?? '').trim(),\n      reply: String(row.reply ?? ''),\n      channel: String(row.channel ?? '').trim().toLowerCase() || 'all',\n      priority: rawPriority !== '' && Number.isFinite(Number(rawPriority)) ? Number(rawPriority) : 100\n    };\n  }).sort(function (a, b) { return a.priority - b.priority; });\n}\n\n// Channel filter: all or empty matches every channel, else a comma separated list.\nfunction channelOk(ruleChannel, msgChannel) {\n  if (!ruleChannel || ruleChannel === 'all') return true;\n  return ruleChannel.split(',').map(function (c) { return c.trim(); }).includes(msgChannel);\n}\n\n// A quantified group that itself contains a quantifier or an alternation, for\n// example (a+)+ or (a|aa)+, can backtrack catastrophically on attacker\n// controlled text. Such patterns skip the regex engine and use the substring\n// check instead.\nfunction patternIsRisky(pattern) {\n  return /\\([^()]*[+*?|][^()]*\\)\\s*[+*{]/.test(pattern);\n}\n\n// Pattern match: regex with the i flag; an invalid or risky regex falls back to\n// a case-insensitive substring check so a plain text pattern still works. The\n// text is capped before matching to bound regex work on long messages.\nfunction textMatches(pattern, text) {\n  try {\n    if (!patternIsRisky(pattern)) {\n      return new RegExp(pattern, 'i').test(text);\n    }\n  } catch (e) {\n    // invalid regex, fall through to the substring check\n  }\n  return text.toLowerCase().includes(pattern.toLowerCase());\n}\n\nlet matched = null;\nif (rulesCfg.enabled && rows.length) {\n  const rules = normalizeRules(rows);\n  const text = String(message.text || '').slice(0, MAX_TEXT);\n  for (const rule of rules) {\n    if (!rule.pattern) continue;\n    if (!channelOk(rule.channel, message.channel)) continue;\n    if (textMatches(rule.pattern, text)) { matched = rule; break; }\n  }\n}\nif (matched) {\n  return [{ json: { ...wrapped, intent: 'rules', _oc_rules_route: 'matched' } }];\n}\nif (registry.modules.rag.enabled) {\n  return [{ json: { ...wrapped, intent: 'other', _oc_rules_route: 'rag' } }];\n}\nreturn [{ json: { ...wrapped, intent: 'other', _oc_rules_route: 'llm' } }];"
+      },
+      "id": "n14",
+      "name": "Rules match",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "none",
+        "method": "POST",
+        "url": "http://freellmapi:3001/v1/embeddings",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'bge-m3', input: $json.message.text }) }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{CONFIG.freellmapi_token}}"
+            }
+          ]
+        }
+      },
+      "id": "n15",
+      "name": "Embed message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1620,
+        360
+      ],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "authentication": "none",
+        "method": "POST",
+        "url": "http://qdrant:6333/collections/glamour_kb/points/query",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ query: $json.data[0].embedding, limit: $('Registry').first().json.modules.rag.top_k, with_payload: true }) }}",
+        "options": {}
+      },
+      "id": "n16",
+      "name": "RAG search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1800,
+        360
+      ],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// RAG confidence gate (blueprint section 11 step 2). Qdrant POST /points/query returns\n// { result: { points: [{ id, score, payload }] } }; read scores from result.points.\n// Single output: emits _oc_rag_route = 'answer' | 'low'; the \"RAG above threshold?\"\n// IF node does the branching (multi-output Code nodes are unsupported on current n8n).\nconst registry = $('Registry').first().json;\nconst threshold = registry.modules.rag.threshold;\nconst points = ($json.result && $json.result.points) || [];\nconst best = points.length ? points[0].score : 0;\nconst msg = $('Wrap module input').first().json.message;\nconst ctx = $('Wrap module input').first().json.context;\nif (best >= threshold) {\n  return [{ json: { ...$json, message: msg, context: ctx, intent: 'rag', rag_score: best, _oc_rag_route: 'answer' } }];\n}\nreturn [{ json: { ...$json, message: msg, context: ctx, intent: 'other', rag_score: best, _oc_rag_route: 'low' } }];"
+      },
+      "id": "n17",
+      "name": "RAG score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "none",
+        "method": "POST",
+        "url": "http://freellmapi:3001/v1/chat/completions",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'auto', messages: [{ role: 'system', content: 'Classify the customer message intent. Return strict JSON only with fields intent (booking, lead, support, handoff or other), language (bn or en) and confidence (0 to 1).' }, { role: 'user', content: $json.message.text }], temperature: 0, response_format: { type: 'json_object' } }) }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{CONFIG.freellmapi_token}}"
+            }
+          ]
+        }
+      },
+      "id": "n18",
+      "name": "LLM classify",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2160,
+        360
+      ],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Parse the strict JSON intent result (blueprint section 11 step 3). #40\n// hardening: LLM classify degrades with onError continueRegularOutput +\n// alwaysOutputData, so a failed call arrives here as an error item. Emit a\n// clean contract item with intent other (no Route rule matches it) so it\n// rides Route's fallbackOutput into Resolve fallback instead of dying.\n// Sandbox models wrap JSON in markdown fences or truncate leading braces\n// (freellmapi does not honor response_format), so strip fences and fall back\n// to the first {...} block before giving up.\nconst raw = $json;\nconst content = raw.choices && raw.choices[0] && raw.choices[0].message && raw.choices[0].message.content;\nlet parsed = {};\nif (!raw.error && content) {\n  let text = String(content).trim();\n  const fence = text.match(/```(?:json)?\\s*([\\s\\S]*?)```/i);\n  if (fence) text = fence[1].trim();\n  try { parsed = JSON.parse(text); } catch (e) {\n    const brace = text.match(/\\{[\\s\\S]*\\}/);\n    if (brace) { try { parsed = JSON.parse(brace[0]); } catch (e2) { parsed = {}; } }\n  }\n}\nconst failed = Boolean(raw.error) || !content;\nconst intent = ['booking', 'lead', 'support', 'handoff', 'other'].includes(parsed.intent) ? parsed.intent : 'other';\nconst src = $('Wrap module input').first().json;\nreturn [{ json: { message: src.message, context: src.context, intent, language: parsed.language || 'en', confidence: parsed.confidence || 0, _oc_classify: failed ? 'fail' : 'ok' } }];"
+      },
+      "id": "n19",
+      "name": "Parse classify",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2340,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "n03-rules",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "rules",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "rules"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "n03-rag",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "rag",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "rag"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "n03-booking",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "booking",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "booking"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "n03-lead",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "lead",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "lead"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "n03-support",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "support",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "support"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "n03-handoff",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "handoff",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "handoff"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "n03",
+      "name": "Route",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        2520,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Registry').first().json.modules.rules.workflow_id }}"
+        },
+        "options": {}
+      },
+      "id": "n20",
+      "name": "Execute M1 Rules",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2700,
+        360
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Registry').first().json.modules.rag.workflow_id }}"
+        },
+        "options": {}
+      },
+      "id": "n21",
+      "name": "Execute M2 RAG",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2880,
+        360
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Registry').first().json.modules.booking.workflow_id }}"
+        },
+        "options": {}
+      },
+      "id": "n22",
+      "name": "Execute M3 Booking",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        3060,
+        360
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Registry').first().json.modules.lead_capture.workflow_id }}"
+        },
+        "options": {}
+      },
+      "id": "n23",
+      "name": "Execute M4 Lead",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        3240,
+        360
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Registry').first().json.modules.support_triage.workflow_id }}"
+        },
+        "options": {}
+      },
+      "id": "n24",
+      "name": "Execute M5 Support",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        3420,
+        360
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Registry').first().json.modules.handoff.workflow_id }}"
+        },
+        "options": {}
+      },
+      "id": "n25",
+      "name": "Execute M6 Handoff",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        3600,
+        360
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Guided prompt fallback (blueprint section 4 n27).\nconst msg = $('Wrap module input').first().json.message;\nreturn [{ json: { reply: { channel: msg.channel, type: 'text', text: 'What can I help you with? For example, booking, prices or support.' }, message: msg } }];"
+      },
+      "id": "n27",
+      "name": "Guided prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2700,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "append"
+      },
+      "id": "n26",
+      "name": "Merge module outputs",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [
+        3780,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Attach the canonical message to the module output so the reply router, log and\n// state persist nodes can read the sender and thread id (blueprint section 6.4).\nconst msg = $('Wrap module input').first().json.message;\nreturn [{ json: { ...$json, message: msg } }];"
+      },
+      "id": "n26p",
+      "name": "Attach message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3960,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "n05-whatsapp",
+                    "leftValue": "={{ $json.reply.channel }}",
+                    "rightValue": "whatsapp",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "whatsapp"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "n05-messenger",
+                    "leftValue": "={{ $json.reply.channel }}",
+                    "rightValue": "messenger",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "messenger"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "n05-instagram",
+                    "leftValue": "={{ $json.reply.channel }}",
+                    "rightValue": "instagram",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "instagram"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "n05-email",
+                    "leftValue": "={{ $json.reply.channel }}",
+                    "rightValue": "email",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "email"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "n05-web",
+                    "leftValue": "={{ $json.reply.channel }}",
+                    "rightValue": "web",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "web"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "n05",
+      "name": "Send reply",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        4140,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "none",
+        "method": "POST",
+        "url": "https://graph.facebook.com/{{CONFIG.whatsapp_api_version}}/{{CONFIG.whatsapp_phone_number_id}}/messages",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ messaging_product: 'whatsapp', to: $json.message.sender.phone, type: 'text', text: { body: $json.reply.text } }) }}",
+        "options": {},
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{CONFIG.whatsapp_token}}"
+            }
+          ]
+        }
+      },
+      "id": "n06",
+      "name": "Send WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        4320,
+        360
+      ],
+      "webhookId": "ce366e04-0697-4354-93da-11f670356791"
+    },
+    {
+      "parameters": {
+        "authentication": "none",
+        "method": "POST",
+        "url": "https://graph.facebook.com/{{CONFIG.whatsapp_api_version}}/me/messages",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ recipient: { id: $json.message.sender.id }, message: { text: $json.reply.text } }) }}",
+        "options": {},
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{CONFIG.whatsapp_token}}"
+            }
+          ]
+        }
+      },
+      "id": "n07",
+      "name": "Send Messenger",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        4500,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "none",
+        "method": "POST",
+        "url": "https://graph.facebook.com/{{CONFIG.whatsapp_api_version}}/me/messages",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ recipient: { id: $json.message.sender.id }, message: { text: $json.reply.text } }) }}",
+        "options": {},
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{CONFIG.whatsapp_token}}"
+            }
+          ]
+        }
+      },
+      "id": "n08",
+      "name": "Send Instagram",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        4680,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "{{CONFIG.email_from_address}}",
+        "toEmail": "={{ $json.message.sender.id }}",
+        "subject": "={{ 'Reply from ' + $('Registry').first().json.brand.name }}",
+        "emailFormat": "text",
+        "text": "={{ $json.reply.text }}",
+        "options": {}
+      },
+      "id": "n09",
+      "name": "Send email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        4860,
+        360
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "1",
+          "name": "{{CONFIG.email_smtp_credential}}"
+        }
+      },
+      "webhookId": "eb98bf41-cd38-4a33-9bb9-d8263ae86df5"
+    },
+    {
+      "parameters": {
+        "authentication": "none",
+        "method": "POST",
+        "url": "http://host.docker.internal:8899/reply",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ session_id: $json.message.thread_id, text: $json.reply.text }) }}",
+        "options": {}
+      },
+      "id": "n10",
+      "name": "Send web",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        5040,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Module failure fallback reply (blueprint section 4 n12).\nconst msg = $('Wrap module input').first().json.message;\nreturn [{ json: { reply: { channel: msg.channel, type: 'text', text: 'One moment, I am checking that for you.' }, message: msg } }];"
+      },
+      "id": "n12",
+      "name": "Module failure fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3960,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Prepare inbound and outbound log rows for the conversation log (blueprint section 10).\n// Read from the reply router (Send reply) because httpRequest send nodes replace the\n// item with the HTTP response body and do not pass the module output through.\n// Send reply is a multi-output switch; $() defaults to output 0, which is empty on\n// non-WhatsApp branches, so scan every slot for the first non-empty one (#40 follow-up).\nconst sr = $('Send reply');\nlet src = null;\nfor (let i = 0; i < 8; i++) {\n  let batch = [];\n  try { batch = sr.all(i); } catch (e) { break; }\n  if (batch && batch.length) { src = batch[batch.length - 1].json; break; }\n}\nif (!src) { return []; }\nconst msg = src.message;\nconst reply = src.reply;\nconst state = src.state;\nconst now = new Date().toISOString();\nconst rows = [];\nif (msg) {\n  rows.push({ thread_id: msg.thread_id, channel: msg.channel, direction: 'inbound', text: msg.text, module: '', state: '', timestamp: msg.timestamp || now });\n}\nif (reply) {\n  rows.push({ thread_id: msg ? msg.thread_id : '', channel: reply.channel, direction: 'outbound', text: reply.text, module: '', state: JSON.stringify(state || {}), timestamp: now });\n}\nreturn rows.map(r => ({ json: r }));"
+      },
+      "id": "n04p",
+      "name": "Prepare log rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5220,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oauth2",
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "dummy-sheet-id-for-activation"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Registry').first().json.sheets.conversations }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "thread_id": "={{ $json.thread_id }}",
+            "channel": "={{ $json.channel }}",
+            "direction": "={{ $json.direction }}",
+            "text": "={{ $json.text }}",
+            "module": "={{ $json.module }}",
+            "state": "={{ $json.state }}",
+            "timestamp": "={{ $json.timestamp }}"
+          },
+          "schema": [
+            {
+              "id": "thread_id",
+              "displayName": "thread_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "direction",
+              "displayName": "direction",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "module",
+              "displayName": "module",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "n04",
+      "name": "Log conversation",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        5400,
+        480
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oauth2",
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "dummy-sheet-id-for-activation"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Registry').first().json.sheets.conversations }}"
+        },
+        "columns": {
+          "mappingMode": "update",
+          "value": {
+            "thread_id": "={{ $json.thread_id }}",
+            "state": "={{ $json.state }}"
+          },
+          "matchingColumns": [
+            "thread_id"
+          ],
+          "schema": []
+        }
+      },
+      "id": "n11",
+      "name": "Persist state",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        5580,
+        480
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "{{CONFIG.slack_alerts_channel}}"
+        },
+        "messageType": "text",
+        "text": "={{ 'Omni Chat Core error: ' + ($json.error && $json.error.message || 'unknown') + ' in node ' + ($json.error && $json.error.node && $json.error.node.name || 'unknown') + ' (execution ' + $execution.id + ')' }}",
+        "options": {}
+      },
+      "id": "n13",
+      "name": "Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.6,
+      "position": [
+        900,
+        360
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "slackApi": {
+          "id": "1",
+          "name": "{{CONFIG.slack_credential}}"
+        }
+      },
+      "webhookId": "bb1cfc76-5bf4-4687-82bd-dbb66dc7b268"
+    },
+    {
+      "parameters": {
+        "authentication": "oauth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "dummy-sheet-id-for-activation"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Registry').first().json.sheets.conversations }}"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "thread_id",
+              "lookupValue": "={{ $('Dedupe').first().json.thread_id }}"
+            }
+          ]
+        },
+        "combineFilters": "AND",
+        "options": {}
+      },
+      "id": "n28",
+      "name": "Lookup thread state",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1080,
+        140
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1",
+          "name": "{{CONFIG.google_calendar_credential}}"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Human ownership gate (blueprint section 9). The Sheets read above returns every\n// conversation row for this thread; append order is chronological. alwaysOutputData\n// on the read node emits one empty item when the thread has no rows yet, so rows\n// without a string thread_id are dropped first. With onError continueRegularOutput\n// on the read node a Sheets outage degrades the same way: thread treated as free.\n// Single output: emits _oc_human_free = 'yes' | 'no'; the \"Thread human free?\" IF\n// node does the branching (multi-output Code nodes are unsupported on current n8n).\nconst rows = $input.all().filter(function (item) {\n  return item.json && typeof item.json.thread_id === 'string' && !item.json.error;\n});\nconst msg = $('Dedupe').first().json;\nif (!rows.length) {\n  return [{ json: { ...msg, _oc_human_free: 'yes' } }];  // no state yet, continue\n}\n// Backward scan: use the newest row that actually carries a non-empty state value,\n// so a dropped reply or an empty-state newest row cannot hide human_owned set earlier.\nlet parsed = {};\nfor (let i = rows.length - 1; i >= 0; i--) {\n  const raw = String(rows[i].json.state ?? '').trim();\n  if (!raw) continue;\n  try { parsed = JSON.parse(raw); } catch (e) { parsed = {}; }\n  break;\n}\nif (parsed.human_owned === true) {\n  return [{ json: { ...msg, _oc_human_free: 'no' } }];  // human owned, silent exit until reset\n}\nreturn [{ json: { ...msg, _oc_human_free: 'yes' } }];  // continue"
+      },
+      "id": "n29",
+      "name": "Human ownership gate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1170,
+        240
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "n30",
+      "name": "Human owned exit",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1170,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "fileSelector": "={{ $('Registry').first().json.modules.rules.rules_file }}",
+        "options": {}
+      },
+      "id": "n31",
+      "name": "Read rules CSV",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        1300,
+        240
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "csv",
+        "options": {}
+      },
+      "id": "n32",
+      "name": "Extract rules CSV",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        1390,
+        240
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Dispatch layer (plan step 7, refactored step 8). Strips every routing-only field so\n// the module receives exactly the section 6.1 contract input. Enable/disable routing\n// lives in the \"Mx enabled?\" IF node reading the Registry directly (multi-output Code\n// nodes are unsupported on current n8n).\nreturn [{ json: { message: $json.message, context: $json.context } }];"
+      },
+      "id": "d20",
+      "name": "Dispatch M1 Rules",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2700,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Dispatch layer (plan step 7, refactored step 8). Strips every routing-only field so\n// the module receives exactly the section 6.1 contract input. Enable/disable routing\n// lives in the \"Mx enabled?\" IF node reading the Registry directly (multi-output Code\n// nodes are unsupported on current n8n).\nreturn [{ json: { message: $json.message, context: $json.context } }];"
+      },
+      "id": "d21",
+      "name": "Dispatch M2 RAG",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2880,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Dispatch layer (plan step 7, refactored step 8). Strips every routing-only field so\n// the module receives exactly the section 6.1 contract input. Enable/disable routing\n// lives in the \"Mx enabled?\" IF node reading the Registry directly (multi-output Code\n// nodes are unsupported on current n8n).\nreturn [{ json: { message: $json.message, context: $json.context } }];"
+      },
+      "id": "d22",
+      "name": "Dispatch M3 Booking",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3060,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Dispatch layer (plan step 7, refactored step 8). Strips every routing-only field so\n// the module receives exactly the section 6.1 contract input. Enable/disable routing\n// lives in the \"Mx enabled?\" IF node reading the Registry directly (multi-output Code\n// nodes are unsupported on current n8n).\nreturn [{ json: { message: $json.message, context: $json.context } }];"
+      },
+      "id": "d23",
+      "name": "Dispatch M4 Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3240,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Dispatch layer (plan step 7, refactored step 8). Strips every routing-only field so\n// the module receives exactly the section 6.1 contract input. Enable/disable routing\n// lives in the \"Mx enabled?\" IF node reading the Registry directly (multi-output Code\n// nodes are unsupported on current n8n).\nreturn [{ json: { message: $json.message, context: $json.context } }];"
+      },
+      "id": "d24",
+      "name": "Dispatch M5 Support",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3420,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Dispatch layer (plan step 7, refactored step 8). Strips every routing-only field so\n// the module receives exactly the section 6.1 contract input. Enable/disable routing\n// lives in the \"Mx enabled?\" IF node reading the Registry directly (multi-output Code\n// nodes are unsupported on current n8n).\nreturn [{ json: { message: $json.message, context: $json.context } }];"
+      },
+      "id": "d25",
+      "name": "Dispatch M6 Handoff",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3600,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Resolve fallback policy (plan step 7; #44 refactor). Single output with a\n// _oc_fallback discriminator; the Fallback handoff? IF gate routes it\n// (guided -> Guided prompt, handoff -> Execute M6 Handoff while the handoff\n// module is enabled). Multi-output Code nodes fail at runtime on n8n\n// 2.34.5 (BUGS #44), so this node must stay single-output.\nconst reg = $('Registry').first().json;\nconst mode = (reg.routing && reg.routing.fallback) || 'guided_prompt';\nconst handoffOk = mode === 'handoff' && Boolean((reg.modules.handoff || {}).enabled);\nreturn $input.all().map(function (item) {\n  return { json: { message: item.json.message, context: item.json.context, _oc_fallback: handoffOk ? 'handoff' : 'guided' } };\n});"
+      },
+      "id": "n33",
+      "name": "Resolve fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2700,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "g01",
+              "leftValue": "={{ $json._oc_dedupe }}",
+              "rightValue": "unique",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "g01",
+      "name": "Dedupe unique?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1100,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "g02",
+              "leftValue": "={{ $json._oc_rules_route }}",
+              "rightValue": "matched",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "g02",
+      "name": "Rules matched?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1640,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "g03",
+              "leftValue": "={{ $json._oc_rules_route }}",
+              "rightValue": "rag",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "g03",
+      "name": "RAG enabled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1840,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "g04",
+              "leftValue": "={{ $json._oc_rag_route }}",
+              "rightValue": "answer",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "g04",
+      "name": "RAG above threshold?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2180,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "g05",
+              "leftValue": "={{ $json._oc_human_free }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "g05",
+      "name": "Thread human free?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1370,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "g10",
+              "leftValue": "={{ $('Registry').first().json.modules.rules.enabled }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "g10",
+      "name": "M1 enabled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2900,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "g11",
+              "leftValue": "={{ $('Registry').first().json.modules.rag.enabled }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "g11",
+      "name": "M2 enabled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3080,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "g12",
+              "leftValue": "={{ $('Registry').first().json.modules.booking.enabled }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "g12",
+      "name": "M3 enabled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3260,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "g13",
+              "leftValue": "={{ $('Registry').first().json.modules.lead_capture.enabled }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "g13",
+      "name": "M4 enabled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3440,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "g14",
+              "leftValue": "={{ $('Registry').first().json.modules.support_triage.enabled }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "g14",
+      "name": "M5 enabled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3620,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "g15",
+              "leftValue": "={{ $('Registry').first().json.modules.handoff.enabled }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "g15",
+      "name": "M6 enabled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3800,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "g16",
+              "leftValue": "={{ $json.error === undefined ? 'ok' : 'fail' }}",
+              "rightValue": "ok",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "g16",
+      "name": "Embed ok?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1620,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "g17",
+              "leftValue": "={{ $json._oc_fallback }}",
+              "rightValue": "handoff",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "g17",
+      "name": "Fallback handoff?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2880,
+        860
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "whatsapp-intake",
+        "responseMode": "responseNode",
+        "options": {},
+        "authentication": "none"
+      },
+      "id": "t01v",
+      "name": "WhatsApp verify",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        160
+      ],
+      "webhookId": "6bf6ff19-4a7c-4b48-8211-4f0500e2e6b7"
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "messenger-intake",
+        "responseMode": "responseNode",
+        "options": {},
+        "authentication": "none"
+      },
+      "id": "t02v",
+      "name": "Messenger verify",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        180,
+        160
+      ],
+      "webhookId": "11d54dde-bbe6-458b-a51d-ae16f6bd9552"
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "instagram-intake",
+        "responseMode": "responseNode",
+        "options": {},
+        "authentication": "none"
+      },
+      "id": "t03v",
+      "name": "Instagram verify",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        360,
+        160
+      ],
+      "webhookId": "47f3a196-6f87-4555-8336-4ca18ca5911f"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gv1",
+              "leftValue": "={{ $json.query[\"hub.verify_token\"] }}",
+              "rightValue": "={{CONFIG.meta_verify_token}}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "gv2",
+              "leftValue": "={{ $json.query[\"hub.challenge\"] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "g21",
+      "name": "Meta token ok?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        540,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query[\"hub.challenge\"] }}",
+        "options": {}
+      },
+      "id": "rw1",
+      "name": "Respond challenge",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        160
+      ]
+    }
+  ],
+  "connections": {
+    "WhatsApp intake": {
+      "main": [
+        [
+          {
+            "node": "Tag WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Messenger intake": {
+      "main": [
+        [
+          {
+            "node": "Tag Messenger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Instagram intake": {
+      "main": [
+        [
+          {
+            "node": "Tag Instagram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email intake": {
+      "main": [
+        [
+          {
+            "node": "Registry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Web widget intake": {
+      "main": [
+        [
+          {
+            "node": "Registry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error trigger": {
+      "main": [
+        [
+          {
+            "node": "Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Registry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag Messenger": {
+      "main": [
+        [
+          {
+            "node": "Registry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag Instagram": {
+      "main": [
+        [
+          {
+            "node": "Registry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registry": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "Dedupe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedupe": {
+      "main": [
+        [
+          {
+            "node": "Dedupe unique?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wrap module input": {
+      "main": [
+        [
+          {
+            "node": "Read rules CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rules match": {
+      "main": [
+        [
+          {
+            "node": "Rules matched?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embed message": {
+      "main": [
+        [
+          {
+            "node": "Embed ok?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RAG search": {
+      "main": [
+        [
+          {
+            "node": "RAG score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RAG score": {
+      "main": [
+        [
+          {
+            "node": "RAG above threshold?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM classify": {
+      "main": [
+        [
+          {
+            "node": "Parse classify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse classify": {
+      "main": [
+        [
+          {
+            "node": "Route",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route": {
+      "main": [
+        [
+          {
+            "node": "Dispatch M1 Rules",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Dispatch M2 RAG",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Dispatch M3 Booking",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Dispatch M4 Lead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Dispatch M5 Support",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Dispatch M6 Handoff",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resolve fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute M1 Rules": {
+      "main": [
+        [
+          {
+            "node": "Merge module outputs",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Module failure fallback",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute M2 RAG": {
+      "main": [
+        [
+          {
+            "node": "Merge module outputs",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Module failure fallback",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute M3 Booking": {
+      "main": [
+        [
+          {
+            "node": "Merge module outputs",
+            "type": "main",
+            "index": 2
+          }
+        ],
+        [
+          {
+            "node": "Module failure fallback",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute M4 Lead": {
+      "main": [
+        [
+          {
+            "node": "Merge module outputs",
+            "type": "main",
+            "index": 3
+          }
+        ],
+        [
+          {
+            "node": "Module failure fallback",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute M5 Support": {
+      "main": [
+        [
+          {
+            "node": "Merge module outputs",
+            "type": "main",
+            "index": 4
+          }
+        ],
+        [
+          {
+            "node": "Module failure fallback",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute M6 Handoff": {
+      "main": [
+        [
+          {
+            "node": "Merge module outputs",
+            "type": "main",
+            "index": 5
+          }
+        ],
+        [
+          {
+            "node": "Module failure fallback",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge module outputs": {
+      "main": [
+        [
+          {
+            "node": "Attach message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attach message": {
+      "main": [
+        [
+          {
+            "node": "Send reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guided prompt": {
+      "main": [
+        [
+          {
+            "node": "Send reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Module failure fallback": {
+      "main": [
+        [
+          {
+            "node": "Send reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send reply": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Messenger",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Instagram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Prepare log rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Messenger": {
+      "main": [
+        [
+          {
+            "node": "Prepare log rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Instagram": {
+      "main": [
+        [
+          {
+            "node": "Prepare log rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send email": {
+      "main": [
+        [
+          {
+            "node": "Prepare log rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send web": {
+      "main": [
+        [
+          {
+            "node": "Prepare log rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare log rows": {
+      "main": [
+        [
+          {
+            "node": "Log conversation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log conversation": {
+      "main": [
+        [
+          {
+            "node": "Persist state",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup thread state": {
+      "main": [
+        [
+          {
+            "node": "Human ownership gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Human ownership gate": {
+      "main": [
+        [
+          {
+            "node": "Thread human free?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read rules CSV": {
+      "main": [
+        [
+          {
+            "node": "Extract rules CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract rules CSV": {
+      "main": [
+        [
+          {
+            "node": "Rules match",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dispatch M1 Rules": {
+      "main": [
+        [
+          {
+            "node": "M1 enabled?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dispatch M2 RAG": {
+      "main": [
+        [
+          {
+            "node": "M2 enabled?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dispatch M3 Booking": {
+      "main": [
+        [
+          {
+            "node": "M3 enabled?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dispatch M4 Lead": {
+      "main": [
+        [
+          {
+            "node": "M4 enabled?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dispatch M5 Support": {
+      "main": [
+        [
+          {
+            "node": "M5 enabled?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dispatch M6 Handoff": {
+      "main": [
+        [
+          {
+            "node": "M6 enabled?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve fallback": {
+      "main": [
+        [
+          {
+            "node": "Fallback handoff?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedupe unique?": {
+      "main": [
+        [
+          {
+            "node": "Lookup thread state",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Dedupe exit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rules matched?": {
+      "main": [
+        [
+          {
+            "node": "Route",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "RAG enabled?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RAG enabled?": {
+      "main": [
+        [
+          {
+            "node": "Embed message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "LLM classify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RAG above threshold?": {
+      "main": [
+        [
+          {
+            "node": "Route",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "LLM classify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Thread human free?": {
+      "main": [
+        [
+          {
+            "node": "Wrap module input",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Human owned exit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "M1 enabled?": {
+      "main": [
+        [
+          {
+            "node": "Execute M1 Rules",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resolve fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "M2 enabled?": {
+      "main": [
+        [
+          {
+            "node": "Execute M2 RAG",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resolve fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "M3 enabled?": {
+      "main": [
+        [
+          {
+            "node": "Execute M3 Booking",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resolve fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "M4 enabled?": {
+      "main": [
+        [
+          {
+            "node": "Execute M4 Lead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resolve fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "M5 enabled?": {
+      "main": [
+        [
+          {
+            "node": "Execute M5 Support",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resolve fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "M6 enabled?": {
+      "main": [
+        [
+          {
+            "node": "Execute M6 Handoff",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resolve fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embed ok?": {
+      "main": [
+        [
+          {
+            "node": "RAG search",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "LLM classify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fallback handoff?": {
+      "main": [
+        [
+          {
+            "node": "Execute M6 Handoff",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Guided prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp verify": {
+      "main": [
+        [
+          {
+            "node": "Meta token ok?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Messenger verify": {
+      "main": [
+        [
+          {
+            "node": "Meta token ok?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Instagram verify": {
+      "main": [
+        [
+          {
+            "node": "Meta token ok?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta token ok?": {
+      "main": [
+        [
+          {
+            "node": "Respond challenge",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "global": {
+      "omni_dedupe_window": []
+    }
+  },
+  "meta": null,
+  "nodeGroups": [],
+  "pinData": null,
+  "versionId": "v0.1.13",
+  "activeVersionId": "8e2f6159-c3da-454f-9689-493acd9b1d0c",
+  "versionCounter": 7,
+  "triggerCount": 7,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-08-27T10:37:06.810Z",
+      "createdAt": "2026-08-27T10:37:06.810Z",
+      "role": "workflow:owner",
+      "workflowId": "eeO8Jl1VeK2f2Z9d",
+      "projectId": "1soAUqvvnP2K3lPy",
+      "project": {
+        "updatedAt": "2026-08-27T10:34:09.907Z",
+        "createdAt": "2026-08-27T10:33:25.676Z",
+        "id": "1soAUqvvnP2K3lPy",
+        "name": "Admin Test <admin@test.local>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "e0eb48fc-b8b3-4215-8fc2-628771f928e8"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  },
+  "_comment": "REPO SANITIZED EXPORT v0.1.13 (71 nodes, id eeO8Jl1VeK2f2Z9d) — live export from n8n-sandbox eeO8Jl1VeK2f2Z9d sanitized for repo. Parity fixes applied: n06 httpRequest 4.5 POST https://graph.facebook.com/{{CONFIG.whatsapp_api_version}}/{{CONFIG.whatsapp_phone_number_id}}/messages Bearer {{CONFIG.whatsapp_token}} unquoted (not whatsApp 1.1, no whatsAppApi credential), g21 {{CONFIG.meta_verify_token}} placeholder with bracket query[\"hub.verify_token\"]. Live had hardcoded api_version/phone_id/Bearer token and verify_token — redacted to CONFIG placeholders. Verify layer byte-identical except token placeholder. See REBUILD-RUNBOOK for re-export steps. Business NexusAutomations, named tunnel nexusautomations-sandbox pending nexusautomations.dev. Sanitization extended: n15/n18 Bearer {{CONFIG.freellmapi_token}} placeholder (live FREELLMAPI_TOKEN in meta-credentials.env gitignored), n07/n08 Messenger/Instagram reuse {{CONFIG.whatsapp_token}} until {{CONFIG.page_token}} issued (runbook §8), staticData.global.omni_dedupe_window [] sanitized (was 10 wamids golive-1:0 etc)."
+}
