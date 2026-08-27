@@ -4,6 +4,7 @@ import { SITE } from "./config";
 
 const LINKS = [
   { label: "Services", href: "/services" },
+  { label: "Research", href: "/research" },
   { label: "Live demos", href: "/demos" },
   { label: "Free audit", href: "/contact" },
   { label: "Privacy", href: "/privacy" },
@@ -20,7 +21,7 @@ export default function Footer() {
               Custom WhatsApp, AI and workflow automation for small businesses. {SITE.tagline}
             </p>
             <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-edge bg-surface-soft px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
-              <Icon name="clock" className="h-3.5 w-3.5 text-wa" />
+              <Icon name="clock" className="h-3.5 w-3.5 text-accent" />
               {SITE.timezone} · replies within a business day
             </p>
           </div>
@@ -55,7 +56,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 transition-colors hover:text-ink"
                 >
-                  <Icon name="whatsapp" className="h-4 w-4 text-wa" />
+                  <Icon name="whatsapp" className="h-4 w-4 text-accent" />
                   WhatsApp
                 </a>
               </li>

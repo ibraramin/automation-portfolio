@@ -84,7 +84,7 @@ export default async function DemoPage(props: PageProps<"/demos/[slug]">) {
   const Demo = DEMO_COMPONENTS[demo.slug];
   const steps: ReactNode[] = (HOW_IT_WORKS[demo.slug] ?? []).map((step, i) => (
     <li key={i} className="flex gap-3">
-      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-wa/40 bg-wa/10 text-xs font-bold text-wa">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-accent/40 bg-accent/10 text-xs font-bold text-accent">
         {i + 1}
       </span>
       <p className="text-sm leading-relaxed text-muted">{step}</p>
@@ -96,7 +96,7 @@ export default async function DemoPage(props: PageProps<"/demos/[slug]">) {
       <Header />
       <main className="flex-1">
         <section className="container-site py-16 sm:py-20">
-          <Link href="/demos" className="text-sm font-medium text-muted transition-colors hover:text-wa">
+          <Link href="/demos" className="text-sm font-medium text-muted transition-colors hover:text-accent">
             ← All demos
           </Link>
 
@@ -117,11 +117,11 @@ export default async function DemoPage(props: PageProps<"/demos/[slug]">) {
               </h1>
               <p className="mt-3 max-w-2xl text-lg leading-relaxed text-muted">{demo.tagline}</p>
             </div>
-            <div className="shrink-0 rounded-2xl border border-wa/25 bg-wa/10 px-5 py-3">
+            <div className="shrink-0 rounded-2xl border border-accent/25 bg-accent/10 px-5 py-3">
               <p className="font-mono text-[10px] font-medium uppercase tracking-widest text-muted">
                 The win
               </p>
-              <p className="mt-0.5 font-mono text-lg font-semibold text-wa">{demo.metric}</p>
+              <p className="mt-0.5 font-mono text-lg font-semibold text-accent">{demo.metric}</p>
             </div>
           </div>
 
@@ -170,13 +170,13 @@ export default async function DemoPage(props: PageProps<"/demos/[slug]">) {
                 href={demo.jsonFile}
                 download
                 data-json-downloaded={demo.slug}
-                className="rounded-full bg-wa px-6 py-3 text-center text-sm font-semibold text-wa-ink transition-colors hover:bg-wa-strong"
+                className="rounded-full bg-accent px-6 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-accent-strong"
               >
                 Download the n8n workflow (free)
               </a>
               <Link
                 href="/contact"
-                className="rounded-full border border-edge px-6 py-3 text-center text-sm font-semibold text-muted transition-colors hover:border-wa/50 hover:text-ink"
+                className="rounded-full border border-edge px-6 py-3 text-center text-sm font-semibold text-muted transition-colors hover:border-accent/50 hover:text-ink"
               >
                 Want it customized? →
               </Link>

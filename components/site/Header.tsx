@@ -8,6 +8,7 @@ import { SITE } from "./config";
 
 const NAV = [
   { label: "Services", href: "/services" },
+  { label: "Research", href: "/research" },
   { label: "Live demos", href: "/demos" },
   { label: "Contact", href: "/contact" },
 ] as const;
@@ -22,10 +23,10 @@ function Logo() {
       className="group flex items-center gap-2.5"
       aria-label={`${SITE.name}, home`}
     >
-      <span className="grid h-9 w-9 place-items-center rounded-xl border border-edge bg-surface-soft transition-colors duration-200 group-hover:border-wa/50">
+      <span className="grid h-9 w-9 place-items-center rounded-xl border border-edge bg-surface-soft transition-colors duration-200 group-hover:border-accent/50">
         <svg
           viewBox="0 0 24 24"
-          className="h-5 w-5 text-wa transition-transform duration-300 group-hover:scale-110"
+          className="h-5 w-5 text-accent transition-transform duration-300 group-hover:scale-110"
           fill="none"
           stroke="currentColor"
           strokeWidth="1.6"
@@ -41,7 +42,7 @@ function Logo() {
       </span>
       <span className="text-[15px] font-semibold tracking-tight text-ink">
         {first}
-        <span className="text-wa">.</span>
+        <span className="text-accent">.</span>
         {rest.length > 0 ? (
           <span className="ml-1.5 hidden text-muted sm:inline">{rest.join(" ")}</span>
         ) : null}
@@ -55,15 +56,15 @@ function ThemeToggle() {
   const animTimer = useRef<number | null>(null);
 
   useEffect(() => {
-    let initial: Theme = "dark";
+    let initial: Theme = "light";
     try {
       const stored = window.localStorage.getItem("nexus-theme");
-      const prefersLight =
-        window.matchMedia("(prefers-color-scheme: light)").matches && stored === null;
-      initial = stored === "light" || prefersLight ? "light" : "dark";
+      // Default to light unless explicitly stored as dark
+      initial = stored === "dark" ? "dark" : "light";
+      document.documentElement.classList.toggle("dark", initial === "dark");
       document.documentElement.classList.toggle("light", initial === "light");
     } catch {
-      // storage or matchMedia unavailable, keep default dark theme
+      // storage unavailable, keep default light theme
     }
     const t = window.setTimeout(() => setTheme(initial), 0);
     return () => window.clearTimeout(t);
@@ -83,6 +84,7 @@ function ThemeToggle() {
     // Seamless switch: let colors cross-fade for ~300ms, then clean up.
     root.classList.add("theme-anim");
     if (animTimer.current !== null) window.clearTimeout(animTimer.current);
+    root.classList.toggle("dark", next === "dark");
     root.classList.toggle("light", next === "light");
     try {
       window.localStorage.setItem("nexus-theme", next);
@@ -127,7 +129,7 @@ export default function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className="relative text-sm font-medium text-muted transition-colors duration-200 hover:text-ink after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-wa/70 after:transition-transform after:duration-300 hover:after:scale-x-100"
+              className="relative text-sm font-medium text-muted transition-colors duration-200 hover:text-ink after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-accent/70 after:transition-transform after:duration-300 hover:after:scale-x-100"
             >
               {item.label}
             </Link>

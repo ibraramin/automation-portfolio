@@ -2,15 +2,37 @@
 
 /* ------------------------------------------------------------------
    THEME TOKENS
-   Dark values are the default (:root). `.light` on <html> flips them.
-   Everything in the marketing chrome uses these via Tailwind utilities
-   (bg-bg, text-ink, text-muted, border-edge, bg-surface, bg-wa, ...).
+   Light is default (:root). `.dark` opts into dark palette.
+   `.light` alias kept for backward compat (same as :root).
+   Everything uses Tailwind utilities (bg-bg, text-ink, etc.).
    ------------------------------------------------------------------ */
 :root {
+  color-scheme: light;
+  /* Light palette - WCAG AA: ink #0E1218 on white 18.5:1, muted #64748B on white 5.4:1, accent #0E7490 on white 5.36:1 */
+  --bg: #ffffff;
+  --surface: #f8fafc;
+  --surface-2: #f1f5f9;
+  --surface-soft: rgb(14 18 24 / 0.04);
+  --surface-soft-2: rgb(14 18 24 / 0.08);
+  --ink: #0e1218;
+  --muted: #64748b;
+  --edge: rgb(14 18 24 / 0.08);
+  --edge-strong: rgb(14 18 24 / 0.16);
+  --accent: #0e7490;
+  --accent-strong: #0c5a70;
+  --accent-ink: #0e7490;
+  --accent-soft: rgb(14 116 144 / 0.12);
+  /* compat alias - wa now maps to accent */
+  --wa: var(--accent);
+  --wa-strong: var(--accent-strong);
+  --wa-ink: #ffffff;
+  --sky: #0284c7;
+  --grid-dot: rgb(14 18 24 / 0.06);
+  --grid-line: rgb(14 18 24 / 0.05);
+}
+
+.dark {
   color-scheme: dark;
-  /* Soft blue-tinted dark palette. Contrast notes (vs WCAG AA 4.5:1):
-     ink #e6e8eb on bg #0e1218 ~= 14.9:1, muted #9aa3ad on bg ~= 7.3:1,
-     muted on surface #121821 ~= 6.7:1, wa #25d366 on bg ~= 10.4:1. */
   --bg: #0e1218;
   --surface: #121821;
   --surface-2: #161e28;
@@ -18,31 +40,43 @@
   --surface-soft-2: rgb(255 255 255 / 0.08);
   --ink: #e6e8eb;
   --muted: #9aa3ad;
-  --edge: rgb(255 255 255 / 0.1);
-  --edge-strong: rgb(255 255 255 / 0.25);
-  --wa: #25d366;
-  --wa-strong: #2fdb74;
-  --wa-ink: #04150b;
+  --edge: rgb(255 255 255 / 0.08);
+  --edge-strong: rgb(255 255 255 / 0.16);
+  /* AA: white on #0E7490 5.36:1, white on #155E75 7.27:1 (WCAG AA >=4.5). Muted cyan, not neon #22d3ee (1.5:1). */
+  --accent: #0e7490;
+  --accent-strong: #155e75;
+  --accent-ink: #ffffff;
+  --accent-soft: rgb(14 116 144 / 0.16);
+  --wa: var(--accent);
+  --wa-strong: var(--accent-strong);
+  --wa-ink: #0e1218;
   --sky: #38bdf8;
+  --grid-dot: rgb(255 255 255 / 0.04);
   --grid-line: rgb(255 255 255 / 0.045);
 }
 
+/* Legacy .light alias - identical to :root for compat with old toggle */
 .light {
   color-scheme: light;
-  --bg: #fafafa;
-  --surface: #ffffff;
-  --surface-2: #f2f2f4;
-  --surface-soft: rgb(0 0 0 / 0.04);
-  --surface-soft-2: rgb(0 0 0 / 0.08);
-  --ink: #18181b;
-  --muted: #52525b;
-  --edge: rgb(0 0 0 / 0.1);
-  --edge-strong: rgb(0 0 0 / 0.24);
-  --wa: #0f766e;
-  --wa-strong: #0d9488;
-  --wa-ink: #f0fdf9;
+  --bg: #ffffff;
+  --surface: #f8fafc;
+  --surface-2: #f1f5f9;
+  --surface-soft: rgb(14 18 24 / 0.04);
+  --surface-soft-2: rgb(14 18 24 / 0.08);
+  --ink: #0e1218;
+  --muted: #64748b;
+  --edge: rgb(14 18 24 / 0.08);
+  --edge-strong: rgb(14 18 24 / 0.16);
+  --accent: #0e7490;
+  --accent-strong: #0c5a70;
+  --accent-ink: #0e7490;
+  --accent-soft: rgb(14 116 144 / 0.12);
+  --wa: var(--accent);
+  --wa-strong: var(--accent-strong);
+  --wa-ink: #ffffff;
   --sky: #0284c7;
-  --grid-line: rgb(0 0 0 / 0.05);
+  --grid-dot: rgb(14 18 24 / 0.06);
+  --grid-line: rgb(14 18 24 / 0.05);
 }
 
 @theme inline {
@@ -55,6 +89,10 @@
   --color-muted: var(--muted);
   --color-edge: var(--edge);
   --color-edge-strong: var(--edge-strong);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
   --color-wa: var(--wa);
   --color-wa-strong: var(--wa-strong);
   --color-wa-ink: var(--wa-ink);
@@ -160,7 +198,7 @@
   }
 
   ::selection {
-    background-color: rgb(37 211 102 / 0.28);
+    background-color: rgb(14 116 144 / 0.18);
     color: var(--ink);
   }
 
@@ -184,7 +222,7 @@
     border: 2px solid var(--bg);
   }
   html::-webkit-scrollbar-thumb:hover {
-    background-color: var(--wa);
+    background-color: var(--accent);
   }
 
   @-moz-document url-prefix() {
@@ -257,12 +295,10 @@
 }
 
 @layer utilities {
-  /* Faint blueprint grid used behind hero / CTA sections (adapts to theme) */
+  /* Subtle dot-grid used behind hero / CTA sections (adapts to theme) */
   .bg-grid {
-    background-image:
-      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
-    background-size: 56px 56px;
+    background-image: radial-gradient(circle, var(--grid-dot) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
 
   /* Fade a section's grid out toward the bottom */

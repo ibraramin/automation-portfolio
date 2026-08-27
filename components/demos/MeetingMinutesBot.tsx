@@ -157,13 +157,13 @@ export default function MeetingMinutesBot() {
       {/* Header */}
       <div className="flex items-center justify-between border-b border-edge bg-surface-2 px-5 py-3">
         <div className="flex items-center gap-2.5">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-wa/15 text-sm">📝</span>
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent/15 text-sm">📝</span>
           <div>
             <p className="text-sm font-semibold text-ink">Meeting Minutes Bot</p>
             <p className="text-[11px] text-muted">Transcript to Notion + Slack</p>
           </div>
         </div>
-        <span className="rounded-full border border-wa/30 bg-wa/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-wa">
+        <span className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-accent">
           Simulation
         </span>
       </div>
@@ -182,7 +182,7 @@ export default function MeetingMinutesBot() {
                 onClick={() => pickSample(i)}
                 className={`rounded-full border px-3 py-1 text-xs transition-colors ${
                   title === s.title
-                    ? "border-wa/50 bg-wa/10 text-wa"
+                    ? "border-accent/50 bg-accent/10 text-accent"
                     : "border-edge bg-surface-soft text-muted hover:border-edge-strong"
                 }`}
               >
@@ -196,13 +196,13 @@ export default function MeetingMinutesBot() {
           onChange={(e) => setTranscript(e.target.value)}
           rows={7}
           placeholder="Paste a raw meeting transcript, one speaker turn per line..."
-          className="mt-3 w-full rounded-xl border border-edge bg-surface-soft p-3 font-mono text-xs leading-relaxed text-ink placeholder:text-muted/60 outline-none focus:border-wa/60"
+          className="mt-3 w-full rounded-xl border border-edge bg-surface-soft p-3 font-mono text-xs leading-relaxed text-ink placeholder:text-muted/60 outline-none focus:border-accent/60"
         />
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <button
             type="submit"
             disabled={running || transcript.trim().length < 30}
-            className="rounded-full bg-wa px-5 py-2.5 text-sm font-semibold text-wa-ink hover:bg-wa-strong disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50"
           >
             {running ? "Running…" : "Run the minutes flow →"}
           </button>
@@ -233,13 +233,13 @@ export default function MeetingMinutesBot() {
               {steps.map((step, i) => (
                 <li key={step.id} className="flex gap-3">
                   <div className="flex flex-col items-center">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-wa text-xs font-bold text-wa-ink">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-xs font-bold text-white">
                       ✓
                     </span>
                     {i < steps.length - 1 && <span className="mt-1 w-px flex-1 bg-edge" />}
                   </div>
                   <div className="pb-1">
-                    <p className="font-mono text-[11px] text-wa">{step.time}</p>
+                    <p className="font-mono text-[11px] text-accent">{step.time}</p>
                     <p className="text-sm font-medium text-ink">{step.title}</p>
                     <p className="mt-0.5 text-xs text-muted">{step.detail}</p>
                   </div>
@@ -247,7 +247,7 @@ export default function MeetingMinutesBot() {
               ))}
               {running && (
                 <li className="flex items-center gap-3">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-edge-strong border-t-wa" />
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-edge-strong border-t-accent" />
                   <span className="text-sm text-muted">Processing…</span>
                 </li>
               )}
@@ -273,7 +273,7 @@ export default function MeetingMinutesBot() {
                 <ul className="mt-2 space-y-1.5">
                   {minutes.decisions.map((d, i) => (
                     <li key={i} className="flex gap-2 text-xs leading-relaxed text-ink/90">
-                      <span className="mt-0.5 h-3 w-3 shrink-0 rounded-[3px] border border-wa/50 bg-wa/10" />
+                      <span className="mt-0.5 h-3 w-3 shrink-0 rounded-[3px] border border-accent/50 bg-accent/10" />
                       {d}
                     </li>
                   ))}
@@ -297,7 +297,7 @@ export default function MeetingMinutesBot() {
                     <tbody className="divide-y divide-edge">
                       {minutes.actions.map((a, i) => (
                         <tr key={i}>
-                          <td className="px-3 py-2 align-top font-medium text-wa">{a.owner}</td>
+                          <td className="px-3 py-2 align-top font-medium text-accent">{a.owner}</td>
                           <td className="px-3 py-2 align-top leading-relaxed text-ink/90">{a.task}</td>
                           <td className="px-3 py-2 align-top font-mono text-[11px] text-muted">{a.deadline}</td>
                         </tr>
@@ -336,7 +336,7 @@ export default function MeetingMinutesBot() {
                 <span
                   className={`rounded-full border px-3 py-1 text-[11px] font-medium ${
                     done >= 4
-                      ? "border-wa/40 bg-wa/10 text-wa"
+                      ? "border-accent/40 bg-accent/10 text-accent"
                       : "border-edge bg-surface-soft text-muted"
                   }`}
                 >
@@ -345,7 +345,7 @@ export default function MeetingMinutesBot() {
                 <span
                   className={`rounded-full border px-3 py-1 text-[11px] font-medium ${
                     done >= 5
-                      ? "border-wa/40 bg-wa/10 text-wa"
+                      ? "border-accent/40 bg-accent/10 text-accent"
                       : "border-edge bg-surface-soft text-muted"
                   }`}
                 >

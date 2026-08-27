@@ -68,7 +68,7 @@ const CLASSIFICATIONS: Record<number, { category: Category; priority: number; dr
 
 function chipClass(c: Category): string {
   if (c === "lead")
-    return "rounded-full border border-wa/40 bg-wa/10 px-2.5 py-0.5 text-[10px] font-semibold text-wa";
+    return "rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-[10px] font-semibold text-accent";
   if (c === "invoice")
     return "rounded-full border border-sky/40 bg-sky/10 px-2.5 py-0.5 text-[10px] font-semibold text-sky";
   return "rounded-full border border-edge bg-surface-soft px-2.5 py-0.5 text-[10px] font-semibold text-muted line-through";
@@ -207,13 +207,13 @@ export default function EmailTriage() {
       {/* Header */}
       <div className="flex items-center justify-between border-b border-edge bg-surface-2 px-5 py-3">
         <div className="flex items-center gap-2.5">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-wa/15 text-sm">✉️</span>
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent/15 text-sm">✉️</span>
           <div>
             <p className="text-sm font-semibold text-ink">Email Triage</p>
             <p className="text-[11px] text-muted">Gmail watch + AI triage + human approval</p>
           </div>
         </div>
-        <span className="rounded-full border border-wa/30 bg-wa/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-wa">
+        <span className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-accent">
           Simulation
         </span>
       </div>
@@ -227,7 +227,7 @@ export default function EmailTriage() {
           <button
             onClick={() => void runTriage()}
             disabled={running}
-            className="rounded-full bg-wa px-5 py-2.5 text-sm font-semibold text-wa-ink hover:bg-wa-strong disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50"
           >
             {running ? "Running…" : steps.length === 0 ? "Run the triage →" : "Re-run triage →"}
           </button>
@@ -257,13 +257,13 @@ export default function EmailTriage() {
               {steps.map((step, i) => (
                 <li key={step.id} className="flex gap-3">
                   <div className="flex flex-col items-center">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-wa text-xs font-bold text-wa-ink">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-xs font-bold text-white">
                       ✓
                     </span>
                     {i < steps.length - 1 && <span className="mt-1 w-px flex-1 bg-edge" />}
                   </div>
                   <div className="pb-1">
-                    <p className="font-mono text-[11px] text-wa">{step.time}</p>
+                    <p className="font-mono text-[11px] text-accent">{step.time}</p>
                     <p className="text-sm font-medium text-ink">{step.title}</p>
                     <p className="mt-0.5 text-xs text-muted">{step.detail}</p>
                   </div>
@@ -271,7 +271,7 @@ export default function EmailTriage() {
               ))}
               {running && (
                 <li className="flex items-center gap-3">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-edge-strong border-t-wa" />
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-edge-strong border-t-accent" />
                   <span className="text-sm text-muted">Processing…</span>
                 </li>
               )}
@@ -317,12 +317,12 @@ export default function EmailTriage() {
                     </span>
                   )}
                   {em.status === "drafted" && (
-                    <span className="rounded-full border border-wa/40 bg-wa/10 px-2.5 py-0.5 text-[10px] font-medium text-wa">
+                    <span className="rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-[10px] font-medium text-accent">
                       draft ready
                     </span>
                   )}
                   {em.status === "sent" && (
-                    <span className="rounded-full border border-wa/40 bg-wa/10 px-2.5 py-0.5 text-[10px] font-medium text-wa">
+                    <span className="rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-[10px] font-medium text-accent">
                       ✓ replied
                     </span>
                   )}
@@ -348,7 +348,7 @@ export default function EmailTriage() {
 
           {/* Human-in-the-loop approval */}
           {leadEmail && leadEmail.draft && leadEmail.status === "drafted" && (
-            <div className="mt-4 rounded-xl border border-wa/30 bg-surface-soft p-4">
+            <div className="mt-4 rounded-xl border border-accent/30 bg-surface-soft p-4">
               <p className="text-[10px] font-semibold uppercase tracking-widest text-muted">
                 Draft, human approval needed
               </p>
@@ -359,7 +359,7 @@ export default function EmailTriage() {
                 <button
                   onClick={() => void approve()}
                   disabled={running}
-                  className="rounded-full bg-wa px-4 py-2 text-xs font-semibold text-wa-ink hover:bg-wa-strong disabled:opacity-50"
+                  className="rounded-full bg-accent px-4 py-2 text-xs font-semibold text-white hover:bg-accent-strong disabled:opacity-50"
                 >
                   Approve and send →
                 </button>

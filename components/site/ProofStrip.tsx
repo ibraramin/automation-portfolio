@@ -1,8 +1,8 @@
 import Icon, { type IconName } from "./icons";
 import Reveal from "./Reveal";
 
-const ITEMS: { icon: IconName; text: string; accent?: "wa" | "sky" }[] = [
-  { icon: "clock", text: "GMT+6, replies within one business day", accent: "wa" },
+const ITEMS: { icon: IconName; text: string; accent?: "accent" | "sky" }[] = [
+  { icon: "clock", text: "GMT+6, replies within one business day", accent: "accent" },
   { icon: "card", text: "EUR / GBP / USD payments via Payoneer" },
   { icon: "server", text: "EU-friendly data handling, minimal tracking", accent: "sky" },
   { icon: "zap", text: "n8n + AI specialists" },
@@ -21,7 +21,7 @@ export default function ProofStrip() {
                   className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg border ${
                     isSky
                       ? "border-sky/25 bg-sky/10 text-sky"
-                      : "border-wa/25 bg-wa/10 text-wa"
+                      : "border-accent/25 bg-accent/10 text-accent"
                   }`}
                 >
                   <Icon name={item.icon} className="h-4 w-4" />

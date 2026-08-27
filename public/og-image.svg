@@ -4,8 +4,8 @@
       <path d="M 56 0 L 0 0 0 56" fill="none" stroke="rgba(255,255,255,0.045)" stroke-width="1" />
     </pattern>
     <radialGradient id="glowWa" cx="12%" cy="8%" r="60%">
-      <stop offset="0%" stop-color="#25D366" stop-opacity="0.16" />
-      <stop offset="100%" stop-color="#25D366" stop-opacity="0" />
+      <stop offset="0%" stop-color="#0E7490" stop-opacity="0.14" />
+      <stop offset="100%" stop-color="#0E7490" stop-opacity="0" />
     </radialGradient>
     <radialGradient id="glowSky" cx="90%" cy="90%" r="55%">
       <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.12" />
@@ -22,12 +22,12 @@
   <!-- brand row, top left -->
   <g>
     <rect x="72" y="64" width="44" height="44" rx="12" fill="#121821" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" />
-    <g fill="#25D366">
+    <g fill="#0E7490">
       <circle cx="84" cy="78" r="5" />
       <circle cx="105" cy="76" r="5" />
       <circle cx="92" cy="94" r="5" />
     </g>
-    <g stroke="#25D366" stroke-width="2" stroke-linecap="round" fill="none">
+    <g stroke="#0E7490" stroke-width="2" stroke-linecap="round" fill="none">
       <path d="M 87 80 L 101 79" />
       <path d="M 87 81 L 91 90" />
       <path d="M 103 80 L 96 91" />
@@ -48,14 +48,14 @@
   </text>
 
   <!-- CTA pill, bottom left -->
-  <rect x="72" y="492" width="330" height="58" rx="29" fill="#25D366" />
-  <text x="237" y="528" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="22" font-weight="600" fill="#04150B">
+  <rect x="72" y="492" width="330" height="58" rx="29" fill="#0E7490" />
+  <text x="237" y="528" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="22" font-weight="600" fill="#FFFFFF">
     Free automation audit
   </text>
 
   <!-- tag, bottom right -->
   <g>
-    <circle cx="1018" cy="522" r="6" fill="#25D366" />
+    <circle cx="1018" cy="522" r="6" fill="#0E7490" />
     <text x="1038" y="528" font-family="ui-monospace, Menlo, monospace" font-size="18" fill="#9AA3AD">
       WhatsApp + AI automation
     </text>

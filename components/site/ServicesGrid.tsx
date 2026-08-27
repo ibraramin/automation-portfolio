@@ -5,16 +5,16 @@ import Icon from "./icons";
 import { SERVICES, type Service } from "./services-data";
 
 function ServiceCard({ service }: { service: Service }) {
-  const isWa = service.accent === "wa";
+  const isWa = service.accent === "accent";
   return (
     <Link
       href="/contact"
-      className="group relative z-0 flex h-full flex-col gap-4 rounded-2xl border border-edge bg-surface p-6 transition-[transform,border-color] duration-300 ease-out hover:-translate-y-1 hover:border-wa/30 after:pointer-events-none after:absolute after:inset-0 after:rounded-2xl after:shadow-[0_20px_60px_-24px_rgba(0,0,0,0.8),0_0_24px_-8px_rgba(37,211,102,0.35)] after:opacity-0 after:transition-opacity after:duration-300 group-hover:after:opacity-100 sm:p-7"
+      className="group relative z-0 flex h-full flex-col gap-4 rounded-2xl border border-edge bg-surface p-6 transition-[transform,border-color] duration-300 ease-out hover:-translate-y-1 hover:border-accent/30 after:pointer-events-none after:absolute after:inset-0 after:rounded-2xl after:shadow-[0_20px_60px_-24px_rgba(0,0,0,0.8),0_0_24px_-8px_rgba(14,116,144,0.25)] after:opacity-0 after:transition-opacity after:duration-300 group-hover:after:opacity-100 sm:p-7"
     >
       <div className="flex items-start justify-between">
         <span
           className={`grid h-11 w-11 place-items-center rounded-xl border ${
-            isWa ? "border-wa/25 bg-wa/10 text-wa" : "border-sky/25 bg-sky/10 text-sky"
+            isWa ? "border-accent/25 bg-accent/10 text-accent" : "border-sky/25 bg-sky/10 text-sky"
           }`}
         >
           <Icon name={service.icon} className="h-5 w-5" />
@@ -59,7 +59,7 @@ export default function ServicesGrid() {
         }
         subtitle="Every workflow is custom-built, delivered in 1–2 weeks, and priced as one fixed quote per workflow."
       />
-      <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {SERVICES.map((service, index) => (
           <Reveal key={service.id} delay={index * 80} className="h-full">
             <ServiceCard service={service} />

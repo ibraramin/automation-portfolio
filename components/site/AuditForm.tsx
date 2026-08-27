@@ -14,7 +14,7 @@ const WEB3FORMS_IS_SET =
   WEB3FORMS_ACCESS_KEY.length > 0 && WEB3FORMS_ACCESS_KEY !== "PASTE_KEY_HERE";
 
 const inputCls =
-  "w-full rounded-xl border border-edge bg-surface-soft px-4 py-3 text-sm text-ink placeholder:text-muted/60 transition-colors focus:border-wa/50 focus:outline-none focus:ring-2 focus:ring-wa/20";
+  "w-full rounded-xl border border-edge bg-surface-soft px-4 py-3 text-sm text-ink placeholder:text-muted/60 transition-colors focus:border-accent/50 focus:outline-none focus:ring-2 focus:ring-accent/20";
 
 function Field({
   label,
@@ -108,9 +108,9 @@ export default function AuditForm() {
       <div
         role="status"
         aria-live="polite"
-        className="flex flex-col items-start justify-center gap-4 rounded-2xl border border-wa/25 bg-wa/[0.06] p-8"
+        className="flex flex-col items-start justify-center gap-4 rounded-2xl border border-accent/25 bg-accent/[0.06] p-8"
       >
-        <span className="grid h-12 w-12 place-items-center rounded-full bg-wa text-wa-ink">
+        <span className="grid h-12 w-12 place-items-center rounded-full bg-accent text-white">
           <Icon name="check" className="h-6 w-6" />
         </span>
         <h3 className="text-2xl font-semibold tracking-tight text-ink">Request sent.</h3>
@@ -123,7 +123,7 @@ export default function AuditForm() {
             href={SITE.whatsappUrl}
             target="_blank"
             rel="noreferrer"
-            className="font-medium text-wa underline underline-offset-2"
+            className="font-medium text-accent underline underline-offset-2"
           >
             WhatsApp us
           </a>

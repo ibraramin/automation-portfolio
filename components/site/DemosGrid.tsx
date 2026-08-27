@@ -9,11 +9,11 @@ function DemoCard({ demo }: { demo: DemoMeta }) {
   return (
     <Link
       href={`/demos/${demo.slug}`}
-      className="group relative z-0 flex h-full flex-col gap-4 overflow-hidden rounded-2xl border border-edge bg-surface p-6 transition-[transform,border-color] duration-300 ease-out hover:-translate-y-1 hover:border-wa/30 after:pointer-events-none after:absolute after:inset-0 after:rounded-2xl after:shadow-[0_20px_60px_-24px_rgba(0,0,0,0.8),0_0_24px_-8px_rgba(37,211,102,0.35)] after:opacity-0 after:transition-opacity after:duration-300 group-hover:after:opacity-100 sm:p-7"
+      className="group relative z-0 flex h-full flex-col gap-4 overflow-hidden rounded-2xl border border-edge bg-surface p-6 transition-[transform,border-color] duration-300 ease-out hover:-translate-y-1 hover:border-accent/30 after:pointer-events-none after:absolute after:inset-0 after:rounded-2xl after:shadow-[0_20px_60px_-24px_rgba(0,0,0,0.8),0_0_24px_-8px_rgba(14,116,144,0.25)] after:opacity-0 after:transition-opacity after:duration-300 group-hover:after:opacity-100 sm:p-7"
     >
       <div className="flex items-center justify-between gap-3">
-        <span className="inline-flex items-center gap-2 rounded-full border border-wa/20 bg-wa/10 px-2.5 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-wa">
-          <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-wa" />
+        <span className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-2.5 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-accent">
+          <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-accent" />
           Live
         </span>
         <span className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-muted">
@@ -49,7 +49,7 @@ export default function DemosGrid() {
       style={{ containIntrinsicSize: "auto 46rem" }}
     >
       <div
-        className="pointer-events-none absolute inset-0 bg-grid opacity-60 mask-fade-b"
+        className="pointer-events-none absolute inset-0 bg-grid opacity-[0.4] mask-fade-b"
         aria-hidden="true"
       />
       <div className="relative container-site">
@@ -69,7 +69,7 @@ export default function DemosGrid() {
         ) : (
           <Reveal className="mx-auto mt-14 max-w-xl" delay={100}>
             <div className="rounded-2xl border border-dashed border-edge-strong bg-surface p-10 text-center">
-              <Icon name="zap" className="mx-auto h-8 w-8 text-wa" />
+              <Icon name="zap" className="mx-auto h-8 w-8 text-accent" />
               <p className="mt-4 text-lg font-semibold text-ink">
                 Demos are being published right now.
               </p>

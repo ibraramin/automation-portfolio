@@ -45,12 +45,12 @@ export default function PrivacyPage() {
       <main>
         <section className="relative overflow-hidden">
           <div
-            className="pointer-events-none absolute inset-0 bg-grid opacity-50 mask-fade-b"
+            className="pointer-events-none absolute inset-0 bg-grid opacity-[0.4] mask-fade-b"
             aria-hidden="true"
           />
           <Reveal className="relative container-site pt-20 pb-14 md:pt-28">
-            <p className="flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-wa">
-              <span className="h-1 w-1 rounded-full bg-wa" aria-hidden="true" />
+            <p className="flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-accent">
+              <span className="h-1 w-1 rounded-full bg-accent" aria-hidden="true" />
               Privacy
             </p>
             <h1 className="mt-4 max-w-2xl text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-5xl xl:text-6xl">
@@ -69,7 +69,7 @@ export default function PrivacyPage() {
               <Reveal key={fact.title} delay={(index % 2) * 90} className="h-full">
                 <div className="h-full rounded-2xl border border-edge bg-surface p-6 sm:p-7">
                   <h2 className="flex items-center gap-2.5 text-base font-semibold tracking-tight text-ink">
-                    <Icon name="shield" className="h-4 w-4 shrink-0 text-wa" />
+                    <Icon name="shield" className="h-4 w-4 shrink-0 text-accent" />
                     {fact.title}
                   </h2>
                   <p className="mt-3 text-sm leading-relaxed text-muted">{fact.text}</p>
@@ -99,7 +99,7 @@ export default function PrivacyPage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 rounded-full border border-edge bg-surface-soft px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:border-edge-strong hover:bg-surface-soft-2"
                 >
-                  <Icon name="whatsapp" className="h-4 w-4 text-wa" />
+                  <Icon name="whatsapp" className="h-4 w-4 text-accent" />
                   WhatsApp
                 </a>
               </div>

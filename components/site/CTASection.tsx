@@ -10,11 +10,11 @@ export default function CTASection() {
       style={{ containIntrinsicSize: "auto 34rem" }}
     >
       <div
-        className="pointer-events-none absolute inset-0 bg-grid opacity-40 mask-fade-b"
+        className="pointer-events-none absolute inset-0 bg-grid opacity-[0.4] mask-fade-b"
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute -top-32 left-1/2 h-96 w-[42rem] -translate-x-1/2 rounded-full bg-wa/15 blur-[120px]"
+        className="pointer-events-none absolute -top-32 left-1/2 h-96 w-[42rem] -translate-x-1/2 rounded-full bg-accent/15 blur-[120px]"
         aria-hidden="true"
       />
       <div
@@ -23,8 +23,8 @@ export default function CTASection() {
       />
       <div className="relative container-site">
         <Reveal className="mx-auto max-w-4xl text-center">
-          <p className="inline-flex items-center gap-2 rounded-full border border-wa/25 bg-wa/10 px-3.5 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-wa">
-            <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-wa" aria-hidden="true" />
+          <p className="inline-flex items-center gap-2 rounded-full border border-accent/25 bg-accent/10 px-3.5 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-accent">
+            <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-accent" aria-hidden="true" />
             No cost · No obligation
           </p>
           <h2 className="mt-6 text-balance text-4xl font-semibold tracking-tight text-ink sm:text-5xl xl:text-6xl">

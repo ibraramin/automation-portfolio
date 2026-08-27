@@ -17,8 +17,8 @@ export default function DemosPage() {
       <Header />
       <main className="flex-1">
         <section className="container-site py-20 sm:py-24">
-          <p className="flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-wa">
-            <span className="h-1 w-1 rounded-full bg-wa" aria-hidden="true" />
+          <p className="flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-accent">
+            <span className="h-1 w-1 rounded-full bg-accent" aria-hidden="true" />
             Live demos
           </p>
           <h1 className="mt-4 max-w-2xl text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-5xl xl:text-6xl">
@@ -34,7 +34,7 @@ export default function DemosPage() {
               <Reveal key={demo.slug} delay={index * 80} className="h-full">
                 <Link
                   href={`/demos/${demo.slug}`}
-                  className="group flex h-full flex-col rounded-2xl border border-edge bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-wa/40 hover:shadow-[0_20px_60px_-24px_rgba(0,0,0,0.5),0_0_24px_-8px_rgba(37,211,102,0.35)]"
+                  className="group flex h-full flex-col rounded-2xl border border-edge bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-[0_20px_60px_-24px_rgba(0,0,0,0.5),0_0_24px_-8px_rgba(14,116,144,0.35)]"
                 >
                   <div className="flex flex-wrap gap-1.5">
                     {demo.markets.map((m) => (
@@ -48,13 +48,13 @@ export default function DemosPage() {
                   </div>
                   <h2 className="mt-4 text-xl font-semibold tracking-tight text-ink">{demo.title}</h2>
                   <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{demo.tagline}</p>
-                  <div className="mt-4 rounded-xl border border-wa/25 bg-wa/10 px-3.5 py-2.5">
+                  <div className="mt-4 rounded-xl border border-accent/25 bg-accent/10 px-3.5 py-2.5">
                     <p className="font-mono text-[10px] font-medium uppercase tracking-widest text-muted">
                       The win
                     </p>
-                    <p className="mt-0.5 font-mono text-sm font-semibold text-wa">{demo.metric}</p>
+                    <p className="mt-0.5 font-mono text-sm font-semibold text-accent">{demo.metric}</p>
                   </div>
-                  <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-wa">
+                  <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
                     Run the demo
                     <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                   </span>
@@ -76,7 +76,7 @@ export default function DemosPage() {
               </div>
               <Link
                 href="/contact"
-                className="shrink-0 rounded-full bg-wa px-6 py-3 text-sm font-semibold text-wa-ink transition-colors hover:bg-wa-strong"
+                className="shrink-0 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-accent-strong"
               >
                 Book a free audit →
               </Link>

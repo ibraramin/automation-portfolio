@@ -165,13 +165,13 @@ export default function SpreadsheetRescue() {
       {/* Header */}
       <div className="flex items-center justify-between border-b border-edge bg-surface-2 px-5 py-3">
         <div className="flex items-center gap-2.5">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-wa/15 text-sm">🧹</span>
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent/15 text-sm">🧹</span>
           <div>
             <p className="text-sm font-semibold text-ink">Spreadsheet Rescue</p>
             <p className="text-[11px] text-muted">Messy CSV to clean rows</p>
           </div>
         </div>
-        <span className="rounded-full border border-wa/30 bg-wa/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-wa">
+        <span className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-accent">
           Simulation
         </span>
       </div>
@@ -187,13 +187,13 @@ export default function SpreadsheetRescue() {
           rows={8}
           spellCheck={false}
           placeholder="Paste rows from that spreadsheet export nobody wants to fix..."
-          className="mt-3 w-full rounded-xl border border-edge bg-surface-soft p-3 font-mono text-xs leading-relaxed text-ink placeholder:text-muted/60 outline-none focus:border-wa/60"
+          className="mt-3 w-full rounded-xl border border-edge bg-surface-soft p-3 font-mono text-xs leading-relaxed text-ink placeholder:text-muted/60 outline-none focus:border-accent/60"
         />
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <button
             type="submit"
             disabled={running || csv.trim().length < 20}
-            className="rounded-full bg-wa px-5 py-2.5 text-sm font-semibold text-wa-ink hover:bg-wa-strong disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50"
           >
             {running ? "Cleaning…" : "Run the cleanup →"}
           </button>
@@ -224,13 +224,13 @@ export default function SpreadsheetRescue() {
               {steps.map((step, i) => (
                 <li key={step.id} className="flex gap-3">
                   <div className="flex flex-col items-center">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-wa text-xs font-bold text-wa-ink">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-xs font-bold text-white">
                       ✓
                     </span>
                     {i < steps.length - 1 && <span className="mt-1 w-px flex-1 bg-edge" />}
                   </div>
                   <div className="pb-1">
-                    <p className="font-mono text-[11px] text-wa">{step.time}</p>
+                    <p className="font-mono text-[11px] text-accent">{step.time}</p>
                     <p className="text-sm font-medium text-ink">{step.title}</p>
                     <p className="mt-0.5 text-xs text-muted">{step.detail}</p>
                   </div>
@@ -238,7 +238,7 @@ export default function SpreadsheetRescue() {
               ))}
               {running && (
                 <li className="flex items-center gap-3">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-edge-strong border-t-wa" />
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-edge-strong border-t-accent" />
                   <span className="text-sm text-muted">Cleaning…</span>
                 </li>
               )}
@@ -255,7 +255,7 @@ export default function SpreadsheetRescue() {
                 <span className="rounded-full border border-edge bg-surface-soft px-3 py-1 text-[11px] text-ink/90">
                   in: {clean.stats.inputCount}
                 </span>
-                <span className="rounded-full border border-wa/40 bg-wa/10 px-3 py-1 text-[11px] font-medium text-wa">
+                <span className="rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-[11px] font-medium text-accent">
                   unique: {clean.stats.uniqueCount}
                 </span>
                 <span className="rounded-full border border-edge bg-surface-soft px-3 py-1 text-[11px] text-ink/90">
@@ -265,7 +265,7 @@ export default function SpreadsheetRescue() {
                   className={`rounded-full border px-3 py-1 text-[11px] font-medium ${
                     clean.stats.warnings.length > 0
                       ? "border-amber-400/40 bg-amber-400/10 text-amber-300"
-                      : "border-wa/40 bg-wa/10 text-wa"
+                      : "border-accent/40 bg-accent/10 text-accent"
                   }`}
                 >
                   {clean.stats.warnings.length > 0
@@ -292,7 +292,7 @@ export default function SpreadsheetRescue() {
                         <td className="px-3 py-2 font-mono text-[11px] text-ink/90">{r.email}</td>
                         <td className="px-3 py-2 text-muted">{r.company}</td>
                         <td className="px-3 py-2 font-mono text-[11px] text-muted">{r.date}</td>
-                        <td className="px-3 py-2 font-mono text-[11px] text-wa">{r.amount}</td>
+                        <td className="px-3 py-2 font-mono text-[11px] text-accent">{r.amount}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -312,7 +312,7 @@ export default function SpreadsheetRescue() {
               <button
                 onClick={exportRows}
                 disabled={exported !== null}
-                className="mt-4 rounded-full bg-wa px-5 py-2.5 text-sm font-semibold text-wa-ink hover:bg-wa-strong disabled:cursor-default disabled:bg-wa/40"
+                className="mt-4 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-strong disabled:cursor-default disabled:bg-accent/40"
               >
                 {exported ? "Exported to customers_2026.csv ✓" : "Export to CRM / Sheets →"}
               </button>
@@ -352,7 +352,7 @@ export default function SpreadsheetRescue() {
                     <td className="px-3 py-2 font-mono text-[11px] text-ink/90">{r.email}</td>
                     <td className="px-3 py-2 text-muted">{r.company}</td>
                     <td className="px-3 py-2 font-mono text-[11px] text-muted">{r.date}</td>
-                    <td className="px-3 py-2 font-mono text-[11px] text-wa">{r.amount}</td>
+                    <td className="px-3 py-2 font-mono text-[11px] text-accent">{r.amount}</td>
                   </tr>
                 ))}
               </tbody>

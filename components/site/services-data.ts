@@ -9,7 +9,7 @@ export type Service = {
   build: string;
   tech: string[];
   audience: string;
-  accent: "wa" | "sky";
+  accent: "accent" | "sky";
 };
 
 export const SERVICES: Service[] = [
@@ -22,7 +22,7 @@ export const SERVICES: Service[] = [
     build: "One inbox that collects every channel, answers instantly with what customers ask for, and hands hot conversations to your team.",
     tech: ["n8n", "WhatsApp Business API", "Webhooks", "OpenAI"],
     audience: "Retailers, restaurants and service businesses that sell across apps.",
-    accent: "wa",
+    accent: "accent",
   },
   {
     id: "doc-processing",
@@ -44,7 +44,7 @@ export const SERVICES: Service[] = [
     build: "An instant pipeline that scores every lead, drafts a personalized reply, saves it to your CRM and alerts your team on Slack.",
     tech: ["n8n", "OpenAI", "HubSpot", "Slack"],
     audience: "B2B teams and businesses that run ads.",
-    accent: "wa",
+    accent: "accent",
   },
   {
     id: "booking-reminders",
@@ -66,7 +66,7 @@ export const SERVICES: Service[] = [
     build: "A voice AI that answers calls, takes messages and books jobs any hour, transferring to a human the moment it should.",
     tech: ["n8n", "Voice AI", "Twilio"],
     audience: "Trades, clinics and service businesses.",
-    accent: "wa",
+    accent: "accent",
   },
   {
     id: "reporting-ops",

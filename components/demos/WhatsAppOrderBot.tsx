@@ -213,17 +213,17 @@ export default function WhatsAppOrderBot() {
       {/* Chat header */}
       <div className="flex items-center justify-between gap-3 border-b border-edge bg-surface-2 px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-wa text-lg font-bold text-wa-ink">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-lg font-bold text-white">
             S
           </div>
           <div>
             <p className="text-sm font-semibold text-ink">ShopNest</p>
             <p className="flex items-center gap-1 text-xs text-muted">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-wa" /> online
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" /> online
             </p>
           </div>
         </div>
-        <span className="rounded-full border border-wa/30 bg-wa/10 px-2.5 py-1 text-[10px] font-medium tracking-wide text-wa">
+        <span className="rounded-full border border-accent/30 bg-accent/10 px-2.5 py-1 text-[10px] font-medium tracking-wide text-accent">
           SIMULATION, no real payment
         </span>
       </div>
@@ -238,7 +238,7 @@ export default function WhatsAppOrderBot() {
             <div
               className={`rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
                 msg.from === "user"
-                  ? "rounded-br-sm bg-wa text-wa-ink"
+                  ? "rounded-br-sm bg-accent text-white"
                   : "rounded-bl-sm border border-edge bg-surface-2 text-ink"
               }`}
               lang={msg.lang}
@@ -265,7 +265,7 @@ export default function WhatsAppOrderBot() {
         {verifying && (
           <div className="flex max-w-[80%] flex-col self-start">
             <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm border border-edge bg-surface-2 px-4 py-2.5">
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-edge-strong border-t-wa" />
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-edge-strong border-t-accent" />
               <span className="text-sm text-ink/90">Verifying payment with bKash…</span>
             </div>
             <span className="mt-1 px-1 text-[10px] text-muted">{nowTime()}</span>
@@ -274,8 +274,8 @@ export default function WhatsAppOrderBot() {
 
         {/* bKash payment card */}
         {stage === "payment" && (
-          <div className="self-start max-w-[85%] rounded-2xl rounded-bl-sm border border-wa/25 bg-wa/10 p-4">
-            <p className="text-[10px] font-semibold tracking-widest text-wa uppercase">
+          <div className="self-start max-w-[85%] rounded-2xl rounded-bl-sm border border-accent/25 bg-accent/10 p-4">
+            <p className="text-[10px] font-semibold tracking-widest text-accent uppercase">
               bKash payment instruction
             </p>
             <p className="mt-2 text-sm leading-relaxed text-ink">
@@ -283,7 +283,7 @@ export default function WhatsAppOrderBot() {
               <button
                 type="button"
                 onClick={copyNumber}
-                className="font-mono font-semibold text-wa underline-offset-2 hover:underline"
+                className="font-mono font-semibold text-accent underline-offset-2 hover:underline"
               >
                 {BKASH_NUMBER}
               </button>{" "}
@@ -298,7 +298,7 @@ export default function WhatsAppOrderBot() {
               <button
                 type="button"
                 onClick={copyNumber}
-                className="rounded-md bg-wa px-2 py-1 text-xs font-semibold text-wa-ink hover:bg-wa-strong"
+                className="rounded-md bg-accent px-2 py-1 text-xs font-semibold text-white hover:bg-accent-strong"
               >
                 {copied ? "Copied ✓" : "Copy"}
               </button>
@@ -309,7 +309,7 @@ export default function WhatsAppOrderBot() {
         {/* Order confirmed card */}
         {stage === "confirmed" && (
           <div className="self-start max-w-[85%] rounded-2xl rounded-bl-sm border border-edge bg-surface-2 p-4">
-            <p className="text-[10px] font-semibold tracking-widest text-wa uppercase">
+            <p className="text-[10px] font-semibold tracking-widest text-accent uppercase">
               Order confirmed
             </p>
             <p className="mt-2 text-sm text-ink">
@@ -335,7 +335,7 @@ export default function WhatsAppOrderBot() {
                 else if (stage === "confirmed" || stage === "shipped") void handleTracking(chip);
                 else void handleProduct(chip);
               }}
-              className="rounded-full border border-wa/40 bg-wa/10 px-3.5 py-1.5 text-xs font-medium text-wa transition-colors hover:bg-wa/20"
+              className="rounded-full border border-accent/40 bg-accent/10 px-3.5 py-1.5 text-xs font-medium text-accent transition-colors hover:bg-accent/20"
             >
               {chip}
             </button>
@@ -354,12 +354,12 @@ export default function WhatsAppOrderBot() {
                 if (e.key === "Enter") void submitAddress();
               }}
               placeholder="e.g. 12 Market Street"
-              className="flex-1 rounded-full border border-edge bg-surface-soft px-4 py-2.5 text-sm text-ink placeholder:text-muted/60 outline-none focus:border-wa/60"
+              className="flex-1 rounded-full border border-edge bg-surface-soft px-4 py-2.5 text-sm text-ink placeholder:text-muted/60 outline-none focus:border-accent/60"
             />
             <button
               type="button"
               onClick={() => void submitAddress()}
-              className="rounded-full bg-wa px-5 py-2.5 text-sm font-semibold text-wa-ink hover:bg-wa-strong"
+              className="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-strong"
             >
               Send
             </button>
@@ -379,12 +379,12 @@ export default function WhatsAppOrderBot() {
                   if (e.key === "Enter") void submitTrxId();
                 }}
                 placeholder="Paste your bKash Transaction ID (10–12 digits)"
-                className="flex-1 rounded-full border border-edge bg-surface-soft px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted/60 outline-none focus:border-wa/60"
+                className="flex-1 rounded-full border border-edge bg-surface-soft px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted/60 outline-none focus:border-accent/60"
               />
               <button
                 type="button"
                 onClick={() => void submitTrxId()}
-                className="rounded-full bg-wa px-5 py-2.5 text-sm font-semibold text-wa-ink hover:bg-wa-strong"
+                className="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-strong"
               >
                 Verify
               </button>

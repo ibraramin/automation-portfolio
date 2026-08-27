@@ -237,11 +237,11 @@ export default function InvoiceReader() {
               key={s.id}
               type="button"
               onClick={() => pickSample(s)}
-              className="rounded-xl border border-edge bg-surface-soft p-4 text-left transition-colors hover:border-wa/50"
+              className="rounded-xl border border-edge bg-surface-soft p-4 text-left transition-colors hover:border-accent/50"
             >
               <span className="block text-xs font-medium text-muted">Sample invoice</span>
               <span className="mt-1 block text-sm font-semibold text-ink">{s.label}</span>
-              <span className="mt-2 inline-block rounded-full bg-wa/10 px-2 py-0.5 text-[10px] font-medium text-wa">
+              <span className="mt-2 inline-block rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent">
                 ground truth, instant
               </span>
             </button>
@@ -249,7 +249,7 @@ export default function InvoiceReader() {
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="flex flex-col items-start justify-center rounded-xl border border-dashed border-edge-strong bg-surface-soft p-4 text-left transition-colors hover:border-wa/60"
+            className="flex flex-col items-start justify-center rounded-xl border border-dashed border-edge-strong bg-surface-soft p-4 text-left transition-colors hover:border-accent/60"
           >
             <span className="block text-xs font-medium text-muted">Upload your own</span>
             <span className="mt-1 block text-sm font-semibold text-ink">
@@ -261,7 +261,7 @@ export default function InvoiceReader() {
         </div>
         {ocrStatus === "reading" && (
           <div className="mt-4 flex items-center gap-2 rounded-xl border border-edge bg-surface-soft px-4 py-3">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-edge-strong border-t-wa" />
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-edge-strong border-t-accent" />
             <p className="text-sm text-ink/90">AI reading your document…</p>
           </div>
         )}
@@ -279,12 +279,12 @@ export default function InvoiceReader() {
             onChange={(e) => setPastedText(e.target.value)}
             rows={4}
             placeholder={"Acme Supplies GmbH\nInvoice 2026-0142\nDate: 12.03.2026\n1x Ergo chair 160.00\nTotal: 1485.12 EUR incl. VAT 19%"}
-            className="mt-3 w-full rounded-xl border border-edge bg-surface-soft p-3 font-mono text-xs text-ink placeholder:text-muted/60 outline-none focus:border-wa/60"
+            className="mt-3 w-full rounded-xl border border-edge bg-surface-soft p-3 font-mono text-xs text-ink placeholder:text-muted/60 outline-none focus:border-accent/60"
           />
           <button
             type="button"
             onClick={submitPasted}
-            className="mt-3 rounded-full bg-wa px-5 py-2 text-sm font-semibold text-wa-ink hover:bg-wa-strong"
+            className="mt-3 rounded-full bg-accent px-5 py-2 text-sm font-semibold text-white hover:bg-accent-strong"
           >
             Extract from pasted text
           </button>
@@ -328,7 +328,7 @@ export default function InvoiceReader() {
                   <div className="mt-2 flex items-center gap-2">
                     <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-edge">
                       <div
-                        className="h-full rounded-full bg-wa"
+                        className="h-full rounded-full bg-accent"
                         style={{ width: `${conf}%` }}
                       />
                     </div>
@@ -365,7 +365,7 @@ export default function InvoiceReader() {
           <button
             type="button"
             onClick={logToLedger}
-            className="mt-4 rounded-full bg-wa px-5 py-2.5 text-sm font-semibold text-wa-ink hover:bg-wa-strong"
+            className="mt-4 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-strong"
           >
             {logged ? "Logged to ledger ✓" : "Log to ledger"}
           </button>

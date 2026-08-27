@@ -14,8 +14,8 @@ export const metadata: Metadata = {
 };
 
 function ServiceBlock({ service, index }: { service: Service; index: number }) {
-  const isWa = service.accent === "wa";
-  const tint = isWa ? "border-wa/25 bg-wa/10 text-wa" : "border-sky/25 bg-sky/10 text-sky";
+  const isWa = service.accent === "accent";
+  const tint = isWa ? "border-accent/25 bg-accent/10 text-accent" : "border-sky/25 bg-sky/10 text-sky";
   return (
     <article
       id={service.id}
@@ -84,12 +84,12 @@ export default function ServicesPage() {
       <main>
         <section className="relative overflow-hidden">
           <div
-            className="pointer-events-none absolute inset-0 bg-grid opacity-50 mask-fade-b"
+            className="pointer-events-none absolute inset-0 bg-grid opacity-[0.4] mask-fade-b"
             aria-hidden="true"
           />
           <div className="relative container-site pt-20 pb-14 md:pt-28 md:pb-20">
-            <p className="flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-wa">
-              <span className="h-1 w-1 rounded-full bg-wa" aria-hidden="true" />
+            <p className="flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-accent">
+              <span className="h-1 w-1 rounded-full bg-accent" aria-hidden="true" />
               Services
             </p>
             <h1 className="mt-4 max-w-2xl text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-5xl xl:text-6xl">
@@ -97,7 +97,9 @@ export default function ServicesPage() {
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
               Six workflows cover most of the repetitive work in a small business. Every build
-              starts with a free audit, so you only pay for what moves the needle.
+              starts with a free audit, so you only pay for what moves the needle. Chat with RAG
+              inference + bookings/reminders + FB comment → DM — for SMBs that already have
+              customers, not lead-hunting. Automate the tedious parts.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button href="/contact">

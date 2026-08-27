@@ -130,7 +130,7 @@ export default function LeadResponse() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
-              className="w-full rounded-xl border border-edge bg-surface-soft p-3 text-sm text-ink placeholder:text-muted/60 outline-none focus:border-wa/60"
+              className="w-full rounded-xl border border-edge bg-surface-soft p-3 text-sm text-ink placeholder:text-muted/60 outline-none focus:border-accent/60"
             />
           </div>
           <div>
@@ -138,7 +138,7 @@ export default function LeadResponse() {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-edge bg-surface-soft px-3 py-2 text-sm text-ink outline-none focus:border-wa/60"
+              className="w-full rounded-xl border border-edge bg-surface-soft px-3 py-2 text-sm text-ink outline-none focus:border-accent/60"
             />
           </div>
           <div>
@@ -146,7 +146,7 @@ export default function LeadResponse() {
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-edge bg-surface-soft px-3 py-2 text-sm text-ink outline-none focus:border-wa/60"
+              className="w-full rounded-xl border border-edge bg-surface-soft px-3 py-2 text-sm text-ink outline-none focus:border-accent/60"
             />
           </div>
         </div>
@@ -154,7 +154,7 @@ export default function LeadResponse() {
           <button
             type="submit"
             disabled={running}
-            className="rounded-full bg-wa px-5 py-2.5 text-sm font-semibold text-wa-ink hover:bg-wa-strong disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50"
           >
             {running ? "Running…" : "Run the response flow →"}
           </button>
@@ -185,13 +185,13 @@ export default function LeadResponse() {
               {steps.map((step, i) => (
                 <li key={step.id} className="flex gap-3">
                   <div className="flex flex-col items-center">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-wa text-xs font-bold text-wa-ink">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-xs font-bold text-white">
                       ✓
                     </span>
                     {i < steps.length - 1 && <span className="mt-1 w-px flex-1 bg-edge" />}
                   </div>
                   <div className="pb-1">
-                    <p className="font-mono text-[11px] text-wa">{step.time}</p>
+                    <p className="font-mono text-[11px] text-accent">{step.time}</p>
                     <p className="text-sm font-medium text-ink">{step.title}</p>
                     <p className="mt-0.5 text-xs text-muted">{step.detail}</p>
                   </div>
@@ -199,7 +199,7 @@ export default function LeadResponse() {
               ))}
               {running && (
                 <li className="flex items-center gap-3">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-edge-strong border-t-wa" />
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-edge-strong border-t-accent" />
                   <span className="text-sm text-muted">Processing…</span>
                 </li>
               )}
@@ -214,7 +214,7 @@ export default function LeadResponse() {
           </p>
           {signals ? (
             <div className="mt-3 flex flex-wrap gap-2">
-              <span className="rounded-full border border-wa/40 bg-wa/10 px-3 py-1 text-xs font-medium text-wa">
+              <span className="rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
                 ⚡ urgency: {signals.urgency}
               </span>
               <span className="rounded-full border border-edge bg-surface-soft px-3 py-1 text-xs font-medium text-ink/90">

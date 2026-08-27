@@ -26,16 +26,16 @@ export default function ContactPage() {
       <main>
         <section className="relative overflow-hidden">
           <div
-            className="pointer-events-none absolute inset-0 bg-grid opacity-50 mask-fade-b"
+            className="pointer-events-none absolute inset-0 bg-grid opacity-[0.4] mask-fade-b"
             aria-hidden="true"
           />
           <div
-            className="pointer-events-none absolute -top-24 right-0 h-80 w-80 rounded-full bg-wa/10 blur-[120px]"
+            className="pointer-events-none absolute -top-24 right-0 h-80 w-80 rounded-full bg-accent/10 blur-[120px]"
             aria-hidden="true"
           />
           <Reveal className="relative container-site pt-20 pb-16 md:pt-28">
-            <p className="flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-wa">
-              <span className="h-1 w-1 rounded-full bg-wa" aria-hidden="true" />
+            <p className="flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-accent">
+              <span className="h-1 w-1 rounded-full bg-accent" aria-hidden="true" />
               Free audit
             </p>
             <h1 className="mt-4 max-w-2xl text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-5xl xl:text-6xl">
@@ -68,7 +68,7 @@ export default function ContactPage() {
                       key={point}
                       className="flex items-start gap-3 text-sm leading-relaxed text-ink/90"
                     >
-                      <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-wa/15 text-wa">
+                      <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-accent/15 text-accent">
                         <Icon name="check" className="h-3 w-3" />
                       </span>
                       {point}
@@ -89,7 +89,7 @@ export default function ContactPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Icon name="whatsapp" className="h-4 w-4 text-wa" />
+                    <Icon name="whatsapp" className="h-4 w-4 text-accent" />
                     {SITE.whatsappLabel}
                   </Button>
                   <Button href={`mailto:${SITE.email}`} variant="secondary" className="w-full">

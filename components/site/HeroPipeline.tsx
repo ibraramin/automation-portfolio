@@ -14,17 +14,17 @@ import Icon, { type IconName } from "./icons";
  */
 
 const PROBLEMS = [
-  "Invoices eating your week?",
-  "Missed calls after hours?",
-  "Leads left on read?",
-  "Orders lost to slow replies?",
+  "Missed WhatsApp?",
+  "Manual Khata?",
+  "Late Reply?",
+  "Sale Lost?",
 ];
 
 const STAGES: { icon: IconName; title: string; note: string }[] = [
-  { icon: "message", title: "Order arrives", note: "Customer messages at any hour" },
-  { icon: "zap", title: "AI captures it", note: "Product, size, address extracted" },
-  { icon: "card", title: "Payment verified", note: "Confirmed in seconds" },
-  { icon: "send", title: "Delivered + tracked", note: "Courier booked, customer updated" },
+  { icon: "message", title: "Auto-Reply (RAG)", note: "Answers in seconds" },
+  { icon: "database", title: "Sheet Logged", note: "Order saved, no retype" },
+  { icon: "phone", title: "Owner Alert", note: "Hot lead pings you" },
+  { icon: "check", title: "Sale Saved", note: "Courier booked, done" },
 ];
 
 const ROTATING_METRICS = [
@@ -37,7 +37,7 @@ const ROTATING_METRICS = [
 const STAGE_MS = 2000; // time per stage, including the "all done" beat
 const FILL_MS = STAGE_MS - 200; // connector + dot travel time, synced to the tick
 const METRIC_MS = 3600; // rotate the status line
-const START_ORDERS = 100;
+const START_ORDERS = 1;
 const STAGE_COUNT = STAGES.length;
 const DONE_POS = STAGE_COUNT; // pos value meaning "all stages complete"
 
@@ -128,7 +128,7 @@ export default function HeroPipeline() {
       const next = (posRef.current + 1) % (DONE_POS + 1);
       posRef.current = next;
       setPos(next);
-      if (next === 0) setOrders((o) => o + 1);
+      if (next === 0) setOrders((o) => (o >= 47 ? 47 : o + 1));
     };
 
     const schedule = () => {
@@ -213,13 +213,13 @@ export default function HeroPipeline() {
   return (
     <div className="animate-fade-up relative" style={{ animationDelay: "200ms" }}>
       <div
-        className="absolute -inset-6 rounded-[2rem] bg-linear-to-br from-wa/10 via-transparent to-sky/10 blur-2xl"
+        className="absolute -inset-6 rounded-[2rem] bg-linear-to-br from-accent/10 via-transparent to-sky/10 blur-2xl"
         aria-hidden="true"
       />
       <div className="relative rounded-2xl border border-edge bg-surface/95 p-5 shadow-[0_24px_80px_-32px_rgba(0,0,0,0.9)] sm:p-6">
         <div className="flex items-center justify-between gap-3">
           <p className="flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-muted">
-            <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-wa" aria-hidden="true" />
+            <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-accent" aria-hidden="true" />
             Automation pipeline
           </p>
           <span className="rounded-md border border-edge bg-surface-soft px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-muted">
@@ -239,7 +239,7 @@ export default function HeroPipeline() {
           ) : (
             <span className="truncate text-sm font-medium text-ink">{typed}</span>
           )}
-          <span className="h-4 w-[2px] shrink-0 animate-caret bg-wa" />
+          <span className="h-4 w-[2px] shrink-0 animate-caret bg-accent" />
         </div>
 
         {/* Looping pipeline stepper */}
@@ -254,7 +254,7 @@ export default function HeroPipeline() {
                 return (
                   <div key={i} className="h-full flex-1 overflow-hidden">
                     <div
-                      className="fill-fade h-full w-full origin-left bg-linear-to-r from-wa to-sky [will-change:transform]"
+                      className="fill-fade h-full w-full origin-left bg-linear-to-r from-accent to-sky [will-change:transform]"
                       style={s}
                     />
                   </div>
@@ -265,7 +265,7 @@ export default function HeroPipeline() {
           {/* traveling order dot (hidden under reduced motion) */}
           {!reduced ? (
             <span
-              className="absolute top-[13px] z-10 h-3.5 w-3.5 rounded-full bg-wa shadow-[0_0_14px_rgba(37,211,102,0.7)] [will-change:transform]"
+              className="absolute top-[13px] z-10 h-3.5 w-3.5 rounded-full bg-accent shadow-[0_0_14px_rgba(14,116,144,0.5)] [will-change:transform]"
               style={{
                 transform: `translateX(calc(28px + (100cqw - 56px) * ${dotPct} - 7px))`,
                 transition: dotTransition,
@@ -284,16 +284,16 @@ export default function HeroPipeline() {
                 <span
                   className={`grid h-9 w-9 place-items-center rounded-full border transition-colors duration-300 ${
                     state === "done"
-                      ? "border-wa bg-wa text-wa-ink"
+                      ? "border-accent bg-accent text-white"
                       : state === "active"
-                        ? "border-wa/60 bg-wa/15 text-wa"
+                        ? "border-accent/60 bg-accent/15 text-accent"
                         : "border-edge bg-surface text-muted"
                   }`}
                 >
                   {state === "done" ? (
                     <Icon name="check" className="h-4 w-4" />
                   ) : state === "active" ? (
-                    <span className="h-2.5 w-2.5 animate-pulse-dot rounded-full bg-wa" />
+                    <span className="h-2.5 w-2.5 animate-pulse-dot rounded-full bg-accent" />
                   ) : (
                     <Icon name={stage.icon} className="h-4 w-4" />
                   )}
@@ -307,7 +307,7 @@ export default function HeroPipeline() {
                 </p>
                 <p
                   className={`font-mono text-[9px] uppercase tracking-wider ${
-                    state === "done" || state === "active" ? "text-wa" : "text-muted/70"
+                    state === "done" || state === "active" ? "text-accent" : "text-muted/70"
                   }`}
                 >
                   {state === "done" ? "Done" : state === "active" ? "Running" : "Queued"}
@@ -319,7 +319,7 @@ export default function HeroPipeline() {
 
         {/* Active stage note, fixed height, no layout shift */}
         <div className="mt-3 flex h-5 items-center justify-center gap-2" aria-hidden="true">
-          <span className="h-1.5 w-1.5 shrink-0 animate-pulse-dot rounded-full bg-wa" />
+          <span className="h-1.5 w-1.5 shrink-0 animate-pulse-dot rounded-full bg-accent" />
           <p key={activeNote} className="animate-fade-in truncate text-xs text-muted">
             {activeNote}
           </p>
